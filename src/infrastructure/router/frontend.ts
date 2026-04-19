@@ -30,6 +30,18 @@ const frontendRoutes: RouteRecordRaw[] = [
         meta: { title: '首页' },
       },
       {
+        path: 'experienced',
+        name: 'experienced',
+        component: () => import('@/features/job/pages/JobListPage.vue'),
+        meta: { title: '社会招聘' },
+      },
+      {
+        path: 'campus',
+        name: 'campus',
+        component: () => import('@/features/job/pages/JobListPage.vue'),
+        meta: { title: '校园招聘' },
+      },
+      {
         path: 'detail',
         name: 'detail',
         component: () => import('@/features/job/pages/JobDetailPage.vue'),

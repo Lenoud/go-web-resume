@@ -1,16 +1,29 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { jobJobList, jobJobCategoryList } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import JobCard from '../components/JobCard.vue'
 
+const route = useRoute()
 const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
 const category = ref('')
 const activeSort = ref(0)
 const heroKeyword = ref('')
+
+// 根据路由决定招聘类型
+const recruitType = computed(() => {
+  const name = route.name as string
+  if (name === 'campus') return 'campus'
+  if (name === 'experienced') return 'experienced'
+  return '' // 首页：全部
+})
+
+// 是否显示 Hero（仅首页）
+const showHero = computed(() => route.name === 'home')
 
 const sortTabs = ['最新发布', '最热岗位', '推荐岗位']
 
@@ -25,15 +38,17 @@ const categoryQuery = useQuery({
 
 // 职位列表
 const listQuery = useQuery({
-  queryKey: computed(() => ['jobList', { page: page.value, pageSize: pageSize.value, keyword: keyword.value, category: category.value, sort: activeSort.value }]),
+  queryKey: computed(() => ['jobList', { page: page.value, pageSize: pageSize.value, keyword: keyword.value, category: category.value, sort: activeSort.value, recruitType: recruitType.value }]),
   queryFn: async () => {
+    const params: Record<string, unknown> = {
+      page: page.value,
+      pageSize: pageSize.value,
+      keyword: keyword.value || undefined,
+      category: category.value || undefined,
+    }
+    if (recruitType.value) params.recruitType = recruitType.value
     const result = await jobJobList({
-      query: {
-        page: page.value,
-        pageSize: pageSize.value,
-        keyword: keyword.value || undefined,
-        category: category.value || undefined,
-      } as Record<string, unknown>,
+      query: params,
     })
     const resp = result.data
     if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
@@ -73,8 +88,8 @@ function selectSort(index: number) {
 
 <template>
   <div>
-    <!-- Hero Section -->
-    <section class="relative min-h-[520px] flex items-center justify-center overflow-hidden" style="background: linear-gradient(160deg, #0f1b3d 0%, #1a2f6b 40%, #2a4a9e 70%, #3b6bc7 100%)">
+    <!-- Hero Section（仅首页显示） -->
+    <section v-if="showHero" class="relative min-h-[520px] flex items-center justify-center overflow-hidden" style="background: linear-gradient(160deg, #0f1b3d 0%, #1a2f6b 40%, #2a4a9e 70%, #3b6bc7 100%)">
       <div class="absolute inset-0" style="
         background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
         background-size: 60px 60px;
@@ -110,6 +125,12 @@ function selectSort(index: number) {
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- 社招/校招 Banner -->
+    <section v-if="!showHero" class="mt-14 py-12 text-center text-white" style="background: linear-gradient(160deg, #0f1b3d 0%, #1a2f6b 40%, #2a4a9e 70%, #3b6bc7 100%)">
+      <h1 class="text-3xl font-bold m-0 mb-2">{{ recruitType === 'campus' ? '校园招聘' : '社会招聘' }}</h1>
+      <p class="text-white/60 text-sm m-0">{{ recruitType === 'campus' ? '面向应届毕业生与实习生，开启职业生涯' : '面向有工作经验的候选人，欢迎各路人才加入' }}</p>
     </section>
 
     <!-- 职位列表区域 -->

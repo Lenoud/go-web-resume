@@ -12,17 +12,23 @@ const auth = useAuthStore()
 const currentTab = computed(() => {
   const path = route.path
   if (path.startsWith('/index/usercenter')) return ''
+  if (path === '/index/experienced') return 'experienced'
+  if (path === '/index/campus') return 'campus'
   if (path.startsWith('/index/detail')) return 'home'
   if (path === '/index/home' || path === '/index' || path === '/') return 'home'
   return ''
 })
 
 const navTabs = [
-  { key: 'home', label: '首页', path: '/index/home' },
+  { key: 'home', label: '首页' },
+  { key: 'experienced', label: '社招' },
+  { key: 'campus', label: '校招' },
 ]
 
 function handleNav(key: string) {
   if (key === 'home') router.push('/index/home')
+  else if (key === 'experienced') router.push('/index/experienced')
+  else if (key === 'campus') router.push('/index/campus')
 }
 
 function goUserCenter(menuName: string) {
