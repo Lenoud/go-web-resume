@@ -62,6 +62,12 @@ const adminRoutes: RouteRecordRaw[] = [
         meta: { title: 'Offer管理' },
       },
       {
+        path: 'post',
+        name: 'adminPost',
+        component: () => import('@/features/post/pages/PostAdminPage.vue'),
+        meta: { title: '投递管理' },
+      },
+      {
         path: 'opLog',
         name: 'adminOpLog',
         component: () => import('@/features/oplog/pages/OpLogAdminPage.vue'),
