@@ -214,7 +214,7 @@ const sourceOptions = [
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">出生日期 <span class="text-accent">*</span></label>
-              <a-input v-model:value="base.birthday" placeholder="如: 1990-01-01" />
+              <a-date-picker v-model:value="base.birthday" value-format="YYYY-MM-DD" placeholder="选择出生日期" class="w-full" />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">手机号 <span class="text-accent">*</span></label>
@@ -248,9 +248,9 @@ const sourceOptions = [
                 <a-input v-model:value="edu.school" placeholder="学校" class="w-[160px]" />
                 <a-input v-model:value="edu.degree" placeholder="学历" class="w-[100px]" />
                 <a-input v-model:value="edu.major" placeholder="专业" class="w-[120px]" />
-                <a-input v-model:value="edu.start" placeholder="开始(YYYY-MM)" class="w-[120px]" />
+                <a-date-picker v-model:value="edu.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[120px]" />
                 <span class="text-text-muted text-sm">至</span>
-                <a-input v-model:value="edu.end" placeholder="结束(YYYY-MM)" class="w-[120px]" />
+                <a-date-picker v-model:value="edu.end" picker="month" value-format="YYYY-MM" placeholder="结束" class="w-[120px]" />
                 <span class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600" @click="eduList.splice(i, 1)">删除</span>
               </div>
             </div>
@@ -267,9 +267,9 @@ const sourceOptions = [
               <div class="flex flex-wrap gap-2 items-center">
                 <a-input v-model:value="exp.company" placeholder="公司名称" class="w-[160px]" />
                 <a-input v-model:value="exp.position" placeholder="职位" class="w-[120px]" />
-                <a-input v-model:value="exp.start" placeholder="开始(YYYY-MM)" class="w-[120px]" />
+                <a-date-picker v-model:value="exp.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[120px]" />
                 <span class="text-text-muted text-sm">至</span>
-                <a-input v-model:value="exp.end" placeholder="结束(YYYY-MM)" class="w-[120px]" />
+                <a-date-picker v-model:value="exp.end" picker="month" value-format="YYYY-MM" placeholder="结束" class="w-[120px]" />
                 <span class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600" @click="expList.splice(i, 1)">删除</span>
               </div>
             </div>
