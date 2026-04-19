@@ -23,27 +23,27 @@ function isActive(key: string) {
 }
 
 const menuGroups = computed(() => {
-  const groups: { title: string; items: { key: string; label: string }[] }[] = []
+  const groups: { title: string; items: { key: string; label: string; icon: string }[] }[] = []
 
   if (auth.currentUserRole === ROLE.HR) {
     groups.push({
       title: '招聘中心',
       items: [
-        { key: 'myJobView', label: '岗位管理' },
-        { key: 'companyPostView', label: '投递管理' },
-        { key: 'resumeManagementView', label: '简历快照管理' },
-        { key: 'offerView', label: 'Offer管理' },
-        { key: 'talentPoolView', label: '人才库' },
+        { key: 'myJobView', label: '岗位管理', icon: 'briefcase' },
+        { key: 'companyPostView', label: '投递管理', icon: 'inbox' },
+        { key: 'resumeManagementView', label: '简历快照管理', icon: 'file-text' },
+        { key: 'offerView', label: 'Offer管理', icon: 'gift' },
+        { key: 'talentPoolView', label: '人才库', icon: 'users' },
       ],
     })
   } else {
     groups.push({
       title: '求职中心',
       items: [
-        { key: 'resumeEditView', label: '我的简历' },
-        { key: 'myPostView', label: '应聘记录' },
-        { key: 'myInterviewView', label: '面试通知' },
-        { key: 'myOfferView', label: '我的Offer' },
+        { key: 'resumeEditView', label: '我的简历', icon: 'file-text' },
+        { key: 'myPostView', label: '应聘记录', icon: 'send' },
+        { key: 'myInterviewView', label: '面试通知', icon: 'message-square' },
+        { key: 'myOfferView', label: '我的Offer', icon: 'gift' },
       ],
     })
   }
@@ -51,19 +51,32 @@ const menuGroups = computed(() => {
   groups.push({
     title: '个人设置',
     items: [
-      { key: 'userInfoEditView', label: '编辑资料' },
-      { key: 'securityView', label: '账号安全' },
+      { key: 'userInfoEditView', label: '编辑资料', icon: 'user' },
+      { key: 'securityView', label: '账号安全', icon: 'shield' },
     ],
   })
 
   return groups
 })
+
+const iconPaths: Record<string, string> = {
+  briefcase: 'M2 7a2 2 0 012-2h6l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V7z',
+  inbox: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 12h-6l-2 3h-4l-2-3H2',
+  'file-text': 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
+  gift: 'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 110-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 100-5C13 2 12 7 12 7z',
+  users: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 11a4 4 0 100-8 4 4 0 000 8z M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75',
+  send: 'M22 2L11 13 M22 2l-7 20-4-9-9-4 20-7z',
+  'message-square': 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
+  user: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z',
+  shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+}
 </script>
 
 <template>
   <div class="max-w-[1200px] mx-auto py-[72px] px-6 flex gap-5 items-start">
-    <!-- 左侧个人信息卡 -->
-    <div class="w-[240px] shrink-0 border border-border-light bg-white">
+    <!-- Left sidebar -->
+    <div class="w-[240px] shrink-0 bg-white rounded-xl border border-border-light overflow-hidden">
+      <!-- User card -->
       <div class="flex items-center p-4 pb-0">
         <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-lg font-bold mr-4 shrink-0">
           {{ (auth.username || '?')[0]!.toUpperCase() }}
@@ -78,24 +91,39 @@ const menuGroups = computed(() => {
         </div>
       </div>
 
-      <div class="border-t border-border-light mt-4" v-for="group in menuGroups" :key="group.title">
-        <div class="px-4 pt-4 pb-2">
+      <!-- Menu groups -->
+      <div v-for="group in menuGroups" :key="group.title" class="border-t border-border-light mt-4">
+        <div class="px-5 pt-4 pb-2">
           <div class="text-sm font-semibold text-text-primary">{{ group.title }}</div>
         </div>
-        <div class="px-4 pb-2">
+        <div class="px-3 pb-3">
           <div
             v-for="item in group.items" :key="item.key"
-            class="border-t border-dashed border-border-light flex items-center h-12 cursor-pointer hover:text-primary transition-colors"
-            :class="isActive(item.key) ? 'text-primary font-medium' : 'text-text-primary'"
+            class="relative flex items-center h-11 px-3 rounded-lg cursor-pointer transition-colors text-sm"
+            :class="isActive(item.key)
+              ? 'bg-primary-light text-primary font-medium'
+              : 'text-text-primary hover:bg-bg-hover hover:text-primary'"
             @click="goMenu(item.key)"
           >
-            <span class="text-sm">{{ item.label }}</span>
+            <!-- Active indicator bar -->
+            <div
+              v-if="isActive(item.key)"
+              class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r"
+            />
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="mr-2.5 shrink-0 opacity-60"
+            >
+              <path v-if="iconPaths[item.icon]" :d="iconPaths[item.icon]" />
+            </svg>
+            <span>{{ item.label }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 右侧内容区 -->
+    <!-- Right content -->
     <div class="flex-1 min-w-0">
       <router-view />
     </div>

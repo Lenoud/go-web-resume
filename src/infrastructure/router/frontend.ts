@@ -94,7 +94,7 @@ const frontendRoutes: RouteRecordRaw[] = [
           {
             path: 'myInterviewView',
             name: 'myInterviewView',
-            component: () => import('@/features/post/pages/MyPostPage.vue'),
+            component: () => import('@/features/interview/pages/MyInterviewPage.vue'),
             meta: { roles: ['1'], title: '我的面试' },
           },
           {
