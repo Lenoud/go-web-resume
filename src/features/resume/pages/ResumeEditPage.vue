@@ -90,9 +90,9 @@ watch(detail, (data) => {
     coverPreview.value = `/api/staticfiles/resume/${data.cover}`
   }
 
-  // 解析 JSON 字符串
-  tryParse(data.experience, expList)
-  tryParse(data.eduDetail, eduList)
+  // 解析 JSON 字符串（拆分 duration → start/end）
+  parseExperience(data.experience)
+  parseEdu(data.eduDetail)
   tryParse(data.projects, projList)
 
   ext.summary = data.summary ?? ''
@@ -108,6 +108,46 @@ function tryParse<T>(jsonStr: string | undefined, target: T[]) {
   try {
     const arr = JSON.parse(jsonStr)
     if (Array.isArray(arr)) target.push(...arr)
+  } catch { /* ignore */ }
+}
+
+function splitDuration(duration: string) {
+  const match = duration.match(/^(\d{4}-\d{1,2})-(\d{4}-\d{1,2})$/)
+  if (match) return { start: match[1], end: match[2] }
+  return { start: duration, end: '' }
+}
+
+function parseExperience(jsonStr: string | undefined) {
+  expList.length = 0
+  if (!jsonStr) return
+  try {
+    const arr = JSON.parse(jsonStr)
+    if (!Array.isArray(arr)) return
+    for (const item of arr) {
+      if (item.duration && !item.start) {
+        const { start, end } = splitDuration(item.duration)
+        item.start = start
+        item.end = end
+      }
+      expList.push(item)
+    }
+  } catch { /* ignore */ }
+}
+
+function parseEdu(jsonStr: string | undefined) {
+  eduList.length = 0
+  if (!jsonStr) return
+  try {
+    const arr = JSON.parse(jsonStr)
+    if (!Array.isArray(arr)) return
+    for (const item of arr) {
+      if (item.duration && !item.start) {
+        const { start, end } = splitDuration(item.duration)
+        item.start = start
+        item.end = end
+      }
+      eduList.push(item)
+    }
   } catch { /* ignore */ }
 }
 
