@@ -47,9 +47,10 @@ export function useCrudTable<T extends { id?: string }>(options: {
   })
 
   // ── 创建 ──
-  const createMutation = options.createFn
+  const createFn = options.createFn
+  const createMutation = createFn
     ? useMutation({
-        mutationFn: (body: Record<string, unknown>) => options.createFn!(body),
+        mutationFn: (body: Record<string, unknown>) => createFn(body),
         onSuccess: (result) => {
           const resp = result.data
           if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
@@ -64,9 +65,10 @@ export function useCrudTable<T extends { id?: string }>(options: {
     : undefined
 
   // ── 更新 ──
-  const updateMutation = options.updateFn
+  const updateFn = options.updateFn
+  const updateMutation = updateFn
     ? useMutation({
-        mutationFn: (body: Record<string, unknown>) => options.updateFn!(body),
+        mutationFn: (body: Record<string, unknown>) => updateFn(body),
         onSuccess: (result) => {
           const resp = result.data
           if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
@@ -81,9 +83,10 @@ export function useCrudTable<T extends { id?: string }>(options: {
     : undefined
 
   // ── 删除 ──
-  const deleteMutation = options.deleteFn
+  const deleteFn = options.deleteFn
+  const deleteMutation = deleteFn
     ? useMutation({
-        mutationFn: (ids: string) => options.deleteFn!(ids),
+        mutationFn: (ids: string) => deleteFn(ids),
         onSuccess: (result) => {
           const resp = result.data
           if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {

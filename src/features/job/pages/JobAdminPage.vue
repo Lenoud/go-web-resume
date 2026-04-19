@@ -24,7 +24,7 @@ function openCreate() {
   modalVisible.value = true
 }
 
-function openEdit(record: any) {
+function openEdit(record: unknown) {
   const item = record as JobItem
   modalTitle.value = '编辑职位'
   editingItem.value = item

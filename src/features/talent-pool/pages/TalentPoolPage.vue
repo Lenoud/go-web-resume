@@ -28,7 +28,7 @@ function openCreate() {
   modalVisible.value = true
 }
 
-function openEdit(record: any) {
+function openEdit(record: unknown) {
   const item = record as TalentPoolItem
   modalTitle.value = '编辑人才'
   editingItem.value = item

@@ -50,7 +50,7 @@ function openCreate() {
   modalVisible.value = true
 }
 
-function openEdit(record: any) {
+function openEdit(record: unknown) {
   const item = record as UserItem
   modalTitle.value = '编辑用户'
   editingItem.value = item
