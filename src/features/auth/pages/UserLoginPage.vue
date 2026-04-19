@@ -24,7 +24,7 @@ function handleSubmit() {
         用户登录
       </h1>
 
-      <a-form :label-col="{ span: 0 }" @finish="handleSubmit">
+      <a-form :model="formState" :label-col="{ span: 0 }" @finish="handleSubmit">
         <a-form-item name="username" :rules="[{ required: true, message: '请输入用户名/邮箱' }]">
           <a-input
             v-model:value="formState.username"
