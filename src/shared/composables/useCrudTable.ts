@@ -98,14 +98,14 @@ export function useCrudTable<T extends { id?: string }>(options: {
     : undefined
 
   // ── 批量删除 ──
-  const selectedRowKeys = ref<string[]>([])
+  const selectedRowKeys = ref<(string | number)[]>([])
 
   function batchDelete() {
     if (selectedRowKeys.value.length === 0) {
       message.warning('请先选择要删除的项')
       return
     }
-    deleteMutation?.mutate(selectedRowKeys.value.join(','))
+    deleteMutation?.mutate(selectedRowKeys.value.map(String).join(','))
     selectedRowKeys.value = []
   }
 

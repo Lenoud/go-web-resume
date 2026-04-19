@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  LogoutOutlined,
+  DatabaseOutlined,
+  UserOutlined,
+  LayoutOutlined,
+  DollarOutlined,
+  AppstoreOutlined,
+  FolderOutlined,
+  EyeOutlined,
 } from '@ant-design/icons-vue'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { useAppStore } from '@/infrastructure/store/app'
@@ -21,15 +27,22 @@ const selectedKeys = computed(() => {
 })
 
 const menuItems = [
-  { key: 'job', label: '职位管理' },
-  { key: 'resume', label: '简历管理' },
-  { key: 'resumeSnapshot', label: '简历快照' },
-  { key: 'talentPool', label: '人才库' },
-  { key: 'company', label: '公司管理' },
-  { key: 'user', label: '用户管理' },
-  { key: 'department', label: '部门管理' },
-  { key: 'offer', label: 'Offer管理' },
-  { key: 'opLog', label: '操作日志' },
+  { key: 'job', icon: () => h(DatabaseOutlined), label: '岗位管理' },
+  { key: 'resume', icon: () => h(DatabaseOutlined), label: '简历管理' },
+  { key: 'resumeSnapshot', icon: () => h(DatabaseOutlined), label: '简历快照' },
+  { key: 'talentPool', icon: () => h(UserOutlined), label: '人才库' },
+  { key: 'company', icon: () => h(DatabaseOutlined), label: '公司管理' },
+  { key: 'user', icon: () => h(UserOutlined), label: '用户管理' },
+  { key: 'department', icon: () => h(LayoutOutlined), label: '部门管理' },
+  { key: 'offer', icon: () => h(DollarOutlined), label: 'Offer管理' },
+  {
+    key: 'logGroup',
+    icon: () => h(FolderOutlined),
+    label: '日志管理',
+    children: [
+      { key: 'opLog', icon: () => h(AppstoreOutlined), label: '操作/登录日志' },
+    ],
+  },
 ]
 
 function handleMenuClick({ key }: { key: string | number }) {
@@ -40,45 +53,55 @@ function handleLogout() {
   auth.logout(true)
   router.push('/admin/login')
 }
+
+function handlePreview() {
+  const resolved = router.resolve({ path: '/index/home' })
+  window.open(resolved.href, '_blank')
+}
 </script>
 
 <template>
   <a-layout class="min-h-screen">
-    <!-- 侧边栏 -->
+    <!-- 暗色侧边栏 -->
     <a-layout-sider
       v-model:collapsed="app.sidebarCollapsed"
       collapsible
       :trigger="null"
-      class="bg-white"
+      width="220"
+      :style="{ background: '#1a1a2e' }"
     >
-      <div class="h-16 flex items-center justify-center border-b border-gray-100">
-        <h1 v-if="!app.sidebarCollapsed" class="text-lg font-bold text-primary m-0">
-          智慧招聘
-        </h1>
-        <h1 v-else class="text-base font-bold text-primary m-0">招聘</h1>
+      <div class="h-16 flex items-center justify-center border-b border-white/10">
+        <h1 v-if="!app.sidebarCollapsed" class="text-lg font-bold text-white m-0">智慧招聘</h1>
+        <h1 v-else class="text-base font-bold text-white m-0">招聘</h1>
       </div>
       <a-menu
         mode="inline"
+        theme="dark"
         :selected-keys="selectedKeys"
         @click="handleMenuClick"
         :items="menuItems"
+        :style="{ background: 'transparent', borderRight: 'none', paddingTop: '16px' }"
+        class="admin-sidebar-menu"
       />
     </a-layout-sider>
 
     <a-layout>
       <!-- 顶栏 -->
-      <a-layout-header class="bg-white px-6 flex items-center justify-between shadow-sm">
-        <component
-          :is="app.sidebarCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined"
-          class="text-xl cursor-pointer"
-          @click="app.toggleSidebar()"
-        />
-        <div class="flex items-center gap-3">
-          <span class="text-gray-600">{{ auth.adminUsername || '管理员' }}</span>
-          <a-button type="text" @click="handleLogout">
-            <template #icon><LogoutOutlined /></template>
-            退出
+      <a-layout-header class="bg-white px-6 flex items-center justify-between shadow-sm h-14 leading-14">
+        <div class="flex items-center gap-4">
+          <component
+            :is="app.sidebarCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined"
+            class="text-xl cursor-pointer text-text-secondary hover:text-primary transition-colors"
+            @click="app.toggleSidebar()"
+          />
+        </div>
+        <div class="flex items-center gap-4 text-sm">
+          <a-button size="small" @click="handlePreview">
+            <template #icon><EyeOutlined /></template>
+            前台预览
           </a-button>
+          <span class="text-text-secondary">管理员[{{ auth.adminUsername || 'admin' }}]</span>
+          <a class="text-text-secondary hover:text-primary cursor-pointer transition-colors" @click="handleLogout">退出</a>
         </div>
       </a-layout-header>
 
@@ -89,3 +112,44 @@ function handleLogout() {
     </a-layout>
   </a-layout>
 </template>
+
+<style scoped>
+/* 暗色侧边栏菜单样式覆盖 */
+:deep(.admin-sidebar-menu .ant-menu-item),
+:deep(.admin-sidebar-menu .ant-menu-submenu-title) {
+  color: #a0aec0;
+  margin: 4px 8px;
+  border-radius: 6px;
+}
+
+:deep(.admin-sidebar-menu .ant-menu-item:hover),
+:deep(.admin-sidebar-menu .ant-menu-submenu-title:hover) {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:deep(.admin-sidebar-menu .ant-menu-item-selected) {
+  color: #ffffff !important;
+  background: rgba(59, 125, 216, 0.15) !important;
+  position: relative;
+}
+
+:deep(.admin-sidebar-menu .ant-menu-item-selected::after) {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: #4684e2;
+}
+
+:deep(.admin-sidebar-menu .ant-menu-sub) {
+  background: transparent !important;
+}
+
+:deep(.admin-sidebar-menu .anticon) {
+  color: inherit;
+}
+</style>

@@ -3,19 +3,48 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 
-/* 自定义设计令牌 */
+/* ===== 设计令牌 — 对齐 web-old/variables.less ===== */
 @theme {
-  --color-primary: #1677ff;
-  --color-primary-hover: #4096ff;
-  --color-success: #52c41a;
-  --color-warning: #faad14;
-  --color-danger: #ff4d4f;
+  /* 主色 */
+  --color-primary: #4684e2;
+  --color-primary-hover: #3570cc;
+  --color-primary-light: #e8f1fb;
+  --color-primary-bg: #f4f8fd;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  /* 强调色 */
+  --color-accent: #f55d4e;
 
-  --breakpoint-xs: 480px;
-  --breakpoint-3xl: 1920px;
+  /* 中性文字 */
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #5a607f;
+  --color-text-muted: #9ca3c4;
+
+  /* 背景 & 边框 */
+  --color-bg-page: #f5f7fa;
+  --color-bg-hover: #f0f4f8;
+  --color-bg-card: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-light: #f0f4f8;
+
+  /* Admin 侧边栏 */
+  --color-sidebar-bg: #1a1a2e;
+  --color-sidebar-text: #a0aec0;
+  --color-sidebar-active: #ffffff;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card-hover: 0 8px 30px rgba(70, 132, 226, 0.12);
+
+  /* 圆角 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* 字体 */
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* 仅保留 AntDV 必需的基础重置 */
@@ -25,4 +54,10 @@
   *::after {
     box-sizing: border-box;
   }
+}
+
+/* ===== 全局覆盖 AntDV 主题色 ===== */
+:root {
+  --ant-color-primary: #4684e2;
+  --ant-color-primary-hover: #3570cc;
 }
