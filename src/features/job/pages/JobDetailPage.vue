@@ -2,16 +2,16 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { jobJobDetail } from '@/client'
-import { queryKeys } from '@/infrastructure/query/query-keys'
-import { EnvironmentOutlined } from '@ant-design/icons-vue'
+import { jobJobDetail, jobJobList } from '@/client'
+import { normalizePaginated } from '@/infrastructure/api/normalize'
+import JobCard from '../components/JobCard.vue'
 
 const route = useRoute()
 const router = useRouter()
 const jobId = computed(() => (route.query.id as string) ?? '')
 
 const detailQuery = useQuery({
-  queryKey: queryKeys.jobs.detail(jobId.value),
+  queryKey: ['jobDetail', jobId],
   queryFn: async () => {
     const result = await jobJobDetail({ query: { id: jobId.value } })
     const resp = result.data
@@ -23,50 +23,84 @@ const detailQuery = useQuery({
   enabled: !!jobId.value,
 })
 
+// 相关岗位
+const recommendQuery = useQuery({
+  queryKey: ['jobRecommend'],
+  queryFn: async () => {
+    const result = await jobJobList({ query: { page: 1, pageSize: 10 } as Record<string, unknown> })
+    const resp = result.data
+    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) return []
+    const paginated = normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; status: number }>(resp.data)
+    return paginated.list.filter(j => String(j.id) !== jobId.value).slice(0, 6)
+  },
+})
+
 const detail = computed(() => detailQuery.data?.value)
 const loading = computed(() => detailQuery.isLoading.value)
+const recommendList = computed(() => recommendQuery.data?.value ?? [])
+
+const statusLabel = (status: number | undefined) => {
+  const map: Record<number, string> = { 0: '草稿', 1: '招聘中', 2: '已关闭', 3: '已删除', 4: '已招满' }
+  return map[status ?? -1] ?? '--'
+}
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="max-w-[1100px] mx-auto px-4 py-[72px]">
     <a-spin :spinning="loading">
       <template v-if="detail">
-        <div class="bg-white rounded-lg p-6 shadow-sm">
-          <h1 class="text-2xl font-bold mb-4">{{ detail.title ?? '-' }}</h1>
+        <div class="flex gap-6 items-start">
+          <!-- 左栏 -->
+          <div class="flex-1 min-w-0">
+            <!-- 基本信息卡片 -->
+            <div class="bg-white border border-border rounded-md p-6 mb-4">
+              <div class="flex items-center gap-2">
+                <h1 class="m-0 text-[28px] font-semibold text-gray-800 leading-[42px]">{{ detail.title ?? '-' }}</h1>
+                <span class="text-xs px-2 py-0.5 rounded-sm shrink-0 border"
+                  :class="detail.status === 1 ? 'text-green-500 bg-green-50/80 border-green-200' : detail.status === 2 ? 'text-red-500 bg-red-50 border-red-200' : 'text-blue-500 bg-blue-50 border-blue-200'"
+                >{{ statusLabel(detail.status) }}</span>
+              </div>
+              <div class="text-accent text-xl font-medium my-2">{{ detail.salaryShow || '--' }}</div>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.recruitType === 'experienced' ? '社招' : detail.recruitType === 'campus' ? '校招' : '--' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.jobNature === 'fulltime' ? '全职' : detail.jobNature === 'parttime' ? '兼职' : detail.jobNature === 'intern' ? '实习' : '--' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.education || '学历不限' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.workExpe || '经验不限' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-primary-light rounded-sm text-primary">{{ detail.location || '--' }}</span>
+              </div>
+              <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-[rgb(100,106,115)]">
+                <span v-if="detail.departmentTitle">部门：{{ detail.departmentTitle }}</span>
+                <span v-if="detail.category">分类：{{ detail.category }}</span>
+                <span v-if="detail.address">地址：{{ detail.address }}</span>
+              </div>
+            </div>
 
-          <div class="flex flex-wrap gap-4 mb-6 text-gray-500">
-            <span class="flex items-center gap-1">
-              <EnvironmentOutlined />
-              {{ detail.location ?? detail.address ?? '-' }}
-            </span>
-            <span class="text-primary font-medium text-lg">
-              {{ detail.salaryShow || (detail.minSalary && detail.maxSalary ? `${detail.minSalary}-${detail.maxSalary}K` : '面议') }}
-            </span>
-            <span v-if="detail.education">学历：{{ detail.education }}</span>
-            <span v-if="detail.workExpe">经验：{{ detail.workExpe }}</span>
+            <!-- 岗位描述 -->
+            <div v-if="detail.description" class="bg-white border border-border rounded-md p-6 mb-4">
+              <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">岗位描述</div>
+              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] whitespace-pre-wrap break-words">{{ detail.description }}</div>
+            </div>
+
+            <!-- 岗位要求 -->
+            <div v-if="detail.requirement" class="bg-white border border-border rounded-md p-6 mb-4">
+              <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">岗位要求</div>
+              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] whitespace-pre-wrap break-words">{{ detail.requirement }}</div>
+            </div>
           </div>
 
-          <div class="flex flex-wrap gap-2 mb-6">
-            <a-tag v-if="detail.category">{{ detail.category }}</a-tag>
-            <a-tag v-if="detail.jobNature">{{ detail.jobNature }}</a-tag>
-            <a-tag v-if="detail.recruitType">{{ detail.recruitType }}</a-tag>
-          </div>
-
-          <a-divider />
-
-          <div v-if="detail.description" class="mb-6">
-            <h3 class="text-lg font-medium mb-3">职位描述</h3>
-            <div class="text-gray-600 whitespace-pre-wrap">{{ detail.description }}</div>
-          </div>
-
-          <div v-if="detail.requirement">
-            <h3 class="text-lg font-medium mb-3">任职要求</h3>
-            <div class="text-gray-600 whitespace-pre-wrap">{{ detail.requirement }}</div>
+          <!-- 右栏：相关岗位 -->
+          <div class="w-[280px] shrink-0 sticky top-16 max-h-[calc(100vh-80px)] overflow-y-auto">
+            <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">相关岗位</div>
+            <div class="flex flex-col gap-4">
+              <JobCard v-for="item in recommendList" :key="item.id" :record="item" />
+            </div>
           </div>
         </div>
       </template>
 
-      <a-empty v-else-if="!loading" description="职位不存在" class="mt-12" />
+      <div v-else-if="!loading" class="flex flex-col items-center py-20">
+        <p class="text-text-muted">职位不存在</p>
+      </div>
     </a-spin>
 
     <div class="mt-4 text-center">

@@ -6,6 +6,7 @@ import { useRegister } from '../composables/useRegister'
 
 const router = useRouter()
 const route = useRoute()
+void router
 const { mutate: login, isPending: loginPending } = useUserLogin()
 const { mutate: register, isPending: registerPending } = useRegister()
 

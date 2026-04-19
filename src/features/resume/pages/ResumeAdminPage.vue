@@ -30,10 +30,11 @@ function openCreate() {
   modalVisible.value = true
 }
 
-function openEdit(record: ResumeItem) {
+function openEdit(record: any) {
+  const item = record as ResumeItem
   modalTitle.value = '编辑简历'
-  editingItem.value = record
-  formState.value = { ...record }
+  editingItem.value = item
+  formState.value = { ...item }
   modalVisible.value = true
 }
 
@@ -90,7 +91,7 @@ const columns = [
       :columns="columns"
       :data-source="list"
       :loading="loading"
-      :row-selection="{ selectedRowKeys, onChange: (keys: string[]) => selectedRowKeys = keys }"
+      :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
       @change="(pag: any) => { page = pag.current; pageSize = pag.pageSize }"

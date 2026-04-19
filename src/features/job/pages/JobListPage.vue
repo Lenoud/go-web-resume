@@ -2,18 +2,21 @@
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { jobJobList, jobJobCategoryList } from '@/client'
-import { queryKeys } from '@/infrastructure/query/query-keys'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import JobCard from '../components/JobCard.vue'
 
 const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
-const category = ref<string | undefined>(undefined)
+const category = ref('')
+const activeSort = ref(0)
+const heroKeyword = ref('')
+
+const sortTabs = ['最新发布', '最热岗位', '推荐岗位']
 
 // 分类列表
 const categoryQuery = useQuery({
-  queryKey: queryKeys.jobs.categories,
+  queryKey: ['jobCategories'],
   queryFn: async () => {
     const result = await jobJobCategoryList()
     return result.data?.data?.categories ?? []
@@ -22,7 +25,7 @@ const categoryQuery = useQuery({
 
 // 职位列表
 const listQuery = useQuery({
-  queryKey: computed(() => [...queryKeys.jobs.list({}), { page: page.value, pageSize: pageSize.value, keyword: keyword.value, category: category.value }]),
+  queryKey: computed(() => ['jobList', { page: page.value, pageSize: pageSize.value, keyword: keyword.value, category: category.value, sort: activeSort.value }]),
   queryFn: async () => {
     const result = await jobJobList({
       query: {
@@ -44,52 +47,137 @@ const list = computed(() => listQuery.data?.value?.list ?? [])
 const total = computed(() => listQuery.data?.value?.total ?? 0)
 const loading = computed(() => listQuery.isLoading.value)
 const categories = computed(() => categoryQuery.data?.value ?? [])
+
+const hotTags = ['Java开发', '前端工程师', 'Go开发', '产品经理']
+
+function handleSearch() {
+  keyword.value = heroKeyword.value.trim()
+  page.value = 1
+}
+
+function quickSearch(tag: string) {
+  heroKeyword.value = tag
+  handleSearch()
+}
+
+function selectCategory(cat: string) {
+  category.value = category.value === cat ? '' : cat
+  page.value = 1
+}
+
+function selectSort(index: number) {
+  activeSort.value = index
+  page.value = 1
+}
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-center mb-6">热门职位</h1>
+  <div>
+    <!-- Hero Section -->
+    <section class="relative min-h-[520px] flex items-center justify-center overflow-hidden" style="background: linear-gradient(160deg, #0f1b3d 0%, #1a2f6b 40%, #2a4a9e 70%, #3b6bc7 100%)">
+      <div class="absolute inset-0" style="
+        background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, black 30%, transparent 80%);
+        -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, black 30%, transparent 80%);
+      " />
+      <div class="relative z-10 text-center px-6 py-20 max-w-[680px] w-full">
+        <h1 class="m-0 mb-5 leading-tight">
+          <span class="block text-xl font-normal text-white/70 tracking-widest mb-2">加入我们</span>
+          <span class="block text-5xl font-bold text-white tracking-wider" style="background: linear-gradient(135deg, #fff 0%, #a8c8ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">共创未来</span>
+        </h1>
+        <p class="text-base text-white/60 m-0 mb-12 tracking-wider">寻找志同道合的伙伴，在这里施展才华、实现价值</p>
+        <div class="max-w-[560px] mx-auto">
+          <div class="flex bg-white rounded-b-xl overflow-hidden shadow-lg h-[52px]">
+            <input
+              v-model="heroKeyword"
+              placeholder="搜索岗位关键词"
+              class="flex-1 border-none outline-none px-5 text-[15px] text-text-primary bg-transparent placeholder:text-text-muted"
+              @keyup.enter="handleSearch"
+            />
+            <button
+              class="flex items-center gap-1.5 px-7 bg-primary text-white border-none text-[15px] font-medium cursor-pointer hover:bg-primary-hover transition-colors"
+              @click="handleSearch"
+            >搜索</button>
+          </div>
+          <div class="flex items-center gap-3 mt-4 flex-wrap justify-center">
+            <span class="text-xs text-white/40">热门：</span>
+            <span
+              v-for="tag in hotTags" :key="tag"
+              class="text-xs text-white/70 cursor-pointer px-2.5 py-0.5 rounded-full bg-white/8 hover:bg-white/18 hover:text-white transition-all"
+              @click="quickSearch(tag)"
+            >{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <!-- 搜索栏 -->
-    <div class="flex items-center gap-3 mb-6">
-      <a-input
-        v-model:value="keyword"
-        placeholder="搜索职位、公司"
-        class="flex-1"
-        size="large"
-        allow-clear
-        @press-enter="page = 1"
-      />
-      <a-select
-        v-model:value="category"
-        placeholder="全部分类"
-        allow-clear
-        class="w-40"
-        size="large"
-        @change="page = 1"
-      >
-        <a-select-option v-for="cat in categories" :key="cat" :value="cat">
-          {{ cat }}
-        </a-select-option>
-      </a-select>
-    </div>
+    <!-- 职位列表区域 -->
+    <section class="max-w-[1200px] mx-auto px-6 py-6 pb-12">
+      <div class="flex gap-5 items-start">
+        <!-- 左侧筛选侧边栏 -->
+        <aside v-if="categories.length > 1" class="w-[220px] shrink-0 bg-white rounded-xl border border-border-light sticky top-[72px]">
+          <div class="p-5 border-b border-border-light last:border-b-0">
+            <h4 class="text-lg font-bold text-[rgb(31,35,41)] m-0 mb-3">岗位分类</h4>
+            <div class="flex flex-col gap-1.5">
+              <span
+                class="block px-3 py-[7px] text-sm text-[rgb(31,35,41)] bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
+                :class="{ '!text-primary !bg-primary-light !font-medium': !category }"
+                @click="category = ''; page = 1"
+              >全部</span>
+              <span
+                v-for="cat in categories" :key="cat"
+                class="block px-3 py-[7px] text-sm text-[rgb(31,35,41)] bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
+                :class="{ '!text-primary !bg-primary-light !font-medium': category === cat }"
+                @click="selectCategory(cat)"
+              >{{ cat }}</span>
+            </div>
+          </div>
+        </aside>
 
-    <!-- 职位卡片列表 -->
-    <div class="grid gap-4">
-      <JobCard v-for="item in list" :key="item.id" :record="item" />
-    </div>
+        <!-- 右侧列表 -->
+        <div class="flex-1 min-w-0">
+          <!-- 排序栏 -->
+          <div class="flex items-center justify-between bg-white rounded-xl px-5 py-3 mb-3 border border-border-light">
+            <div class="flex gap-1">
+              <span
+                v-for="(tab, idx) in sortTabs" :key="idx"
+                class="px-4 py-1.5 text-sm text-[rgb(100,106,115)] rounded-full cursor-pointer transition-all select-none hover:text-primary hover:bg-primary-bg"
+                :class="{ '!text-primary !bg-primary-light !font-medium': activeSort === idx }"
+                @click="selectSort(idx)"
+              >{{ tab }}</span>
+            </div>
+            <span v-if="total > 0" class="text-sm text-[rgb(100,106,115)] shrink-0">共 {{ total }} 个岗位</span>
+          </div>
 
-    <a-empty v-if="!loading && list.length === 0" description="暂无职位" class="mt-12" />
+          <!-- 职位列表 -->
+          <div class="bg-white rounded-xl border border-border-light min-h-[400px]">
+            <a-spin :spinning="loading">
+              <div v-if="list.length > 0">
+                <template v-for="(item, idx) in list" :key="item.id">
+                  <div v-if="idx > 0" class="border-b border-border-light" />
+                  <JobCard :record="item" />
+                </template>
+              </div>
+              <div v-else-if="!loading" class="flex flex-col items-center justify-center py-20">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <p class="mt-4 text-sm text-text-muted m-0">暂无符合条件的岗位</p>
+              </div>
+            </a-spin>
+          </div>
 
-    <!-- 分页 -->
-    <div class="flex justify-center mt-6">
-      <a-pagination
-        v-model:current="page"
-        v-model:page-size="pageSize"
-        :total="total"
-        show-size-changer
-        :show-total="(t: number) => `共 ${t} 个职位`"
-      />
-    </div>
+          <!-- 分页 -->
+          <div v-if="total > 0" class="flex justify-center mt-6">
+            <a-pagination
+              v-model:current="page"
+              v-model:page-size="pageSize"
+              :total="total"
+              show-size-changer
+              :show-total="(t: number) => `共 ${t} 个职位`"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>

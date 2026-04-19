@@ -28,13 +28,14 @@ function openCreate() {
   modalVisible.value = true
 }
 
-function openEdit(record: TalentPoolItem) {
+function openEdit(record: any) {
+  const item = record as TalentPoolItem
   modalTitle.value = '编辑人才'
-  editingItem.value = record
+  editingItem.value = item
   formState.value = {
-    resumeSnapshotId: record.resumeSnapshotId ?? '',
-    tags: record.tags ?? '',
-    remark: record.remark ?? '',
+    resumeSnapshotId: item.resumeSnapshotId ?? '',
+    tags: item.tags ?? '',
+    remark: item.remark ?? '',
   }
   modalVisible.value = true
 }
@@ -92,7 +93,7 @@ const columns = [
       :columns="columns"
       :data-source="list"
       :loading="loading"
-      :row-selection="{ selectedRowKeys, onChange: (keys: string[]) => selectedRowKeys = keys }"
+      :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
       @change="(pag: any) => { page = pag.current; pageSize = pag.pageSize }"
