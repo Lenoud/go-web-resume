@@ -106,7 +106,8 @@ function handleLogout() {
 
     <!-- 底栏 -->
     <footer class="text-center text-text-muted text-sm py-6">
-      智慧招聘系统 ©2024
+      <a class="text-primary mx-4" href="/admin/login" target="_blank">后台管理</a>
+      <span class="mx-4">智慧招聘系统 ©2024</span>
     </footer>
   </div>
 </template>
