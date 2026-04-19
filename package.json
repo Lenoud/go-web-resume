@@ -1,0 +1,37 @@
+{
+  "name": "recruit-web",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "vue-tsc --noEmit",
+    "generate:client": "openapi-ts"
+  },
+  "dependencies": {
+    "vue": "^3.5",
+    "vue-router": "^4.5",
+    "pinia": "^3",
+    "@tanstack/vue-query": "^5",
+    "ant-design-vue": "^4",
+    "@ant-design/icons-vue": "^7",
+    "@vueuse/core": "^12"
+  },
+  "devDependencies": {
+    "vite": "^6",
+    "@vitejs/plugin-vue": "^5",
+    "tailwindcss": "^4",
+    "@tailwindcss/vite": "^4",
+    "typescript": "~5.7",
+    "vue-tsc": "^2",
+    "eslint": "^9",
+    "typescript-eslint": "^8",
+    "eslint-plugin-vue": "^10",
+    "unplugin-vue-components": "^0.28",
+    "@hey-api/openapi-ts": "^0.96"
+  }
+}
