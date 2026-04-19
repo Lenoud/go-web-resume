@@ -37,6 +37,7 @@ const total = computed(() => list.value.length)
 const loading = computed(() => listQuery.isLoading.value)
 
 const roundLabel: Record<string, string> = {
+  interview_1: '一面', interview_2: '二面', interview_3: '三面', interview_final: '终面',
   '1': '一面', '2': '二面', '3': '三面', final: '终面',
 }
 const typeLabel: Record<string, string> = {

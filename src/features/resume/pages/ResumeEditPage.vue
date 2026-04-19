@@ -211,6 +211,17 @@ async function handleSave() {
 const sourceOptions = [
   '官网投递', '内部推荐', '招聘网站', '校园招聘', '猎头推荐', '社交媒体', '其他',
 ]
+
+// ── 简历预览抽屉 ──
+const previewVisible = ref(false)
+
+function openPreview() {
+  if (!base.raw) {
+    message.warning('暂无简历附件')
+    return
+  }
+  previewVisible.value = true
+}
 </script>
 
 <template>
@@ -270,7 +281,8 @@ const sourceOptions = [
                 <a-upload :before-upload="handleRawUpload" :show-upload-list="false" accept=".pdf,.doc,.docx">
                   <a-button><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1 inline-block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>选择文件</a-button>
                 </a-upload>                <span class="text-xs text-text-muted">docx 或 pdf</span>
-                <a v-if="base.raw" :href="`/api/staticfiles/resume/${base.raw}`" target="_blank" class="text-primary text-sm hover:underline">查看附件</a>
+                <a v-if="base.raw" class="text-primary text-sm cursor-pointer hover:underline" @click.prevent="openPreview">预览简历</a>
+                <a v-if="base.raw" :href="`/api/staticfiles/resume/${base.raw}`" target="_blank" class="text-primary text-sm hover:underline">下载</a>
               </div>
             </div>
           </div>
@@ -374,5 +386,21 @@ const sourceOptions = [
         </div>
       </div>
     </a-spin>
+
+    <!-- 简历预览抽屉 -->
+    <a-drawer
+      v-model:open="previewVisible"
+      title="简历预览"
+      placement="right"
+      :width="800"
+      :destroy-on-close="true"
+    >
+      <iframe
+        v-if="base.raw"
+        :src="`/api/staticfiles/resume/${base.raw}`"
+        style="width:100%; height:75vh; border:none;"
+      />
+      <a-empty v-else description="暂无简历附件" />
+    </a-drawer>
   </div>
 </template>
