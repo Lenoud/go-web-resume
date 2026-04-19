@@ -13,25 +13,25 @@
     "generate:client": "openapi-ts"
   },
   "dependencies": {
-    "vue": "^3.5",
-    "vue-router": "^4.5",
-    "pinia": "^3",
-    "@tanstack/vue-query": "^5",
-    "ant-design-vue": "^4",
     "@ant-design/icons-vue": "^7",
-    "@vueuse/core": "^12"
+    "@tanstack/vue-query": "^5",
+    "@vueuse/core": "^12",
+    "ant-design-vue": "^4",
+    "pinia": "^3",
+    "vue": "^3.5",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "vite": "^6",
-    "@vitejs/plugin-vue": "^5",
-    "tailwindcss": "^4",
+    "@hey-api/openapi-ts": "^0.96",
     "@tailwindcss/vite": "^4",
-    "typescript": "~5.7",
-    "vue-tsc": "^2",
+    "@vitejs/plugin-vue": "^5",
     "eslint": "^9",
-    "typescript-eslint": "^8",
     "eslint-plugin-vue": "^10",
+    "tailwindcss": "^4",
+    "typescript": "~5.7",
+    "typescript-eslint": "^8",
     "unplugin-vue-components": "^0.28",
-    "@hey-api/openapi-ts": "^0.96"
+    "vite": "^6",
+    "vue-tsc": "^2"
   }
 }
