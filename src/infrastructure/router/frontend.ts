@@ -20,7 +20,7 @@ const frontendRoutes: RouteRecordRaw[] = [
       {
         path: 'register',
         name: 'register',
-        component: () => import('@/features/auth/pages/RegisterPage.vue'),
+        component: () => import('@/features/auth/pages/UserLoginPage.vue'),
         meta: { title: '注册' },
       },
       {

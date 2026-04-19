@@ -1,13 +1,17 @@
+<!-- eslint-disable vue/no-v-html -->
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { jobJobDetail, jobJobList } from '@/client'
+import { jobJobDetail, jobJobList, resumeResumeDetail, postPostCreate } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
+import { useAuthStore } from '@/infrastructure/store/auth'
+import { message } from 'ant-design-vue'
 import JobCard from '../components/JobCard.vue'
 
 const route = useRoute()
 const router = useRouter()
+const auth = useAuthStore()
 const jobId = computed(() => (route.query.id as string) ?? '')
 
 const detailQuery = useQuery({
@@ -43,6 +47,66 @@ const statusLabel = (status: number | undefined) => {
   const map: Record<number, string> = { 0: '草稿', 1: '招聘中', 2: '已关闭', 3: '已删除', 4: '已招满' }
   return map[status ?? -1] ?? '--'
 }
+
+// ── 投递简历 ──
+const applying = ref(false)
+
+async function handleApply() {
+  if (!auth.isUserLoggedIn) {
+    message.warning('请先登录')
+    router.push({ name: 'login' })
+    return
+  }
+  if (auth.userRole !== '1') {
+    message.warning('仅求职者可投递简历')
+    return
+  }
+  applying.value = true
+  try {
+    // 获取简历
+    const resumeResult = await resumeResumeDetail({ query: { userId: auth.userId } })
+    const resumeResp = resumeResult.data
+    if (!resumeResp || (resumeResp.code !== undefined && resumeResp.code !== 0 && resumeResp.code !== 200)) {
+      message.error(resumeResp?.msg ?? '获取简历失败')
+      return
+    }
+    const resumeData = resumeResp.data
+    if (!resumeData?.id) {
+      message.warning('请先完善简历')
+      router.push({ name: 'resumeEditView' })
+      return
+    }
+    // 提交投递
+    const result = await postPostCreate({
+      body: {
+        userId: auth.userId,
+        jobId: jobId.value,
+        resumeId: String(resumeData.id),
+        companyId: detail.value?.companyId ?? '',
+      },
+    })
+    const resp = result.data
+    if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
+      message.error(resp.msg ?? '投递失败')
+      return
+    }
+    message.success('投递成功')
+  } catch (err) {
+    message.error((err as Error).message || '投递失败')
+  } finally {
+    applying.value = false
+  }
+}
+
+// 简单 Markdown → HTML（支持 **粗体**、换行、列表）
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^\- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/\n/g, '<br/>')
+}
 </script>
 
 <template>
@@ -73,18 +137,27 @@ const statusLabel = (status: number | undefined) => {
                 <span v-if="detail.category">分类：{{ detail.category }}</span>
                 <span v-if="detail.address">地址：{{ detail.address }}</span>
               </div>
+              <!-- 投递按钮 -->
+              <div class="mt-5 flex items-center gap-3">
+                <button
+                  class="h-11 px-8 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                  :disabled="applying || detail.status !== 1"
+                  @click="handleApply"
+                >{{ applying ? '投递中...' : detail.status === 1 ? '投递简历' : '该岗位已关闭' }}</button>
+                <span v-if="detail.pv" class="text-sm text-text-muted">{{ detail.pv }} 次浏览</span>
+              </div>
             </div>
 
             <!-- 岗位描述 -->
             <div v-if="detail.description" class="bg-white border border-border rounded-md p-6 mb-4">
               <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">岗位描述</div>
-              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] whitespace-pre-wrap break-words">{{ detail.description }}</div>
+              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.description)" />
             </div>
 
             <!-- 岗位要求 -->
             <div v-if="detail.requirement" class="bg-white border border-border rounded-md p-6 mb-4">
               <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">岗位要求</div>
-              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] whitespace-pre-wrap break-words">{{ detail.requirement }}</div>
+              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.requirement)" />
             </div>
           </div>
 

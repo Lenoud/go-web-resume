@@ -428,9 +428,9 @@ export type JobJobListData = {
     query?: {
         keyword?: string;
         sort?: string;
-        c?: string;
-        recruit_type?: string;
-        job_nature?: string;
+        category?: string;
+        recruitType?: string;
+        jobNature?: string;
         salaryMin?: number;
         salaryMax?: number;
         page?: number;

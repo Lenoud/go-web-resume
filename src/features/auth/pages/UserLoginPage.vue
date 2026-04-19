@@ -10,7 +10,7 @@ void router
 const { mutate: login, isPending: loginPending } = useUserLogin()
 const { mutate: register, isPending: registerPending } = useRegister()
 
-const isRegister = ref(route.query.mode === 'register')
+const isRegister = ref(route.query.mode === 'register' || route.name === 'register')
 
 const loginForm = reactive({ username: '', password: '' })
 const registerForm = reactive({ username: '', password: '', rePassword: '' })
@@ -72,74 +72,91 @@ function handleRegister() {
     </div>
 
     <!-- 右侧表单 -->
-    <div class="flex-1 flex items-center justify-center bg-white p-10">
+    <div class="flex-1 flex items-center justify-center bg-white p-10 overflow-hidden">
       <div class="w-full max-w-[400px]">
         <!-- 登录表单 -->
-        <div v-if="!isRegister">
-          <div class="mb-10">
-            <h1 class="text-3xl font-bold text-text-primary m-0 mb-2">登录</h1>
-            <p class="text-sm text-text-muted m-0">使用邮箱和密码登录</p>
-          </div>
-          <div class="flex flex-col gap-5">
-            <div>
-              <label class="block text-[13px] font-medium text-text-secondary mb-2">邮箱</label>
-              <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                <input v-model="loginForm.username" type="text" placeholder="请输入注册邮箱" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" @keyup.enter="handleLogin" />
+        <Transition name="form-fade" mode="out-in">
+          <div v-if="!isRegister" key="login">
+            <div class="mb-10">
+              <h1 class="text-3xl font-bold text-text-primary m-0 mb-2">登录</h1>
+              <p class="text-sm text-text-muted m-0">使用邮箱和密码登录</p>
+            </div>
+            <div class="flex flex-col gap-5">
+              <div>
+                <label class="block text-[13px] font-medium text-text-secondary mb-2">邮箱</label>
+                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                  <input v-model="loginForm.username" type="text" placeholder="请输入注册邮箱" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" @keyup.enter="handleLogin" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[13px] font-medium text-text-secondary mb-2">密码</label>
+                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                  <input v-model="loginForm.password" type="password" placeholder="请输入密码" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" @keyup.enter="handleLogin" />
+                </div>
+              </div>
+              <button
+                class="w-full h-12 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                :disabled="loginPending"
+                @click="handleLogin"
+              >{{ loginPending ? '登录中...' : '登录' }}</button>
+              <div class="text-center text-[13px] text-text-muted md:hidden">
+                还没有账号？<a class="text-primary font-medium cursor-pointer hover:underline" @click="isRegister = true">立即注册</a>
               </div>
             </div>
-            <div>
-              <label class="block text-[13px] font-medium text-text-secondary mb-2">密码</label>
-              <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                <input v-model="loginForm.password" type="password" placeholder="请输入密码" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" @keyup.enter="handleLogin" />
-              </div>
-            </div>
-            <button
-              class="w-full h-12 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2"
-              :disabled="loginPending"
-              @click="handleLogin"
-            >{{ loginPending ? '登录中...' : '登录' }}</button>
-            <div class="text-center text-[13px] text-text-muted md:hidden">
-              还没有账号？<a class="text-primary font-medium cursor-pointer hover:underline" @click="isRegister = true">立即注册</a>
-            </div>
           </div>
-        </div>
 
-        <!-- 注册表单 -->
-        <div v-else>
-          <div class="mb-10">
-            <h1 class="text-3xl font-bold text-text-primary m-0 mb-2">注册</h1>
-            <p class="text-sm text-text-muted m-0">创建一个新的账号</p>
+          <!-- 注册表单 -->
+          <div v-else key="register">
+            <div class="mb-10">
+              <h1 class="text-3xl font-bold text-text-primary m-0 mb-2">注册</h1>
+              <p class="text-sm text-text-muted m-0">创建一个新的账号</p>
+            </div>
+            <div class="flex flex-col gap-5">
+              <div>
+                <label class="block text-[13px] font-medium text-text-secondary mb-2">邮箱</label>
+                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                  <input v-model="registerForm.username" type="text" placeholder="请输入邮箱" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[13px] font-medium text-text-secondary mb-2">密码</label>
+                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                  <input v-model="registerForm.password" type="password" placeholder="请输入密码" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[13px] font-medium text-text-secondary mb-2">确认密码</label>
+                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                  <input v-model="registerForm.rePassword" type="password" placeholder="请再次输入密码" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" @keyup.enter="handleRegister" />
+                </div>
+              </div>
+              <button
+                class="w-full h-12 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                :disabled="registerPending"
+                @click="handleRegister"
+              >{{ registerPending ? '注册中...' : '注册' }}</button>
+              <div class="text-center text-[13px] text-text-muted md:hidden">
+                已有账号？<a class="text-primary font-medium cursor-pointer hover:underline" @click="isRegister = false">立即登录</a>
+              </div>
+            </div>
           </div>
-          <div class="flex flex-col gap-5">
-            <div>
-              <label class="block text-[13px] font-medium text-text-secondary mb-2">邮箱</label>
-              <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                <input v-model="registerForm.username" type="text" placeholder="请输入邮箱" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" />
-              </div>
-            </div>
-            <div>
-              <label class="block text-[13px] font-medium text-text-secondary mb-2">密码</label>
-              <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                <input v-model="registerForm.password" type="password" placeholder="请输入密码" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" />
-              </div>
-            </div>
-            <div>
-              <label class="block text-[13px] font-medium text-text-secondary mb-2">确认密码</label>
-              <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                <input v-model="registerForm.rePassword" type="password" placeholder="请再次输入密码" class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted" @keyup.enter="handleRegister" />
-              </div>
-            </div>
-            <button
-              class="w-full h-12 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2"
-              :disabled="registerPending"
-              @click="handleRegister"
-            >{{ registerPending ? '注册中...' : '注册' }}</button>
-            <div class="text-center text-[13px] text-text-muted md:hidden">
-              已有账号？<a class="text-primary font-medium cursor-pointer hover:underline" @click="isRegister = false">立即登录</a>
-            </div>
-          </div>
-        </div>
+        </Transition>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.form-fade-enter-active,
+.form-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.form-fade-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.form-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+</style>
