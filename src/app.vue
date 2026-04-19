@@ -1,6 +1,9 @@
+<script setup lang="ts">
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+</script>
+
 <template>
-  <div id="app">
-    <h1>智慧招聘系统</h1>
-    <p>P1 脚手架验证成功</p>
-  </div>
+  <a-config-provider :locale="zhCN">
+    <router-view />
+  </a-config-provider>
 </template>
