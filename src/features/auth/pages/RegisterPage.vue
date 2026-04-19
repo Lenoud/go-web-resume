@@ -35,7 +35,7 @@ function validateRePassword(_rule: unknown, value: string) {
         用户注册
       </h1>
 
-      <a-form :label-col="{ span: 0 }" @finish="handleSubmit">
+      <a-form :model="formState" :label-col="{ span: 0 }" @finish="handleSubmit">
         <a-form-item name="username" :rules="[{ required: true, message: '请输入用户名' }]">
           <a-input
             v-model:value="formState.username"

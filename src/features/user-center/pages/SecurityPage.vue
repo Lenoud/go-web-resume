@@ -35,7 +35,7 @@ function handleSubmit() {
 <template>
   <div class="bg-white rounded-lg p-6">
     <h2 class="text-lg font-medium mb-6">修改密码</h2>
-    <a-form :label-col="{ span: 4 }" class="max-w-lg" @finish="handleSubmit">
+    <a-form :model="formState" :label-col="{ span: 4 }" class="max-w-lg" @finish="handleSubmit">
       <a-form-item label="旧密码" name="oldPassword" :rules="[{ required: true, message: '请输入旧密码' }]">
         <a-input-password v-model:value="formState.oldPassword" />
       </a-form-item>
