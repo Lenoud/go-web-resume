@@ -112,7 +112,7 @@ const columns = [
   { title: '上级部门', key: 'parentName', width: 140 },
   { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200 },
+  { title: '操作', key: 'action', width: 200, fixed: 'right' as const },
 ]
 </script>
 
@@ -146,6 +146,7 @@ const columns = [
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
       @change="handlePageChange"
+      :scroll="{ x: 'max-content' }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'parentName'">

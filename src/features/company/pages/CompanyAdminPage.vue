@@ -84,7 +84,7 @@ const columns = [
   { title: '行业', dataIndex: 'hangye', key: 'hangye' },
   { title: '地点', dataIndex: 'location', key: 'location' },
   { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
-  { title: '操作', key: 'action', width: 100 },
+  { title: '操作', key: 'action', width: 100, fixed: 'right' as const },
 ]
 </script>
 
@@ -106,6 +106,7 @@ const columns = [
       :loading="loading"
       row-key="id"
       :pagination="false"
+      :scroll="{ x: 'max-content' }"
     >
       <template #bodyCell="{ column }">
         <template v-if="column.key === 'action'">

@@ -26,8 +26,8 @@ const roleOptions = [
 
 // 状态选项
 const statusOptions = [
-  { label: '禁用', value: '0' },
-  { label: '正常', value: '1' },
+  { label: '正常', value: '0' },
+  { label: '禁用', value: '1' },
 ]
 
 // 角色颜色映射
@@ -46,7 +46,7 @@ const roleLabelMap: Record<string, string> = {
 function openCreate() {
   modalTitle.value = '新增用户'
   editingItem.value = null
-  formState.value = { username: '', password: '', role: '1', status: '1' }
+  formState.value = { username: '', password: '', role: '1', status: '0' }
   modalVisible.value = true
 }
 
@@ -85,7 +85,7 @@ const columns = [
   { title: '角色', dataIndex: 'role', key: 'role' },
   { title: '状态', dataIndex: 'status', key: 'status' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200 },
+  { title: '操作', key: 'action', width: 200, fixed: 'right' as const },
 ]
 </script>
 
@@ -119,6 +119,7 @@ const columns = [
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
       @change="handlePageChange"
+      :scroll="{ x: 'max-content' }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'role'">
@@ -127,8 +128,8 @@ const columns = [
           </a-tag>
         </template>
         <template v-else-if="column.key === 'status'">
-          <a-tag :color="record.status === '1' ? 'green' : 'red'">
-            {{ record.status === '1' ? '正常' : '禁用' }}
+          <a-tag :color="record.status === '0' ? 'green' : 'red'">
+            {{ record.status === '0' ? '正常' : '禁用' }}
           </a-tag>
         </template>
         <template v-else-if="column.key === 'action'">
