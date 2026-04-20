@@ -1,70 +1,178 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useTalentPoolTable, type TalentPoolItem } from '../composables/useTalentPool.js'
-import { PermissionCode } from '@/infrastructure/permission/types'
+import { ref, computed, reactive } from 'vue'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { message } from 'ant-design-vue'
+import {
+  talentpoolTalentPoolList, talentpoolTalentPoolAdd,
+  talentpoolTalentPoolUpdate, talentpoolTalentPoolRemove,
+} from '@/client'
+import { normalizePaginated } from '@/infrastructure/api/normalize'
 
-const {
-  list, total, loading, page, pageSize, keyword, handlePageChange,
-  createMutation, updateMutation, deleteMutation,
-  selectedRowKeys, batchDelete,
-} = useTalentPoolTable()
+const queryClient = useQueryClient()
+const page = ref(1)
+const pageSize = ref(10)
+const keyword = ref('')
 
-// 弹窗状态
-const modalVisible = ref(false)
-const modalTitle = ref('添加人才')
-const editingItem = ref<TalentPoolItem | null>(null)
-
-// 表单默认值
-const formState = ref<Pick<TalentPoolItem, 'resumeSnapshotId' | 'tags' | 'remark'>>({
-  resumeSnapshotId: '',
-  tags: '',
-  remark: '',
-})
-
-function openCreate() {
-  modalTitle.value = '添加人才'
-  editingItem.value = null
-  formState.value = { resumeSnapshotId: '', tags: '', remark: '' }
-  modalVisible.value = true
+interface TalentItem {
+  id?: string
+  name?: string
+  education?: string
+  email?: string
+  mobile?: string
+  rating?: number
+  remark?: string
+  resumeSnapshotId: string
+  tags?: string
+  createTime?: string
+  // 额外字段（后端可能返回）
+  sex?: string
+  school?: string
+  skills?: string
+  experience?: string
+  projects?: string
+  eduDetail?: string
+  expectedSalary?: string
+  jobIntention?: string
+  source?: string
+  summary?: string
+  raw?: string
 }
 
-function openEdit(record: unknown) {
-  const item = record as TalentPoolItem
-  modalTitle.value = '编辑人才'
-  editingItem.value = item
-  formState.value = {
-    resumeSnapshotId: item.resumeSnapshotId ?? '',
+const listQuery = useQuery({
+  queryKey: ['talentPool', { page, pageSize }],
+  queryFn: async () => {
+    const result = await talentpoolTalentPoolList({
+      query: { page: page.value, pageSize: pageSize.value },
+    })
+    const resp = result.data
+    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
+      throw new Error(resp?.msg ?? '查询失败')
+    }
+    return normalizePaginated<TalentItem>(resp.data)
+  },
+})
+
+const list = computed(() => {
+  const all = listQuery.data?.value?.list ?? []
+  if (!keyword.value) return all
+  const kw = keyword.value.toLowerCase()
+  return all.filter((i: TalentItem) =>
+    (i.name ?? '').toLowerCase().includes(kw) ||
+    (i.email ?? '').toLowerCase().includes(kw) ||
+    (i.jobIntention ?? '').toLowerCase().includes(kw),
+  )
+})
+const total = computed(() => listQuery.data?.value?.total ?? 0)
+const loading = computed(() => listQuery.isLoading.value)
+
+// ── Utils ──
+function parseSkills(skills: unknown): string[] {
+  if (!skills) return []
+  try { const arr = JSON.parse(String(skills)); return Array.isArray(arr) ? arr : [] }
+  catch { return [] }
+}
+
+function parseJSON(str: unknown): any[] {
+  if (!str) return []
+  try { const arr = JSON.parse(String(str)); return Array.isArray(arr) ? arr : [] }
+  catch { return [] }
+}
+
+function getEduItems(item: TalentItem) {
+  const items = parseJSON(item.eduDetail)
+  if (items.length) return items
+  if (item.school || item.education) return [{ school: item.school || '', degree: item.education || '', major: '', duration: '' }]
+  return []
+}
+
+function formatEduSummary(item: TalentItem) {
+  const items = getEduItems(item)
+  if (!items.length) return item.education || ''
+  const first = [items[0].school, items[0].degree, items[0].major].filter(Boolean).join(' / ')
+  return items.length === 1 ? (first || '1段教育经历') : `${first || '教育经历'} 等${items.length}段`
+}
+
+// ── Remove ──
+const removeMutation = useMutation({
+  mutationFn: (resumeSnapshotId: string) => talentpoolTalentPoolRemove({ body: { resumeSnapshotId } }),
+  onSuccess: () => {
+    message.success('已移出人才库')
+    queryClient.invalidateQueries({ queryKey: ['talentPool'] })
+  },
+  onError: (err: Error) => message.error(err.message || '移出失败'),
+})
+
+function handleRemove(item: TalentItem) {
+  removeMutation.mutate(item.resumeSnapshotId)
+}
+
+// ── Detail Modal ──
+const detailModal = reactive({ visible: false, data: null as TalentItem | null })
+
+function openDetail(item: TalentItem) {
+  detailModal.data = item
+  detailModal.visible = true
+}
+
+// ── Edit Modal ──
+const editModal = reactive({
+  visible: false,
+  submitting: false,
+  form: { resumeSnapshotId: '', tags: '', remark: '' },
+})
+
+function openEditModal(item: TalentItem) {
+  editModal.visible = true
+  editModal.submitting = false
+  editModal.form = {
+    resumeSnapshotId: item.resumeSnapshotId,
     tags: item.tags ?? '',
     remark: item.remark ?? '',
   }
-  modalVisible.value = true
 }
 
-function handleSubmit() {
-  if (editingItem.value?.id) {
-    updateMutation?.mutate({ id: editingItem.value.id, ...formState.value })
-  } else {
-    createMutation?.mutate({ ...formState.value })
+async function submitEdit() {
+  editModal.submitting = true
+  try {
+    await talentpoolTalentPoolUpdate({
+      body: editModal.form as Parameters<typeof talentpoolTalentPoolUpdate>[0]['body'],
+    })
+    message.success('更新成功')
+    editModal.visible = false
+    queryClient.invalidateQueries({ queryKey: ['talentPool'] })
+  } catch (err: any) {
+    message.warn(err?.message || '更新失败')
+  } finally {
+    editModal.submitting = false
   }
-  modalVisible.value = false
 }
 
-function handleDelete(id: string) {
-  deleteMutation?.mutate(id)
+// ── Add Modal ──
+const addModal = reactive({
+  visible: false,
+  form: { resumeSnapshotId: '', tags: '', remark: '' },
+})
+
+async function submitAdd() {
+  try {
+    await talentpoolTalentPoolAdd({
+      body: addModal.form as Parameters<typeof talentpoolTalentPoolAdd>[0]['body'],
+    })
+    message.success('添加成功')
+    addModal.visible = false
+    queryClient.invalidateQueries({ queryKey: ['talentPool'] })
+  } catch (err: any) {
+    message.warn(err?.message || '添加失败')
+  }
 }
 
-// 表格列定义
-const columns = [
-  { title: '姓名', dataIndex: 'name', key: 'name' },
-  { title: '学历', dataIndex: 'education', key: 'education' },
-  { title: '邮箱', dataIndex: 'email', key: 'email' },
-  { title: '手机', dataIndex: 'mobile', key: 'mobile' },
-  { title: '评分', dataIndex: 'rating', key: 'rating' },
-  { title: '标签', dataIndex: 'tags', key: 'tags' },
-  { title: '备注', dataIndex: 'remark', key: 'remark', ellipsis: true },
-  { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200 },
-]
+// ── View Resume ──
+const resumeDrawer = reactive({ visible: false, url: '' })
+
+function handleViewResume(raw: string) {
+  resumeDrawer.url = `/api/staticfiles/resume/${raw}`
+  resumeDrawer.visible = true
+}
 </script>
 
 <template>
@@ -72,59 +180,190 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索人才" class="w-60" allow-clear />
-        <a-button v-permission="PermissionCode.TALENT_ADD" type="primary" @click="openCreate">
+        <a-input v-model:value="keyword" placeholder="搜索姓名/邮箱/意向" class="w-60" allow-clear />
+        <a-button type="primary" @click="addModal.visible = true; addModal.form = { resumeSnapshotId: '', tags: '', remark: '' }">
           添加人才
         </a-button>
-        <a-popconfirm
-          v-if="selectedRowKeys.length > 0"
-          title="确认批量移除选中的人才？"
-          @confirm="batchDelete"
-        >
-          <a-button v-permission="PermissionCode.TALENT_REMOVE" danger>
-            批量移除 ({{ selectedRowKeys.length }})
-          </a-button>
-        </a-popconfirm>
       </div>
     </div>
 
-    <!-- 表格 -->
-    <a-table
-      :columns="columns"
-      :data-source="list"
-      :loading="loading"
-      :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
-      row-key="id"
-      :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="handlePageChange"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
-          <a-button v-permission="PermissionCode.TALENT_UPDATE" type="link" @click="openEdit(record)">
-            编辑
-          </a-button>
-          <a-popconfirm title="确认移除该人才？" @confirm="handleDelete(record.resumeSnapshotId)">
-            <a-button v-permission="PermissionCode.TALENT_REMOVE" type="link" danger>
-              移除
-            </a-button>
-          </a-popconfirm>
-        </template>
-      </template>
-    </a-table>
+    <!-- 卡片列表 -->
+    <a-spin :spinning="loading" style="min-height: 200px">
+      <div class="flex flex-col gap-3">
+        <div
+          v-for="item in list" :key="item.id"
+          class="bg-white rounded-xl p-5 border border-border-light transition-shadow hover:shadow-md"
+        >
+          <!-- Header: avatar + name + rating -->
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-400 text-white flex items-center justify-center text-base font-semibold shrink-0">
+                {{ (item.name || '?')[0] }}
+              </div>
+              <div>
+                <span class="text-base font-semibold text-text-primary">{{ item.name || '未知' }}</span>
+                <span class="text-xs text-text-muted ml-2">{{ formatEduSummary(item) }}</span>
+              </div>
+            </div>
+            <a-rate :value="item.rating" disabled :count="5" style="font-size: 12px" />
+          </div>
 
-    <!-- 添加/编辑弹窗 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit">
+          <!-- Body -->
+          <div class="ml-[52px] border-t border-border-light pt-3">
+            <div v-if="item.jobIntention" class="text-sm mb-1">
+              <span class="text-text-muted mr-2">求职意向</span>
+              <span class="text-primary font-medium">{{ item.jobIntention }}</span>
+            </div>
+            <div v-if="item.email" class="text-sm mb-1">
+              <span class="text-text-muted mr-2">邮箱</span>
+              <span class="text-text-secondary">{{ item.email }}</span>
+            </div>
+            <div v-if="item.mobile" class="text-sm mb-1">
+              <span class="text-text-muted mr-2">手机</span>
+              <span class="text-text-secondary">{{ item.mobile }}</span>
+            </div>
+            <div v-if="parseSkills(item.skills).length" class="mt-1">
+              <a-tag v-for="s in parseSkills(item.skills).slice(0, 6)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
+              <span v-if="parseSkills(item.skills).length > 6" class="text-xs text-text-muted">+{{ parseSkills(item.skills).length - 6 }}</span>
+            </div>
+            <div v-if="item.tags" class="mt-1">
+              <a-tag v-for="t in item.tags.split(',').filter(Boolean)" :key="t" color="orange" class="m-0.5">{{ t }}</a-tag>
+            </div>
+            <div v-if="item.remark" class="mt-1 p-2 bg-bg-page rounded text-sm text-text-secondary">
+              <span class="text-text-muted">备注：</span>{{ item.remark }}
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-border-light ml-[52px]">
+            <span class="text-xs text-text-muted">{{ item.createTime }}</span>
+            <div class="flex items-center gap-4">
+              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openDetail(item)">详情</span>
+              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openEditModal(item)">编辑标注</span>
+              <span v-if="item.raw" class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="handleViewResume(item.raw)">查看简历</span>
+              <a-popconfirm title="确定移出人才库？" @confirm="handleRemove(item)">
+                <span class="text-[13px] text-red-500 cursor-pointer hover:text-red-600">移出</span>
+              </a-popconfirm>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty -->
+        <div
+          v-if="list.length === 0 && !loading"
+          class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-border-light"
+        >
+          <p class="text-sm text-text-muted m-0">人才库暂无候选人</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="total > 0" class="flex justify-center mt-6">
+        <a-pagination
+          v-model:current="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          show-size-changer
+          :show-total="(t: number) => `共 ${t} 条`"
+        />
+      </div>
+    </a-spin>
+
+    <!-- 添加人才 Modal -->
+    <a-modal v-model:open="addModal.visible" title="添加人才" @ok="submitAdd">
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="快照ID" required>
-          <a-input v-model:value="formState.resumeSnapshotId" :disabled="!!editingItem?.id" />
+          <a-input v-model:value="addModal.form.resumeSnapshotId" placeholder="简历快照ID" />
         </a-form-item>
         <a-form-item label="标签">
-          <a-input v-model:value="formState.tags" placeholder="多个标签用逗号分隔" />
+          <a-input v-model:value="addModal.form.tags" placeholder="多个标签用逗号分隔" />
         </a-form-item>
         <a-form-item label="备注">
-          <a-textarea v-model:value="formState.remark" :rows="3" />
+          <a-textarea v-model:value="addModal.form.remark" :rows="3" placeholder="HR 备注信息" />
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- 编辑标注 Modal -->
+    <a-modal
+      v-model:open="editModal.visible"
+      title="编辑人才库标注"
+      :confirm-loading="editModal.submitting"
+      @ok="submitEdit"
+      width="480px"
+    >
+      <div class="py-2">
+        <div class="text-sm font-semibold text-text-primary mb-2">标签（逗号分隔）</div>
+        <a-input v-model:value="editModal.form.tags" placeholder="如：重点跟进,技术强" />
+        <div class="text-sm font-semibold text-text-primary mb-2 mt-3">备注</div>
+        <a-textarea v-model:value="editModal.form.remark" :rows="4" placeholder="HR 备注信息" />
+      </div>
+    </a-modal>
+
+    <!-- 候选人详情 Modal -->
+    <a-modal
+      v-model:open="detailModal.visible"
+      title="候选人详情"
+      :footer="null"
+      width="640px"
+    >
+      <div v-if="detailModal.data">
+        <div class="mb-4">
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">基本信息</h4>
+          <p class="text-sm text-text-secondary m-1"><b>姓名：</b>{{ detailModal.data.name || '-' }}</p>
+          <p v-if="detailModal.data.sex" class="text-sm text-text-secondary m-1"><b>性别：</b>{{ detailModal.data.sex }}</p>
+          <p class="text-sm text-text-secondary m-1"><b>手机：</b>{{ detailModal.data.mobile || '-' }}</p>
+          <p class="text-sm text-text-secondary m-1"><b>邮箱：</b>{{ detailModal.data.email || '-' }}</p>
+          <p v-if="detailModal.data.expectedSalary" class="text-sm text-text-secondary m-1"><b>期望薪资：</b>{{ detailModal.data.expectedSalary }}</p>
+          <p v-if="detailModal.data.jobIntention" class="text-sm text-text-secondary m-1"><b>求职意向：</b>{{ detailModal.data.jobIntention }}</p>
+          <p v-if="detailModal.data.source" class="text-sm text-text-secondary m-1"><b>来源：</b>{{ detailModal.data.source }}</p>
+          <p v-if="detailModal.data.summary" class="text-sm text-text-secondary m-1"><b>个人总结：</b>{{ detailModal.data.summary }}</p>
+        </div>
+        <div v-if="getEduItems(detailModal.data).length" class="mb-4">
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">教育经历</h4>
+          <div v-for="(e, i) in getEduItems(detailModal.data)" :key="`edu-${i}`" class="text-sm mb-1">
+            <span class="font-semibold text-text-primary">{{ e.school || '-' }}</span>
+            <span v-if="e.degree" class="text-primary ml-2 text-xs">{{ e.degree }}</span>
+            <span class="text-text-secondary ml-2">{{ e.major || '-' }}</span>
+            <span class="text-text-muted ml-2">{{ e.duration || '-' }}</span>
+          </div>
+        </div>
+        <div v-if="parseSkills(detailModal.data.skills).length" class="mb-4">
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">技能</h4>
+          <div>
+            <a-tag v-for="s in parseSkills(detailModal.data.skills)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
+          </div>
+        </div>
+        <div v-if="parseJSON(detailModal.data.experience).length" class="mb-4">
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">工作经历</h4>
+          <div v-for="(e, i) in parseJSON(detailModal.data.experience)" :key="i" class="text-sm mb-1">
+            <span class="font-semibold text-text-primary">{{ e.company }}</span>
+            <span class="text-text-secondary ml-2">{{ e.position }}</span>
+            <span class="text-text-muted ml-2">{{ e.duration }}</span>
+          </div>
+        </div>
+        <div v-if="parseJSON(detailModal.data.projects).length" class="mb-4">
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">项目经历</h4>
+          <div v-for="(p, i) in parseJSON(detailModal.data.projects)" :key="i" class="mb-2">
+            <span class="font-semibold text-text-primary text-sm">{{ p.name }}</span>
+            <span class="text-text-secondary ml-2 text-sm">{{ p.role }}</span>
+            <p v-if="p.description" class="text-sm text-text-secondary m-0.5 leading-relaxed">{{ p.description }}</p>
+          </div>
+        </div>
+        <div v-if="detailModal.data.tags || detailModal.data.remark" class="mb-4">
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">HR 标注</h4>
+          <p v-if="detailModal.data.tags" class="text-sm text-text-secondary m-1">
+            <b>标签：</b>
+            <a-tag v-for="t in detailModal.data.tags.split(',').filter(Boolean)" :key="t" color="orange" class="m-0.5">{{ t }}</a-tag>
+          </p>
+          <p v-if="detailModal.data.remark" class="text-sm text-text-secondary m-1"><b>备注：</b>{{ detailModal.data.remark }}</p>
+        </div>
+      </div>
+    </a-modal>
+
+    <!-- 简历预览 Drawer -->
+    <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
+      <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
+    </a-drawer>
   </div>
 </template>

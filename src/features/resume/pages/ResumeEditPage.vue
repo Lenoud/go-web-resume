@@ -212,6 +212,8 @@ const sourceOptions = [
   '官网投递', '内部推荐', '招聘网站', '校园招聘', '猎头推荐', '社交媒体', '其他',
 ]
 
+const degreeOptions = ['博士', '硕士', '本科', '大专', '专科', '高中']
+
 // ── 简历预览抽屉 ──
 const previewVisible = ref(false)
 
@@ -298,7 +300,9 @@ function openPreview() {
             <div v-for="(edu, i) in eduList" :key="i" class="bg-bg-page border border-border-light rounded-lg p-3 mb-2">
               <div class="flex flex-wrap gap-2 items-center">
                 <a-input v-model:value="edu.school" placeholder="学校" class="w-[160px]" />
-                <a-input v-model:value="edu.degree" placeholder="学历" class="w-[100px]" />
+                <a-select v-model:value="edu.degree" placeholder="学历" class="w-[100px]" allow-clear>
+                  <a-select-option v-for="d in degreeOptions" :key="d" :value="d">{{ d }}</a-select-option>
+                </a-select>
                 <a-input v-model:value="edu.major" placeholder="专业" class="w-[120px]" />
                 <a-date-picker v-model:value="edu.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[120px]" />
                 <span class="text-text-muted text-sm">至</span>
