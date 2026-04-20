@@ -18,6 +18,7 @@ const queryClient = useQueryClient()
 const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
+const activeTimeRange = ref('all')
 
 // ── Pipeline filter state ──
 const activeStatus = ref('all')
@@ -109,6 +110,12 @@ const displayData = computed(() => {
       (p.name ?? '').toLowerCase().includes(kw) ||
       (p.title ?? '').toLowerCase().includes(kw),
     )
+  }
+  if (activeTimeRange.value && activeTimeRange.value !== 'all') {
+    const now = Date.now()
+    const dayMs = 24 * 60 * 60 * 1000
+    const threshold = activeTimeRange.value === 'week' ? now - 7 * dayMs : now - 30 * dayMs
+    list = list.filter((p: PostItem) => Number(p.createTime) >= threshold)
   }
   return list
 })
@@ -372,6 +379,9 @@ async function handleAddToPool(item: PostItem) {
     message.success('已加入人才库')
   } catch (err: any) { message.warn(err?.message || '加入人才库失败') }
 }
+
+// ── 简历预览 Drawer ──
+const resumeDrawer = reactive({ visible: false, url: '' })
 </script>
 
 <template>
@@ -416,6 +426,11 @@ async function handleAddToPool(item: PostItem) {
         class="w-40"
       >
         <a-select-option v-for="j in uniqueJobs" :key="j" :value="j">{{ j }}</a-select-option>
+      </a-select>
+      <a-select v-model:value="activeTimeRange" class="w-28">
+        <a-select-option value="all">全部时间</a-select-option>
+        <a-select-option value="week">本周</a-select-option>
+        <a-select-option value="month">本月</a-select-option>
       </a-select>
       <a-input
         v-model:value="keyword"
@@ -500,6 +515,7 @@ async function handleAddToPool(item: PostItem) {
             <div class="flex items-center gap-4">
               <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openSnapshotDetail(item.resumeSnapshotId)">详情</span>
               <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="handleAddToPool(item)">加入人才库</span>
+              <span v-if="item.raw" class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="resumeDrawer.url = `/api/staticfiles/resume/${item.raw}`; resumeDrawer.visible = true">查看简历</span>
               <span
                 v-if="isOfferVisible(item.status)"
                 class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
@@ -764,5 +780,10 @@ async function handleAddToPool(item: PostItem) {
         </div>
       </div>
     </a-modal>
+
+    <!-- 简历预览 Drawer -->
+    <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
+      <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
+    </a-drawer>
   </div>
 </template>

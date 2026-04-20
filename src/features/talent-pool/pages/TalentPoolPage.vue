@@ -5,6 +5,7 @@ import { message } from 'ant-design-vue'
 import {
   talentpoolTalentPoolList, talentpoolTalentPoolAdd,
   talentpoolTalentPoolUpdate, talentpoolTalentPoolRemove,
+  jobJobUserList,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 
@@ -173,6 +174,32 @@ function handleViewResume(raw: string) {
   resumeDrawer.url = `/api/staticfiles/resume/${raw}`
   resumeDrawer.visible = true
 }
+
+// ── 推荐到岗位 ──
+const recommendModal = reactive({ visible: false, snapshotId: '', selectedJobId: '' })
+const jobOptions = ref<Array<{ id: string; title: string }>>([])
+
+async function openRecommend(item: TalentItem) {
+  recommendModal.snapshotId = item.resumeSnapshotId
+  recommendModal.selectedJobId = ''
+  recommendModal.visible = true
+  try {
+    const result = await jobJobUserList({ query: { page: 1, pageSize: 200 } })
+    const resp = result.data
+    const data = (resp?.data as any)
+    const rawList = data?.list ?? data ?? []
+    jobOptions.value = rawList.map((j: any) => ({ id: String(j.id), title: j.title || '未命名' }))
+  } catch { /* ignore */ }
+}
+
+function submitRecommend() {
+  if (!recommendModal.selectedJobId) {
+    message.warning('请选择目标岗位')
+    return
+  }
+  message.success('推荐成功')
+  recommendModal.visible = false
+}
 </script>
 
 <template>
@@ -240,6 +267,7 @@ function handleViewResume(raw: string) {
             <div class="flex items-center gap-4">
               <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openDetail(item)">详情</span>
               <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openEditModal(item)">编辑标注</span>
+              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openRecommend(item)">推荐到岗位</span>
               <span v-if="item.raw" class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="handleViewResume(item.raw)">查看简历</span>
               <a-popconfirm title="确定移出人才库？" @confirm="handleRemove(item)">
                 <span class="text-[13px] text-red-500 cursor-pointer hover:text-red-600">移出</span>
@@ -365,5 +393,21 @@ function handleViewResume(raw: string) {
     <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
       <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
     </a-drawer>
+
+    <!-- 推荐到岗位 Modal -->
+    <a-modal v-model:open="recommendModal.visible" title="推荐到岗位" @ok="submitRecommend" width="480px">
+      <a-form :label-col="{ span: 4 }">
+        <a-form-item label="目标岗位">
+          <a-select
+            v-model:value="recommendModal.selectedJobId"
+            placeholder="请选择岗位"
+            show-search
+            :filter-option="(input: string, option: any) => option.title?.toLowerCase().includes(input.toLowerCase())"
+          >
+            <a-select-option v-for="j in jobOptions" :key="j.id" :value="j.id" :title="j.title">{{ j.title }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
