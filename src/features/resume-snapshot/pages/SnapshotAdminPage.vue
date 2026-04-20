@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+import { message } from 'ant-design-vue'
 import { useResumeSnapshotTable, type ResumeSnapshotItem } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
+import { talentpoolTalentPoolAdd, jobJobList } from '@/client'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -49,6 +51,46 @@ function handleDelete(id: string) {
   deleteMutation?.mutate(id)
 }
 
+// 推荐到岗位
+const recommendModal = reactive({ visible: false, snapshotId: '', selectedJobId: '' })
+const jobOptions = ref<Array<{ id: string; title: string }>>([])
+
+async function openRecommend(record: ResumeSnapshotItem) {
+  recommendModal.snapshotId = record.id ?? ''
+  recommendModal.selectedJobId = ''
+  recommendModal.visible = true
+  try {
+    const result = await jobJobList({ query: { page: 1, pageSize: 200 } })
+    const resp = result.data
+    const data = (resp?.data as any)
+    const rawList = data?.list ?? data ?? []
+    jobOptions.value = rawList.map((j: any) => ({ id: String(j.id), title: j.title || '未命名' }))
+  } catch { /* ignore */ }
+}
+
+async function submitRecommend() {
+  if (!recommendModal.selectedJobId) {
+    message.warning('请选择目标岗位')
+    return
+  }
+  try {
+    await talentpoolTalentPoolAdd({ body: { resumeSnapshotId: recommendModal.snapshotId } as any })
+    message.success('已推荐到人才库')
+    recommendModal.visible = false
+  } catch (err: any) {
+    message.warn(err?.message || '推荐失败')
+  }
+}
+
+// 简历预览 Drawer
+const resumeDrawer = reactive({ visible: false, url: '' })
+
+function openResumePreview(raw: string) {
+  if (!raw) return
+  resumeDrawer.url = `/api/staticfiles/resume/${raw}`
+  resumeDrawer.visible = true
+}
+
 // 表格列定义
 const columns = [
   { title: '姓名', dataIndex: 'name', key: 'name' },
@@ -60,7 +102,7 @@ const columns = [
   { title: '标签', dataIndex: 'tags', key: 'tags' },
   { title: '备注', dataIndex: 'remark', key: 'remark', ellipsis: true },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200, fixed: 'right' as const },
+  { title: '操作', key: 'action', width: 240, fixed: 'right' as const },
 ]
 </script>
 
@@ -95,11 +137,17 @@ const columns = [
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
-          <a-button v-permission="PermissionCode.RESUME_UPDATE" type="link" @click="openEdit(record)">
+          <a-button v-if="record.raw" type="link" size="small" @click="openResumePreview(record.raw)">
+            查看简历
+          </a-button>
+          <a-button type="link" size="small" @click="openRecommend(record)">
+            推荐到岗位
+          </a-button>
+          <a-button v-permission="PermissionCode.RESUME_UPDATE" type="link" size="small" @click="openEdit(record)">
             编辑
           </a-button>
           <a-popconfirm title="确认删除该快照？" @confirm="handleDelete(record.id)">
-            <a-button v-permission="PermissionCode.RESUME_DELETE" type="link" danger>
+            <a-button v-permission="PermissionCode.RESUME_DELETE" type="link" size="small" danger>
               删除
             </a-button>
           </a-popconfirm>
@@ -121,6 +169,27 @@ const columns = [
         </a-form-item>
         <a-form-item label="备注">
           <a-textarea v-model:value="formState.remark" :rows="3" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <!-- 简历预览 Drawer -->
+    <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
+      <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
+    </a-drawer>
+
+    <!-- 推荐到岗位 Modal -->
+    <a-modal v-model:open="recommendModal.visible" title="推荐到岗位" @ok="submitRecommend" width="480px">
+      <a-form :label-col="{ span: 4 }">
+        <a-form-item label="目标岗位">
+          <a-select
+            v-model:value="recommendModal.selectedJobId"
+            placeholder="请选择岗位"
+            show-search
+            :filter-option="(input: string, option: any) => option.title?.toLowerCase().includes(input.toLowerCase())"
+          >
+            <a-select-option v-for="j in jobOptions" :key="j.id" :value="j.id" :title="j.title">{{ j.title }}</a-select-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </a-modal>

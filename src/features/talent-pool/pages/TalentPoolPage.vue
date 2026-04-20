@@ -6,6 +6,7 @@ import {
   talentpoolTalentPoolList, talentpoolTalentPoolAdd,
   talentpoolTalentPoolUpdate, talentpoolTalentPoolRemove,
   jobJobUserList,
+  resumesnapshotResumeSnapshotDetail,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 
@@ -108,11 +109,21 @@ function handleRemove(item: TalentItem) {
 }
 
 // ── Detail Modal ──
-const detailModal = reactive({ visible: false, data: null as TalentItem | null })
+const detailModal = reactive({ visible: false, data: null as any, loading: false })
 
-function openDetail(item: TalentItem) {
-  detailModal.data = item
+async function openDetail(item: TalentItem) {
   detailModal.visible = true
+  detailModal.loading = true
+  detailModal.data = item
+  // 尝试从快照 API 加载完整数据
+  if (item.resumeSnapshotId) {
+    try {
+      const res = await resumesnapshotResumeSnapshotDetail({ query: { id: item.resumeSnapshotId } })
+      const snapshot = res.data?.data
+      if (snapshot) detailModal.data = snapshot
+    } catch { /* fallback to list data */ }
+  }
+  detailModal.loading = false
 }
 
 // ── Edit Modal ──
@@ -335,6 +346,7 @@ function submitRecommend() {
       :footer="null"
       width="640px"
     >
+      <a-spin :spinning="detailModal.loading">
       <div v-if="detailModal.data">
         <div class="mb-4">
           <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">基本信息</h4>
@@ -387,6 +399,7 @@ function submitRecommend() {
           <p v-if="detailModal.data.remark" class="text-sm text-text-secondary m-1"><b>备注：</b>{{ detailModal.data.remark }}</p>
         </div>
       </div>
+      </a-spin>
     </a-modal>
 
     <!-- 简历预览 Drawer -->

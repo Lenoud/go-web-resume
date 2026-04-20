@@ -120,7 +120,7 @@ const columns = [
   { title: '地点', dataIndex: 'location', key: 'location' },
   { title: '状态', dataIndex: 'status', key: 'status' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 240 },
+  { title: '操作', key: 'action', width: 240, fixed: 'right' as const },
 ]
 </script>
 
