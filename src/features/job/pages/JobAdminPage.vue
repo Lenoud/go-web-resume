@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useJobTable, type JobItem } from '../composables/useJob.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
+import { RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP } from '@/shared/utils/constants'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -18,30 +19,10 @@ const editingItem = ref<JobItem | null>(null)
 const formState = ref<Partial<JobItem>>({ title: '' })
 
 // ── 招聘类型 / 工作性质联动 ──
-const recruitTypeOptions = [
-  { label: '社招', value: 'experienced' },
-  { label: '校招', value: 'campus' },
-]
-
 const jobNatureOptions = computed(() => {
-  const rt = formState.value.recruitType
-  if (rt === 'experienced') {
-    return [
-      { value: 'fulltime', label: '全职' },
-      { value: 'parttime', label: '兼职' },
-    ]
-  }
-  if (rt === 'campus') {
-    return [
-      { value: 'intern', label: '实习' },
-      { value: 'fulltime', label: '全职' },
-    ]
-  }
-  return [
-    { value: 'fulltime', label: '全职' },
-    { value: 'parttime', label: '兼职' },
-    { value: 'intern', label: '实习' },
-  ]
+  const rt = formState.value.recruitType as keyof typeof JOB_NATURE_MAP | undefined
+  if (rt && JOB_NATURE_MAP[rt]) return JOB_NATURE_MAP[rt]
+  return JOB_NATURE_MAP.all
 })
 
 function onRecruitTypeChange() {
@@ -133,7 +114,7 @@ const columns = [
   { title: '地点', dataIndex: 'location', key: 'location' },
   { title: '状态', dataIndex: 'status', key: 'status' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200 },
+  { title: '操作', key: 'action', width: 200, fixed: 'right' as const },
 ]
 </script>
 
@@ -215,7 +196,7 @@ const columns = [
         <a-form-item label="招聘类型" required>
           <a-select
             v-model:value="formState.recruitType"
-            :options="recruitTypeOptions"
+            :options="RECRUIT_TYPE_OPTIONS"
             placeholder="请选择招聘类型"
             allow-clear
             @change="onRecruitTypeChange"

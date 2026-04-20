@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useMyJobTable, type JobItem } from '../composables/useJob.js'
 import { departmentDepartmentList } from '@/client'
+import { EDUCATION_OPTIONS, RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP, WORK_EXPERIENCE_OPTIONS, JOB_CATEGORY_OPTIONS } from '@/shared/utils/constants'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -16,33 +17,12 @@ const editingId = ref<string | null>(null)
 const formState = ref<Partial<JobItem>>({ title: '' })
 
 // ── 联动选项 ──
-const categoryOptions = ['技术', '产品', '设计', '运营', '市场']
-
-const recruitTypeOptions = [
-  { label: '社招', value: 'experienced' },
-  { label: '校招', value: 'campus' },
-]
 
 const jobNatureOptions = computed(() => {
-  const rt = formState.value.recruitType
-  if (rt === 'experienced') return [{ value: 'fulltime', label: '全职' }, { value: 'parttime', label: '兼职' }]
-  if (rt === 'campus') return [{ value: 'intern', label: '实习' }, { value: 'fulltime', label: '全职' }]
-  return [{ value: 'fulltime', label: '全职' }, { value: 'parttime', label: '兼职' }, { value: 'intern', label: '实习' }]
+  const rt = formState.value.recruitType as keyof typeof JOB_NATURE_MAP | undefined
+  if (rt && JOB_NATURE_MAP[rt]) return JOB_NATURE_MAP[rt]
+  return JOB_NATURE_MAP.all
 })
-
-const educationOptions = [
-  { label: '不限', value: '不限' },
-  { label: '专科', value: '专科' },
-  { label: '本科', value: '本科' },
-  { label: '研究生', value: '研究生' },
-]
-
-const workExpeOptions = [
-  { label: '不限', value: '不限' },
-  { label: '1-3年', value: '1-3年' },
-  { label: '3-5年', value: '3-5年' },
-  { label: '5年以上', value: '5年以上' },
-]
 
 const statusOptions = [
   { label: '招聘中', value: 1 },
@@ -234,7 +214,7 @@ const columns = [
           <a-col :span="12">
             <a-form-item label="分类">
               <a-select v-model:value="formState.category" placeholder="请选择分类" allow-clear>
-                <a-select-option v-for="c in categoryOptions" :key="c" :value="c">{{ c }}</a-select-option>
+                <a-select-option v-for="c in JOB_CATEGORY_OPTIONS" :key="c.value" :value="c.value">{{ c.label }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -242,7 +222,7 @@ const columns = [
             <a-form-item label="招聘类型">
               <a-select
                 v-model:value="formState.recruitType"
-                :options="recruitTypeOptions"
+                :options="RECRUIT_TYPE_OPTIONS"
                 placeholder="请选择招聘类型"
                 allow-clear
                 @change="onRecruitTypeChange"
@@ -316,12 +296,12 @@ const columns = [
           </a-col>
           <a-col :span="12">
             <a-form-item label="学历要求">
-              <a-select v-model:value="formState.education" :options="educationOptions" placeholder="请选择学历" allow-clear />
+              <a-select v-model:value="formState.education" :options="EDUCATION_OPTIONS" placeholder="请选择学历" allow-clear />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="经验要求">
-              <a-select v-model:value="formState.workExpe" :options="workExpeOptions" placeholder="请选择经验" allow-clear />
+              <a-select v-model:value="formState.workExpe" :options="WORK_EXPERIENCE_OPTIONS" placeholder="请选择经验" allow-clear />
             </a-form-item>
           </a-col>
         </a-row>

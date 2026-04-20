@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useResumeTable, type ResumeItem } from '../composables/useResume.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
+import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -16,32 +17,6 @@ const editingItem = ref<ResumeItem | null>(null)
 
 // 表单默认值
 const formState = ref<ResumeItem>({ name: '' })
-
-// 性别选项
-const sexOptions = [
-  { label: '男', value: '男' },
-  { label: '女', value: '女' },
-]
-
-// 学历选项
-const educationOptions = [
-  { label: '不限', value: '不限' },
-  { label: '专科', value: '专科' },
-  { label: '本科', value: '本科' },
-  { label: '研究生', value: '研究生' },
-  { label: '博士', value: '博士' },
-]
-
-// 来源选项
-const sourceOptions = [
-  { label: '自投', value: '自投' },
-  { label: '内推', value: '内推' },
-  { label: '猎头', value: '猎头' },
-  { label: '校招', value: '校招' },
-  { label: '招聘平台', value: '招聘平台' },
-  { label: '社交媒体', value: '社交媒体' },
-  { label: '其他', value: '其他' },
-]
 
 function openCreate() {
   modalTitle.value = '新增简历'
@@ -82,7 +57,7 @@ const columns = [
   { title: '求职意向', dataIndex: 'jobIntention', key: 'jobIntention', ellipsis: true },
   { title: '来源', dataIndex: 'source', key: 'source' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200 },
+  { title: '操作', key: 'action', width: 200, fixed: 'right' as const },
 ]
 </script>
 
@@ -116,6 +91,7 @@ const columns = [
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
       @change="handlePageChange"
+      :scroll="{ x: 'max-content' }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
@@ -138,7 +114,7 @@ const columns = [
           <a-input v-model:value="formState.name" placeholder="请输入姓名" />
         </a-form-item>
         <a-form-item label="性别">
-          <a-select v-model:value="formState.sex" :options="sexOptions" allow-clear placeholder="请选择" />
+          <a-select v-model:value="formState.sex" :options="SEX_OPTIONS" allow-clear placeholder="请选择" />
         </a-form-item>
         <a-form-item label="出生日期">
           <a-date-picker
@@ -149,7 +125,7 @@ const columns = [
           />
         </a-form-item>
         <a-form-item label="学历">
-          <a-select v-model:value="formState.education" :options="educationOptions" allow-clear placeholder="请选择学历" />
+          <a-select v-model:value="formState.education" :options="EDUCATION_OPTIONS" allow-clear placeholder="请选择学历" />
         </a-form-item>
         <a-form-item label="学校">
           <a-input v-model:value="formState.school" placeholder="请输入毕业学校" />
@@ -161,7 +137,7 @@ const columns = [
           <a-input v-model:value="formState.mobile" placeholder="请输入手机号" />
         </a-form-item>
         <a-form-item label="来源">
-          <a-select v-model:value="formState.source" :options="sourceOptions" allow-clear placeholder="请选择来源" />
+          <a-select v-model:value="formState.source" :options="RESUME_SOURCE_OPTIONS" allow-clear placeholder="请选择来源" />
         </a-form-item>
         <a-form-item label="个人简介">
           <a-textarea v-model:value="formState.summary" :rows="3" placeholder="请输入个人简介" />
