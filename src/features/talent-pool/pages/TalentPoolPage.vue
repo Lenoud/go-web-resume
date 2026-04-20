@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useTalentPoolTable, type TalentPoolItem } from '../composables/useTalentPool'
+import { useTalentPoolTable, type TalentPoolItem } from '../composables/useTalentPool.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

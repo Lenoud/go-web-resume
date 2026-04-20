@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useCompanyTable, type CompanyItem } from '../composables/useCompany'
-import { PermissionCode } from '@/infrastructure/permission/types'
+import { useCompanyTable, type CompanyItem } from '../composables/useCompany.js'
+import { PermissionCode } from '@/infrastructure/permission/types.js'
 
 const {
   list, total, loading, page, pageSize, keyword,

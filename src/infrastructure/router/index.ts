@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/infrastructure/store/auth'
-import adminRoutes from './admin'
-import frontendRoutes from './frontend'
+import adminRoutes from './admin.js'
+import frontendRoutes from './frontend.js'
 
 const router = createRouter({
   history: createWebHistory(),

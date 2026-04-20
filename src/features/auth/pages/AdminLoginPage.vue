@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { useAdminLogin } from '../composables/useAdminLogin'
+import { useAdminLogin } from '../composables/useAdminLogin.js'
 
 const { mutate: login, isPending } = useAdminLogin()
 

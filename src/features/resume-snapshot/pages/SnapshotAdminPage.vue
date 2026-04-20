@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useResumeSnapshotTable, type ResumeSnapshotItem } from '../composables/useResumeSnapshot'
+import { useResumeSnapshotTable, type ResumeSnapshotItem } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

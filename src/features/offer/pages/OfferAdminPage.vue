@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useOfferTable, type OfferItem } from '../composables/useOffer'
+import { useOfferTable, type OfferItem } from '../composables/useOffer.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

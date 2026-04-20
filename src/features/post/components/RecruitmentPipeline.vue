@@ -10,7 +10,7 @@ const stages = MAIN_FLOW.map((s) => ({
   color: colorToHex(STATUS_COLOR[s]),
 }))
 
-const currentIdx = computed(() => MAIN_FLOW.indexOf(props.status as RecruitmentStatus))
+const currentIdx = computed(() => MAIN_FLOW.indexOf(props.status as typeof MAIN_FLOW[number]))
 const isBranch = computed(() => (BRANCH_STATUSES as readonly string[]).includes(props.status ?? ''))
 const branchMeta = computed(() => {
   if (!isBranch.value) return null
@@ -21,9 +21,9 @@ const branchMeta = computed(() => {
 function dotStyle(idx: number): Record<string, string> {
   const ci = currentIdx.value
   if (isBranch.value) {
-    return idx <= ci ? { background: stages[idx].color } : { background: '#d0d5dd' }
+    return idx <= ci ? { background: stages[idx]?.color ?? '#d0d5dd' } : { background: '#d0d5dd' }
   }
-  if (idx <= ci) return { background: stages[idx].color }
+  if (idx <= ci) return { background: stages[idx]?.color ?? '#d0d5dd' }
   return { background: '#d0d5dd' }
 }
 

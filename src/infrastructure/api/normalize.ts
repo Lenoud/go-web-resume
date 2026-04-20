@@ -1,4 +1,4 @@
-import { isSuccess, type ApiResponse, type PaginatedData } from './types'
+import { isSuccess, type ApiResponse, type PaginatedData } from './types.js'
 
 /**
  * 后端 data 可能是：

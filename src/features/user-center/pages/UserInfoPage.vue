@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
-import { useUserInfo, useUpdateUserInfo } from '../composables/useUserCenter'
+import { useUserInfo, useUpdateUserInfo } from '../composables/useUserCenter.js'
 import { useAuthStore } from '@/infrastructure/store/auth'
 
 const auth = useAuthStore()

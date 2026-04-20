@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useJobTable, type JobItem } from '../composables/useJob'
+import { useJobTable, type JobItem } from '../composables/useJob.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

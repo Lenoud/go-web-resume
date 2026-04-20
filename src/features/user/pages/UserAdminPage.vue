@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useUserTable, type UserItem } from '../composables/useUser'
+import { useUserTable, type UserItem } from '../composables/useUser.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

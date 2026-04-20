@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './app.vue'
-import router from './infrastructure/router'
-import { installQueryPlugin } from './infrastructure/query/plugin'
-import { registerPermissionDirective } from './infrastructure/permission/directive'
+import router from './infrastructure/router/index.js'
+import { installQueryPlugin } from './infrastructure/query/plugin.js'
+import { registerPermissionDirective } from './infrastructure/permission/directive.js'
 
 // 副作用：初始化 API 客户端拦截器
 import '@/infrastructure/api/client'

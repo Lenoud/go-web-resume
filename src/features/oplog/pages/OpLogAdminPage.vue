@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useOpLogTable, useLoginLogTable } from '../composables/useOpLog'
+import { useOpLogTable, useLoginLogTable } from '../composables/useOpLog.js'
 
 // 操作日志
 const {

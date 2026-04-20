@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { usePostTable, type PostItem } from '../composables/usePost'
+import { usePostTable, type PostItem } from '../composables/usePost.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { STATUS_LABEL, STATUS_COLOR } from '@/shared/types'
 import type { RecruitmentStatus } from '@/shared/types'

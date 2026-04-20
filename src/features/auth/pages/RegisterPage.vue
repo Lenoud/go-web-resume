@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRegister } from '../composables/useRegister'
+import { useRegister } from '../composables/useRegister.js'
 
 const router = useRouter()
 const { mutate: register, isPending } = useRegister()

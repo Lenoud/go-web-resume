@@ -3,7 +3,7 @@ import {
   attachRequestInterceptor,
   attachResponseInterceptor,
   attachErrorInterceptor,
-} from './interceptors'
+} from './interceptors.js'
 
 // 初始化客户端
 client.setConfig({ baseUrl: '' })

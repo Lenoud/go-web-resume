@@ -1,6 +1,6 @@
 import type { App, Directive } from 'vue'
-import { hasPermission } from './guard'
-import type { PermissionCode } from './types'
+import { hasPermission } from './guard.js'
+import type { PermissionCode } from './types.js'
 
 /**
  * v-permission 指令

@@ -1,4 +1,4 @@
-import { PermissionCode } from './types'
+import { PermissionCode } from './types.js'
 
 /** 角色 → 权限码映射 */
 const ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDepartmentTable, type DepartmentItem } from '../composables/useDepartment'
+import { useDepartmentTable, type DepartmentItem } from '../composables/useDepartment.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

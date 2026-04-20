@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useResumeTable, type ResumeItem } from '../composables/useResume'
+import { useResumeTable, type ResumeItem } from '../composables/useResume.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {

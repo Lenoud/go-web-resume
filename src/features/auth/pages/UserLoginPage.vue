@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useUserLogin } from '../composables/useUserLogin'
-import { useRegister } from '../composables/useRegister'
+import { useUserLogin } from '../composables/useUserLogin.js'
+import { useRegister } from '../composables/useRegister.js'
 
 const router = useRouter()
 const route = useRoute()
