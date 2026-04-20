@@ -36,7 +36,11 @@ function openEdit(record: ResumeSnapshotItem) {
 
 function handleSubmit() {
   if (editingItem.value?.id) {
-    updateMutation?.mutate({ id: editingItem.value.id, ...formState.value })
+    const payload = {
+      ...formState.value,
+      rating: formState.value.rating != null ? String(formState.value.rating) : undefined,
+    }
+    updateMutation?.mutate({ id: editingItem.value.id, ...payload })
   }
   modalVisible.value = false
 }
