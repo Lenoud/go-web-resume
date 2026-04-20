@@ -140,7 +140,7 @@ function handleStatusChange() {
           <!-- Feedback -->
           <div
             v-if="item.feedback"
-            class="flex items-start gap-1.5 mb-2 p-2 px-3 bg-[#f6f8fa] rounded-md text-[13px] text-text-secondary leading-relaxed"
+            class="flex items-start gap-1.5 mb-2 p-2 px-3 bg-bg-page rounded-md text-[13px] text-text-secondary leading-relaxed"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5 text-text-muted"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>{{ item.feedback }}</span>

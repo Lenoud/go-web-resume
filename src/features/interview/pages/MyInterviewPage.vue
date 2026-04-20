@@ -92,7 +92,7 @@ const resultColor: Record<string, string> = {
 
           <div
             v-if="item.evaluation"
-            class="mt-2 p-2 px-3 bg-[#f6f8fa] rounded-md text-[13px] text-text-secondary leading-relaxed"
+            class="mt-2 p-2 px-3 bg-bg-page rounded-md text-[13px] text-text-secondary leading-relaxed"
           >{{ item.evaluation }}</div>
         </div>
 

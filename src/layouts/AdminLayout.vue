@@ -68,7 +68,7 @@ function handlePreview() {
       collapsible
       :trigger="null"
       width="220"
-      :style="{ background: '#1a1a2e' }"
+      :style="{ background: 'var(--color-sidebar-bg)' }"
     >
       <div class="h-16 flex items-center justify-center border-b border-white/10">
         <h1 v-if="!app.sidebarCollapsed" class="text-lg font-bold text-white m-0">智慧招聘</h1>
@@ -117,19 +117,18 @@ function handlePreview() {
 /* 暗色侧边栏菜单样式覆盖 */
 :deep(.admin-sidebar-menu .ant-menu-item),
 :deep(.admin-sidebar-menu .ant-menu-submenu-title) {
-  color: #a0aec0;
+  color: var(--color-sidebar-text);
   margin: 4px 8px;
   border-radius: 6px;
 }
 
 :deep(.admin-sidebar-menu .ant-menu-item:hover),
 :deep(.admin-sidebar-menu .ant-menu-submenu-title:hover) {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-sidebar-active);
 }
 
 :deep(.admin-sidebar-menu .ant-menu-item-selected) {
-  color: #ffffff !important;
+  color: var(--color-sidebar-active) !important;
   background: rgba(59, 125, 216, 0.15) !important;
   position: relative;
 }
@@ -142,7 +141,7 @@ function handlePreview() {
   height: 60%;
   width: 3px;
   border-radius: 0 2px 2px 0;
-  background: #4684e2;
+  background: var(--color-primary);
 }
 
 :deep(.admin-sidebar-menu .ant-menu-sub) {
