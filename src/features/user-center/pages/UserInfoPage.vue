@@ -38,7 +38,7 @@ function handleSubmit() {
     <a-spin :spinning="loading">
       <a-form :label-col="{ span: 4 }" class="max-w-lg">
         <a-form-item label="用户名">
-          <span class="text-gray-500">{{ auth.username }}</span>
+          <span class="text-text-secondary">{{ auth.username }}</span>
         </a-form-item>
         <a-form-item label="昵称">
           <a-input v-model:value="formState.nickname" />

@@ -119,20 +119,20 @@ function renderMarkdown(text: string): string {
             <!-- 基本信息卡片 -->
             <div class="bg-white border border-border rounded-md p-6 mb-4">
               <div class="flex items-center gap-2">
-                <h1 class="m-0 text-[28px] font-semibold text-gray-800 leading-[42px]">{{ detail.title ?? '-' }}</h1>
+                <h1 class="m-0 text-[28px] font-semibold text-text-primary leading-[42px]">{{ detail.title ?? '-' }}</h1>
                 <span class="text-xs px-2 py-0.5 rounded-sm shrink-0 border"
                   :class="detail.status === 1 ? 'text-green-500 bg-green-50/80 border-green-200' : detail.status === 2 ? 'text-red-500 bg-red-50 border-red-200' : 'text-blue-500 bg-blue-50 border-blue-200'"
                 >{{ statusLabel(detail.status) }}</span>
               </div>
               <div class="text-accent text-xl font-medium my-2">{{ detail.salaryShow || '--' }}</div>
               <div class="flex flex-wrap gap-2 mb-4">
-                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.recruitType === 'experienced' ? '社招' : detail.recruitType === 'campus' ? '校招' : '--' }}</span>
-                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.jobNature === 'fulltime' ? '全职' : detail.jobNature === 'parttime' ? '兼职' : detail.jobNature === 'intern' ? '实习' : '--' }}</span>
-                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.education || '学历不限' }}</span>
-                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-[rgb(100,106,115)]">{{ detail.workExpe || '经验不限' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-text-secondary">{{ detail.recruitType === 'experienced' ? '社招' : detail.recruitType === 'campus' ? '校招' : '--' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-text-secondary">{{ detail.jobNature === 'fulltime' ? '全职' : detail.jobNature === 'parttime' ? '兼职' : detail.jobNature === 'intern' ? '实习' : '--' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-text-secondary">{{ detail.education || '学历不限' }}</span>
+                <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-text-secondary">{{ detail.workExpe || '经验不限' }}</span>
                 <span class="text-sm px-2.5 py-[3px] bg-primary-light rounded-sm text-primary">{{ detail.location || '--' }}</span>
               </div>
-              <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-[rgb(100,106,115)]">
+              <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-text-secondary">
                 <span v-if="detail.departmentTitle">部门：{{ detail.departmentTitle }}</span>
                 <span v-if="detail.category">分类：{{ detail.category }}</span>
                 <span v-if="detail.address">地址：{{ detail.address }}</span>
@@ -150,20 +150,20 @@ function renderMarkdown(text: string): string {
 
             <!-- 岗位描述 -->
             <div v-if="detail.description" class="bg-white border border-border rounded-md p-6 mb-4">
-              <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">岗位描述</div>
-              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.description)" />
+              <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">岗位描述</div>
+              <div class="text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.description)" />
             </div>
 
             <!-- 岗位要求 -->
             <div v-if="detail.requirement" class="bg-white border border-border rounded-md p-6 mb-4">
-              <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">岗位要求</div>
-              <div class="text-[rgb(31,35,41)] text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.requirement)" />
+              <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">岗位要求</div>
+              <div class="text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.requirement)" />
             </div>
           </div>
 
           <!-- 右栏：相关岗位 -->
           <div class="w-[280px] shrink-0 sticky top-16 max-h-[calc(100vh-80px)] overflow-y-auto">
-            <div class="font-medium text-base text-gray-800 mb-4 pb-2 border-b border-border">相关岗位</div>
+            <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">相关岗位</div>
             <div class="flex flex-col gap-4">
               <JobCard v-for="item in recommendList" :key="item.id" :record="item" />
             </div>

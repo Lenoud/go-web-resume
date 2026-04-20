@@ -96,7 +96,7 @@ function validateRePassword(_rule: unknown, value: string) {
       </a-form>
 
       <div class="text-center">
-        <span class="text-gray-400">已有账号？</span>
+        <span class="text-text-muted">已有账号？</span>
         <a-button type="link" @click="router.push('/index/login')">
           去登录
         </a-button>

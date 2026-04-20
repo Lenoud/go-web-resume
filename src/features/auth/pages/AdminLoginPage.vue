@@ -27,7 +27,7 @@ function handleSubmit() {
     <div class="w-full h-[calc(100vh-160px)] bg-cover bg-center bg-no-repeat" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 900%22><defs><linearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22><stop offset=%220%25%22 stop-color=%22%234684e2%22 stop-opacity=%220.08%22/><stop offset=%22100%25%22 stop-color=%22%234684e2%22 stop-opacity=%220.03%22/></linearGradient></defs><rect fill=%22url(%23g)%22 width=%221440%22 height=%22900%22/></svg>')">
       <div class="absolute right-20 top-1/2 -translate-y-1/2 flex rounded-lg overflow-hidden shadow-[2px_2px_6px_#aaa]">
         <div class="bg-white p-6 w-[420px] select-none">
-          <h2 class="text-2xl font-bold text-gray-800 m-0 pb-2">管理员登录</h2>
+          <h2 class="text-2xl font-bold text-text-primary m-0 pb-2">管理员登录</h2>
           <a-form :model="formState" layout="vertical" :hide-required-mark="true" class="mt-6">
             <a-form-item name="username" label="账号" :colon="false">
               <a-input

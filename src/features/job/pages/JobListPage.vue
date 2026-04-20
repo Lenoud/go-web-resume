@@ -224,16 +224,16 @@ function selectSort(index: number) {
         <aside v-if="categories.length > 1" class="w-[220px] shrink-0 bg-white rounded-xl border border-border-light sticky top-[72px]">
           <!-- 岗位分类 -->
           <div class="p-5 border-b border-border-light">
-            <h4 class="text-lg font-bold text-[rgb(31,35,41)] m-0 mb-3">岗位分类</h4>
+            <h4 class="text-lg font-bold text-text-primary m-0 mb-3">岗位分类</h4>
             <div class="flex flex-col gap-1.5">
               <span
-                class="block px-3 py-[7px] text-sm text-[rgb(31,35,41)] bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
+                class="block px-3 py-[7px] text-sm text-text-secondary bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
                 :class="{ '!text-primary !bg-primary-light !font-medium': !category }"
                 @click="category = ''; page = 1"
               >全部</span>
               <span
                 v-for="cat in categories" :key="cat"
-                class="block px-3 py-[7px] text-sm text-[rgb(31,35,41)] bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
+                class="block px-3 py-[7px] text-sm text-text-secondary bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
                 :class="{ '!text-primary !bg-primary-light !font-medium': category === cat }"
                 @click="selectCategory(cat)"
               >{{ cat }}</span>
@@ -241,16 +241,16 @@ function selectSort(index: number) {
           </div>
           <!-- 工作性质 -->
           <div class="p-5">
-            <h4 class="text-lg font-bold text-[rgb(31,35,41)] m-0 mb-3">工作性质</h4>
+            <h4 class="text-lg font-bold text-text-primary m-0 mb-3">工作性质</h4>
             <div class="flex flex-col gap-1.5">
               <span
-                class="block px-3 py-[7px] text-sm text-[rgb(31,35,41)] bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
+                class="block px-3 py-[7px] text-sm text-text-secondary bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
                 :class="{ '!text-primary !bg-primary-light !font-medium': !jobNature }"
                 @click="jobNature = ''; page = 1"
               >全部</span>
               <span
                 v-for="item in [{ value: 'fulltime', label: '全职' }, { value: 'parttime', label: '兼职' }, { value: 'intern', label: '实习' }]" :key="item.value"
-                class="block px-3 py-[7px] text-sm text-[rgb(31,35,41)] bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
+                class="block px-3 py-[7px] text-sm text-text-secondary bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
                 :class="{ '!text-primary !bg-primary-light !font-medium': jobNature === item.value }"
                 @click="jobNature = jobNature === item.value ? '' : item.value; page = 1"
               >{{ item.label }}</span>
@@ -265,12 +265,12 @@ function selectSort(index: number) {
             <div class="flex gap-1">
               <span
                 v-for="(tab, idx) in sortTabs" :key="idx"
-                class="px-4 py-1.5 text-sm text-[rgb(100,106,115)] rounded-full cursor-pointer transition-all select-none hover:text-primary hover:bg-primary-bg"
+                class="px-4 py-1.5 text-sm text-text-secondary rounded-full cursor-pointer transition-all select-none hover:text-primary hover:bg-primary-bg"
                 :class="{ '!text-primary !bg-primary-light !font-medium': activeSort === idx }"
                 @click="selectSort(idx)"
               >{{ tab }}</span>
             </div>
-            <span v-if="total > 0" class="text-sm text-[rgb(100,106,115)] shrink-0">共 {{ total }} 个岗位</span>
+            <span v-if="total > 0" class="text-sm text-text-secondary shrink-0">共 {{ total }} 个岗位</span>
           </div>
 
           <!-- 职位列表 -->
