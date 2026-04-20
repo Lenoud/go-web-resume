@@ -7,6 +7,7 @@ import {
   talentpoolTalentPoolUpdate, talentpoolTalentPoolRemove,
   jobJobUserList,
   resumesnapshotResumeSnapshotDetail,
+  postPostCreateFromSnapshot,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 
@@ -203,13 +204,23 @@ async function openRecommend(item: TalentItem) {
   } catch { /* ignore */ }
 }
 
-function submitRecommend() {
+async function submitRecommend() {
   if (!recommendModal.selectedJobId) {
     message.warning('请选择目标岗位')
     return
   }
-  message.success('推荐成功')
-  recommendModal.visible = false
+  try {
+    await postPostCreateFromSnapshot({
+      body: {
+        resumeSnapshotId: recommendModal.snapshotId,
+        jobId: recommendModal.selectedJobId,
+      } as any,
+    })
+    message.success('推荐成功，已创建投递记录')
+    recommendModal.visible = false
+  } catch (err: any) {
+    message.warn(err?.message || '推荐失败')
+  }
 }
 </script>
 

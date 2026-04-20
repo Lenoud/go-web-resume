@@ -26,10 +26,8 @@ export type RoleValue = (typeof ROLE)[keyof typeof ROLE]
 export const EDUCATION_OPTIONS = [
   { label: '不限', value: '不限' },
   { label: '高中', value: '高中' },
-  { label: '大专', value: '大专' },
   { label: '本科', value: '本科' },
   { label: '硕士', value: '硕士' },
-  { label: '研究生', value: '研究生' },
   { label: '博士', value: '博士' },
 ]
 
@@ -45,7 +43,12 @@ export const RESUME_SOURCE_OPTIONS = [
   { label: '内推', value: '内推' },
   { label: '猎头', value: '猎头' },
   { label: '校招', value: '校招' },
-  { label: '招聘平台', value: '招聘平台' },
+  { label: '社招', value: '社招' },
+  { label: '招聘会', value: '招聘会' },
+  { label: 'Boss直聘', value: 'Boss直聘' },
+  { label: '拉勾', value: '拉勾' },
+  { label: '智联招聘', value: '智联招聘' },
+  { label: '前程无忧', value: '前程无忧' },
   { label: '社交媒体', value: '社交媒体' },
   { label: '其他', value: '其他' },
 ]
