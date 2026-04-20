@@ -17,22 +17,28 @@ const activeTab = ref('opLog')
 
 // 操作日志列定义
 const opLogColumns = [
+  { title: '请求ID', dataIndex: 'id', key: 'id', width: 80 },
+  { title: '用户ID', dataIndex: 'userId', key: 'userId', width: 80 },
   { title: '请求方法', dataIndex: 'reMethod', key: 'reMethod', width: 100 },
   { title: '请求路径', dataIndex: 'reUrl', key: 'reUrl', ellipsis: true },
   { title: 'IP地址', dataIndex: 'reIp', key: 'reIp', width: 140 },
   { title: '业务码', dataIndex: 'bizCode', key: 'bizCode', width: 80 },
   { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', ellipsis: true },
+  { title: '耗时(ms)', dataIndex: 'reResponseTime', key: 'reResponseTime', width: 90 },
   { title: '请求内容', dataIndex: 'reContent', key: 'reContent', ellipsis: true, width: 200 },
   { title: '访问时间', dataIndex: 'accessTime', key: 'accessTime', width: 180 },
 ]
 
 // 登录日志列定义
 const loginLogColumns = [
+  { title: '请求ID', dataIndex: 'id', key: 'id', width: 80 },
+  { title: '用户ID', dataIndex: 'userId', key: 'userId', width: 80 },
   { title: '请求方法', dataIndex: 'reMethod', key: 'reMethod', width: 100 },
   { title: '请求路径', dataIndex: 'reUrl', key: 'reUrl', ellipsis: true },
   { title: 'IP地址', dataIndex: 'reIp', key: 'reIp', width: 140 },
   { title: '业务码', dataIndex: 'bizCode', key: 'bizCode', width: 80 },
   { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', ellipsis: true },
+  { title: 'User-Agent', dataIndex: 'reUserAgent', key: 'reUserAgent', ellipsis: true, width: 200 },
   { title: '请求内容', dataIndex: 'reContent', key: 'reContent', ellipsis: true, width: 200 },
   { title: '访问时间', dataIndex: 'accessTime', key: 'accessTime', width: 180 },
 ]

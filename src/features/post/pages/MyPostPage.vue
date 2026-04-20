@@ -12,6 +12,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const page = ref(1)
 const pageSize = ref(10)
+const keyword = ref('')
 
 interface PostItem {
   id: string; jobId: string; title: string; companyTitle: string
@@ -34,7 +35,16 @@ const listQuery = useQuery({
   enabled: !!auth.userId,
 })
 
-const list = computed(() => listQuery.data?.value?.list ?? [])
+const list = computed(() => {
+  const all = listQuery.data?.value?.list ?? []
+  if (!keyword.value) return all
+  const kw = keyword.value.toLowerCase()
+  return all.filter((i: PostItem) =>
+    (i.title ?? '').toLowerCase().includes(kw) ||
+    (i.companyTitle ?? '').toLowerCase().includes(kw) ||
+    (i.location ?? '').toLowerCase().includes(kw),
+  )
+})
 const total = computed(() => listQuery.data?.value?.total ?? 0)
 const loading = computed(() => listQuery.isLoading.value)
 
@@ -57,9 +67,12 @@ function goDetail(jobId: string) {
 <template>
   <div class="max-w-[800px] mx-auto">
     <!-- Header -->
-    <div class="mb-6">
-      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">应聘记录</h2>
-      <p class="text-[13px] text-text-muted m-0">共 {{ total }} 条投递记录</p>
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">应聘记录</h2>
+        <p class="text-[13px] text-text-muted m-0">共 {{ total }} 条投递记录</p>
+      </div>
+      <a-input v-model:value="keyword" placeholder="搜索职位/公司/地点" class="w-60" allow-clear />
     </div>
 
     <a-spin :spinning="loading" style="min-height: 200px">
