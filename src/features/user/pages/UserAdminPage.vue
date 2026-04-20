@@ -148,7 +148,7 @@ const columns = [
     <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit">
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="用户名" required>
-          <a-input v-model:value="formState.username" />
+          <a-input v-model:value="formState.username" :disabled="!!editingItem?.id" />
         </a-form-item>
         <a-form-item v-if="!editingItem?.id" label="密码" required>
           <a-input-password v-model:value="formState.password" />

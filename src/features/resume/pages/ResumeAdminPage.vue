@@ -23,6 +23,26 @@ const sexOptions = [
   { label: '女', value: '女' },
 ]
 
+// 学历选项
+const educationOptions = [
+  { label: '不限', value: '不限' },
+  { label: '专科', value: '专科' },
+  { label: '本科', value: '本科' },
+  { label: '研究生', value: '研究生' },
+  { label: '博士', value: '博士' },
+]
+
+// 来源选项
+const sourceOptions = [
+  { label: '自投', value: '自投' },
+  { label: '内推', value: '内推' },
+  { label: '猎头', value: '猎头' },
+  { label: '校招', value: '校招' },
+  { label: '招聘平台', value: '招聘平台' },
+  { label: '社交媒体', value: '社交媒体' },
+  { label: '其他', value: '其他' },
+]
+
 function openCreate() {
   modalTitle.value = '新增简历'
   editingItem.value = null
@@ -59,6 +79,7 @@ const columns = [
   { title: '学校', dataIndex: 'school', key: 'school' },
   { title: '邮箱', dataIndex: 'email', key: 'email' },
   { title: '手机', dataIndex: 'mobile', key: 'mobile' },
+  { title: '求职意向', dataIndex: 'jobIntention', key: 'jobIntention', ellipsis: true },
   { title: '来源', dataIndex: 'source', key: 'source' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
   { title: '操作', key: 'action', width: 200 },
@@ -114,40 +135,48 @@ const columns = [
     <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="640px">
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="姓名" required>
-          <a-input v-model:value="formState.name" />
+          <a-input v-model:value="formState.name" placeholder="请输入姓名" />
         </a-form-item>
         <a-form-item label="性别">
           <a-select v-model:value="formState.sex" :options="sexOptions" allow-clear placeholder="请选择" />
         </a-form-item>
         <a-form-item label="出生日期">
-          <a-input v-model:value="formState.birthday" placeholder="如: 1990-01-01" />
+          <a-date-picker
+            v-model:value="formState.birthday"
+            value-format="YYYY-MM-DD"
+            placeholder="请选择出生日期"
+            class="w-full"
+          />
         </a-form-item>
         <a-form-item label="学历">
-          <a-input v-model:value="formState.education" />
+          <a-select v-model:value="formState.education" :options="educationOptions" allow-clear placeholder="请选择学历" />
         </a-form-item>
         <a-form-item label="学校">
-          <a-input v-model:value="formState.school" />
+          <a-input v-model:value="formState.school" placeholder="请输入毕业学校" />
         </a-form-item>
         <a-form-item label="邮箱">
-          <a-input v-model:value="formState.email" />
+          <a-input v-model:value="formState.email" placeholder="请输入邮箱" />
         </a-form-item>
         <a-form-item label="手机">
-          <a-input v-model:value="formState.mobile" />
+          <a-input v-model:value="formState.mobile" placeholder="请输入手机号" />
+        </a-form-item>
+        <a-form-item label="来源">
+          <a-select v-model:value="formState.source" :options="sourceOptions" allow-clear placeholder="请选择来源" />
         </a-form-item>
         <a-form-item label="个人简介">
-          <a-textarea v-model:value="formState.summary" :rows="3" />
+          <a-textarea v-model:value="formState.summary" :rows="3" placeholder="请输入个人简介" />
         </a-form-item>
         <a-form-item label="技能">
-          <a-textarea v-model:value="formState.skills" :rows="3" />
+          <a-textarea v-model:value="formState.skills" :rows="3" placeholder="请输入技能" />
         </a-form-item>
         <a-form-item label="工作经历">
-          <a-textarea v-model:value="formState.experience" :rows="3" />
+          <a-textarea v-model:value="formState.experience" :rows="3" placeholder="请输入工作经历" />
         </a-form-item>
         <a-form-item label="期望薪资">
-          <a-input v-model:value="formState.expectedSalary" />
+          <a-input v-model:value="formState.expectedSalary" placeholder="请输入期望薪资" />
         </a-form-item>
         <a-form-item label="求职意向">
-          <a-input v-model:value="formState.jobIntention" />
+          <a-input v-model:value="formState.jobIntention" placeholder="请输入求职意向" />
         </a-form-item>
       </a-form>
     </a-modal>

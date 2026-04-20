@@ -1,48 +1,80 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useCompanyTable, type CompanyItem } from '../composables/useCompany.js'
-import { PermissionCode } from '@/infrastructure/permission/types.js'
+import { ref, computed } from 'vue'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { message } from 'ant-design-vue'
+import { companyCompanyList, companyCompanyCreate, companyCompanyUpdate } from '@/client'
+import type { CompanyItem } from '../composables/useCompany'
 
-const {
-  list, total, loading, page, pageSize, keyword, handlePageChange,
-  createMutation, updateMutation, deleteMutation,
-  selectedRowKeys, batchDelete,
-} = useCompanyTable()
+import { queryKeys } from '@/infrastructure/query/query-keys'
 
-// 弹窗状态
+const queryClient = useQueryClient()
+
+// ── 查询单条公司信息 ──
+const { data: listData, isLoading: loading } = useQuery({
+  queryKey: queryKeys.companies.all,
+  queryFn: async () => {
+    const result = await companyCompanyList({ query: { page: 1, pageSize: 1 } })
+    const resp = result.data
+    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
+      throw new Error(resp?.msg ?? '查询失败')
+    }
+    return resp.data
+  },
+})
+
+const company = computed(() => {
+  const items = (listData.value as { list?: CompanyItem[] })?.list ?? []
+  return items.length > 0 ? items[0] : null
+})
+const hasCompany = computed(() => !!company.value)
+
+// ── 创建 / 更新 mutation ──
+const saveMutation = useMutation({
+  mutationFn: async (body: Partial<CompanyItem> & { id?: string }) => {
+    if (body.id) {
+      return companyCompanyUpdate({ body: body as Parameters<typeof companyCompanyUpdate>[0]['body'] })
+    }
+    return companyCompanyCreate({ body: body as Parameters<typeof companyCompanyCreate>[0]['body'] })
+  },
+  onSuccess: (result) => {
+    const resp = result.data
+    if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
+      message.error(resp.msg ?? '保存失败')
+      return
+    }
+    message.success('保存成功')
+    queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
+    modalVisible.value = false
+  },
+  onError: (err: Error) => message.error(err.message || '保存失败'),
+})
+
+// ── 弹窗状态 ──
 const modalVisible = ref(false)
-const modalTitle = ref('新增公司')
-const editingItem = ref<CompanyItem | null>(null)
+const editingId = ref<string | null>(null)
+const formState = ref<Partial<CompanyItem>>({ title: '' })
 
-// 表单默认值
-const formState = ref<CompanyItem>({ title: '' })
+const modalTitle = computed(() => (editingId.value ? '编辑公司信息' : '初始化公司资料'))
 
 function openCreate() {
-  modalTitle.value = '新增公司'
-  editingItem.value = null
+  editingId.value = null
   formState.value = { title: '' }
   modalVisible.value = true
 }
 
-function openEdit(record: unknown) {
-  const item = record as CompanyItem
-  modalTitle.value = '编辑公司'
-  editingItem.value = item
-  formState.value = { ...item }
+function openEdit() {
+  if (!company.value) return
+  editingId.value = company.value.id ?? null
+  formState.value = { ...company.value }
   modalVisible.value = true
 }
 
 function handleSubmit() {
-  if (editingItem.value?.id) {
-    updateMutation?.mutate({ id: editingItem.value.id, ...formState.value })
-  } else {
-    createMutation?.mutate({ ...formState.value })
+  const payload = { ...formState.value }
+  if (editingId.value) {
+    payload.id = editingId.value
   }
-  modalVisible.value = false
-}
-
-function handleDelete(id: string) {
-  deleteMutation?.mutate(id)
+  saveMutation.mutate(payload)
 }
 
 // 表格列定义
@@ -50,9 +82,9 @@ const columns = [
   { title: '公司名称', dataIndex: 'title', key: 'title' },
   { title: '规模', dataIndex: 'guimo', key: 'guimo' },
   { title: '行业', dataIndex: 'hangye', key: 'hangye' },
-  { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
   { title: '地点', dataIndex: 'location', key: 'location' },
-  { title: '操作', key: 'action', width: 200 },
+  { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
+  { title: '操作', key: 'action', width: 100 },
 ]
 </script>
 
@@ -61,42 +93,25 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索公司" class="w-60" allow-clear />
-        <a-button v-permission="PermissionCode.COMPANY_CREATE" type="primary" @click="openCreate">
-          新增公司
+        <a-button v-if="!hasCompany" type="primary" @click="openCreate">
+          初始化公司资料
         </a-button>
-        <a-popconfirm
-          v-if="selectedRowKeys.length > 0"
-          title="确认批量删除选中的公司？"
-          @confirm="batchDelete"
-        >
-          <a-button v-permission="PermissionCode.COMPANY_DELETE" danger>
-            批量删除 ({{ selectedRowKeys.length }})
-          </a-button>
-        </a-popconfirm>
       </div>
     </div>
 
-    <!-- 表格 -->
+    <!-- 表格 — 单公司，不分页 -->
     <a-table
       :columns="columns"
-      :data-source="list"
+      :data-source="company ? [company] : []"
       :loading="loading"
-      :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
-      :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="handlePageChange"
+      :pagination="false"
     >
-      <template #bodyCell="{ column, record }">
+      <template #bodyCell="{ column }">
         <template v-if="column.key === 'action'">
-          <a-button v-permission="PermissionCode.COMPANY_UPDATE" type="link" @click="openEdit(record)">
+          <a-button type="link" @click="openEdit">
             编辑
           </a-button>
-          <a-popconfirm title="确认删除该公司？" @confirm="handleDelete(record.id)">
-            <a-button v-permission="PermissionCode.COMPANY_DELETE" type="link" danger>
-              删除
-            </a-button>
-          </a-popconfirm>
         </template>
       </template>
     </a-table>
@@ -105,19 +120,19 @@ const columns = [
     <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit">
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="公司名称" required>
-          <a-input v-model:value="formState.title" />
-        </a-form-item>
-        <a-form-item label="规模">
-          <a-input v-model:value="formState.guimo" />
-        </a-form-item>
-        <a-form-item label="行业">
-          <a-input v-model:value="formState.hangye" />
-        </a-form-item>
-        <a-form-item label="描述">
-          <a-textarea v-model:value="formState.description" :rows="3" />
+          <a-input v-model:value="formState.title" placeholder="请输入公司名称" />
         </a-form-item>
         <a-form-item label="地点">
-          <a-input v-model:value="formState.location" />
+          <a-input v-model:value="formState.location" placeholder="请输入地点" />
+        </a-form-item>
+        <a-form-item label="行业">
+          <a-input v-model:value="formState.hangye" placeholder="请输入行业" />
+        </a-form-item>
+        <a-form-item label="规模">
+          <a-input v-model:value="formState.guimo" placeholder="请输入规模" />
+        </a-form-item>
+        <a-form-item label="简介">
+          <a-textarea v-model:value="formState.description" :rows="3" placeholder="请输入公司简介" />
         </a-form-item>
       </a-form>
     </a-modal>

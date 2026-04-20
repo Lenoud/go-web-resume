@@ -15,7 +15,7 @@ const modalTitle = ref('新增Offer')
 const editingItem = ref<OfferItem | null>(null)
 
 // 表单默认值
-const formState = ref<OfferItem>({ postId: '' })
+const formState = ref<Partial<OfferItem>>({ postId: '' })
 
 // 状态选项
 const statusOptions = [
@@ -24,6 +24,20 @@ const statusOptions = [
   { label: '已拒绝', value: 'rejected' },
   { label: '已撤回', value: 'withdrawn' },
 ]
+
+// 状态颜色映射
+const statusColorMap: Record<string, string> = {
+  pending: 'orange',
+  accepted: 'green',
+  rejected: 'red',
+  withdrawn: 'default',
+}
+const statusLabelMap: Record<string, string> = {
+  pending: '待确认',
+  accepted: '已接受',
+  rejected: '已拒绝',
+  withdrawn: '已撤回',
+}
 
 function openCreate() {
   modalTitle.value = '新增Offer'
@@ -58,7 +72,9 @@ const columns = [
   { title: '投递ID', dataIndex: 'postId', key: 'postId' },
   { title: '薪资', dataIndex: 'salary', key: 'salary' },
   { title: '职级', dataIndex: 'level', key: 'level' },
+  { title: '工作地点', dataIndex: 'workLocation', key: 'workLocation' },
   { title: '入职日期', dataIndex: 'joinDate', key: 'joinDate' },
+  { title: '合同期限', dataIndex: 'contractPeriod', key: 'contractPeriod' },
   { title: '试用期', dataIndex: 'probationPeriod', key: 'probationPeriod' },
   { title: '状态', dataIndex: 'status', key: 'status' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
@@ -98,7 +114,12 @@ const columns = [
       @change="handlePageChange"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
+        <template v-if="column.key === 'status'">
+          <a-tag :color="statusColorMap[record.status] ?? 'default'">
+            {{ statusLabelMap[record.status] ?? record.status ?? '--' }}
+          </a-tag>
+        </template>
+        <template v-else-if="column.key === 'action'">
           <a-button v-permission="PermissionCode.OFFER_UPDATE" type="link" @click="openEdit(record)">
             编辑
           </a-button>
@@ -115,28 +136,33 @@ const columns = [
     <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="600px">
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="投递ID" required>
-          <a-input v-model:value="formState.postId" :disabled="!!editingItem?.id" />
+          <a-input v-model:value="formState.postId" :disabled="!!editingItem?.id" placeholder="请输入投递记录ID" />
         </a-form-item>
         <a-form-item label="薪资">
-          <a-input v-model:value="formState.salary" />
+          <a-input v-model:value="formState.salary" placeholder="如：15K-25K/月" />
         </a-form-item>
         <a-form-item label="职级">
-          <a-input v-model:value="formState.level" />
+          <a-input v-model:value="formState.level" placeholder="如：P6、高级工程师" />
         </a-form-item>
         <a-form-item label="入职日期">
-          <a-input v-model:value="formState.joinDate" placeholder="如: 2025-06-01" />
+          <a-date-picker
+            v-model:value="formState.joinDate"
+            value-format="YYYY-MM-DD"
+            placeholder="请选择入职日期"
+            class="w-full"
+          />
         </a-form-item>
         <a-form-item label="试用期">
-          <a-input v-model:value="formState.probationPeriod" placeholder="如: 3个月" />
+          <a-input v-model:value="formState.probationPeriod" placeholder="如：3个月" />
         </a-form-item>
         <a-form-item label="合同期限">
-          <a-input v-model:value="formState.contractPeriod" placeholder="如: 3年" />
+          <a-input v-model:value="formState.contractPeriod" placeholder="如：3年" />
         </a-form-item>
         <a-form-item label="工作地点">
-          <a-input v-model:value="formState.workLocation" />
+          <a-input v-model:value="formState.workLocation" placeholder="请输入工作地点" />
         </a-form-item>
-        <a-form-item label="状态">
-          <a-select v-model:value="formState.status" :options="statusOptions" allow-clear placeholder="请选择" />
+        <a-form-item v-if="editingItem?.id" label="状态">
+          <a-select v-model:value="formState.status" :options="statusOptions" allow-clear placeholder="请选择状态" />
         </a-form-item>
       </a-form>
     </a-modal>

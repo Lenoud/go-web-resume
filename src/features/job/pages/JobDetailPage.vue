@@ -3,6 +3,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
+import { marked } from 'marked'
 import { jobJobDetail, jobJobList, resumeResumeDetail, postPostCreate } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { useAuthStore } from '@/infrastructure/store/auth'
@@ -98,14 +99,10 @@ async function handleApply() {
   }
 }
 
-// 简单 Markdown → HTML（支持 **粗体**、换行、列表）
+// Markdown → HTML（使用 marked 库）
 function renderMarkdown(text: string): string {
-  return text
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^\- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-    .replace(/\n/g, '<br/>')
+  if (!text) return ''
+  return marked.parse(text, { async: false }) as string
 }
 </script>
 
@@ -151,13 +148,13 @@ function renderMarkdown(text: string): string {
             <!-- 岗位描述 -->
             <div v-if="detail.description" class="bg-white border border-border rounded-md p-6 mb-4">
               <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">岗位描述</div>
-              <div class="text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.description)" />
+              <div class="markdown-body text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.description)" />
             </div>
 
             <!-- 岗位要求 -->
             <div v-if="detail.requirement" class="bg-white border border-border rounded-md p-6 mb-4">
               <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">岗位要求</div>
-              <div class="text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.requirement)" />
+              <div class="markdown-body text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.requirement)" />
             </div>
           </div>
 
@@ -181,3 +178,43 @@ function renderMarkdown(text: string): string {
     </div>
   </div>
 </template>
+
+<style scoped>
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+.markdown-body :deep(li) {
+  margin: 0.25em 0;
+}
+.markdown-body :deep(p) {
+  margin: 0.5em 0;
+}
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3),
+.markdown-body :deep(h4) {
+  margin: 0.8em 0 0.4em;
+  font-weight: 600;
+  color: var(--text-primary, #152844);
+}
+.markdown-body :deep(code) {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+.markdown-body :deep(pre) {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.markdown-body :deep(blockquote) {
+  border-left: 3px solid #d0d5dd;
+  padding-left: 12px;
+  margin: 0.5em 0;
+  color: #6b7280;
+}
+</style>
