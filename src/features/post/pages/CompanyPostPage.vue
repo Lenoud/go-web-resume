@@ -1,18 +1,30 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { postPostCompanyList, postPostUpdate } from '@/client'
-import { useAuthStore } from '@/infrastructure/store/auth'
+import { postPostCompanyList, postPostUpdate, companyCompanyList } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
 import RecruitmentPipeline from '../components/RecruitmentPipeline.vue'
 import { message } from 'ant-design-vue'
 
-const auth = useAuthStore()
 const queryClient = useQueryClient()
 const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
+
+// 先查公司列表获取 companyId（单公司模型，取第一条）
+const companyQuery = useQuery({
+  queryKey: ['companyForPost'],
+  queryFn: async () => {
+    const result = await companyCompanyList({ query: { page: 1, pageSize: 1 } })
+    const resp = result.data
+    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
+      throw new Error(resp?.msg ?? '查询公司失败')
+    }
+    const list = (resp.data as { list?: Array<{ id: string }> } | undefined)?.list
+    return list?.[0]?.id ?? ''
+  },
+})
 
 interface PostItem {
   id: string; jobId: string; title: string; companyTitle: string
@@ -21,10 +33,12 @@ interface PostItem {
 }
 
 const listQuery = useQuery({
-  queryKey: ['companyPosts', { page, pageSize, keyword, userId: auth.userId }],
+  queryKey: ['companyPosts', { page, pageSize, keyword, companyId: companyQuery.data }],
   queryFn: async () => {
+    const companyId = companyQuery.data?.value
+    if (!companyId) return { list: [] as PostItem[], total: 0 }
     const result = await postPostCompanyList({
-      query: { companyId: auth.userId, page: page.value, pageSize: pageSize.value },
+      query: { companyId, page: page.value, pageSize: pageSize.value },
     })
     const resp = result.data
     if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
@@ -32,6 +46,7 @@ const listQuery = useQuery({
     }
     return normalizePaginated<PostItem>(resp.data)
   },
+  enabled: !!companyQuery.data?.value,
 })
 
 const list = computed(() => {
@@ -44,7 +59,7 @@ const list = computed(() => {
   )
 })
 const total = computed(() => listQuery.data?.value?.total ?? 0)
-const loading = computed(() => listQuery.isLoading.value)
+const loading = computed(() => listQuery.isLoading.value || companyQuery.isLoading.value)
 
 // Status change
 const statusModalVisible = ref(false)

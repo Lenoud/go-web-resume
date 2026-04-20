@@ -57,8 +57,8 @@ const frontendRoutes: RouteRecordRaw[] = [
           {
             path: 'myJobView',
             name: 'myJobView',
-            component: () => import('@/features/post/pages/CompanyPostPage.vue'),
-            meta: { roles: ['2'], title: '我的职位' },
+            component: () => import('@/features/job/pages/MyJobPage.vue'),
+            meta: { roles: ['2'], title: '岗位管理' },
           },
           {
             path: 'companyPostView',
@@ -69,8 +69,8 @@ const frontendRoutes: RouteRecordRaw[] = [
           {
             path: 'resumeManagementView',
             name: 'resumeManagementView',
-            component: () => import('@/features/resume/pages/ResumeAdminPage.vue'),
-            meta: { roles: ['2'], title: '简历管理' },
+            component: () => import('@/features/resume-snapshot/pages/SnapshotAdminPage.vue'),
+            meta: { roles: ['2'], title: '简历快照管理' },
           },
           {
             path: 'offerView',

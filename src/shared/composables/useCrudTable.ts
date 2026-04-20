@@ -100,6 +100,12 @@ export function useCrudTable<T extends { id?: string }>(options: {
       })
     : undefined
 
+  // ── 分页变更 ──
+  function handlePageChange(pag: { current?: number; pageSize?: number }) {
+    if (pag.current !== undefined) page.value = pag.current
+    if (pag.pageSize !== undefined) pageSize.value = pag.pageSize
+  }
+
   // ── 批量删除 ──
   const selectedRowKeys = ref<(string | number)[]>([])
 
@@ -115,7 +121,7 @@ export function useCrudTable<T extends { id?: string }>(options: {
   // ── 导出 ──
   return {
     // 分页
-    page, pageSize, keyword,
+    page, pageSize, keyword, handlePageChange,
     // 列表
     listQuery,
     list: computed(() => listQuery.data?.value?.list ?? []),

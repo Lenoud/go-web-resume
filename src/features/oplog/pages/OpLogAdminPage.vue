@@ -4,12 +4,12 @@ import { useOpLogTable, useLoginLogTable } from '../composables/useOpLog.js'
 
 // 操作日志
 const {
-  list: opLogList, total: opLogTotal, loading: opLogLoading, page: opLogPage, pageSize: opLogPageSize,
+  list: opLogList, total: opLogTotal, loading: opLogLoading, page: opLogPage, pageSize: opLogPageSize, handlePageChange: opLogPageChange,
 } = useOpLogTable()
 
 // 登录日志
 const {
-  list: loginLogList, total: loginLogTotal, loading: loginLogLoading, page: loginLogPage, pageSize: loginLogPageSize,
+  list: loginLogList, total: loginLogTotal, loading: loginLogLoading, page: loginLogPage, pageSize: loginLogPageSize, handlePageChange: loginLogPageChange,
 } = useLoginLogTable()
 
 // 当前激活的 Tab
@@ -49,7 +49,7 @@ const loginLogColumns = [
           :loading="opLogLoading"
           row-key="id"
           :pagination="{ current: opLogPage, pageSize: opLogPageSize, total: opLogTotal, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-          @change="(pag: any) => { opLogPage = pag.current; opLogPageSize = pag.pageSize }"
+          @change="opLogPageChange"
         />
       </a-tab-pane>
 
@@ -61,7 +61,7 @@ const loginLogColumns = [
           :loading="loginLogLoading"
           row-key="id"
           :pagination="{ current: loginLogPage, pageSize: loginLogPageSize, total: loginLogTotal, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-          @change="(pag: any) => { loginLogPage = pag.current; loginLogPageSize = pag.pageSize }"
+          @change="loginLogPageChange"
         />
       </a-tab-pane>
     </a-tabs>

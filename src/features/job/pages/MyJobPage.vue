@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useJobTable, type JobItem } from '../composables/useJob.js'
-import { PermissionCode } from '@/infrastructure/permission/types'
+import { useMyJobTable, type JobItem } from '../composables/useJob.js'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
   createMutation, updateMutation, deleteMutation,
   selectedRowKeys, batchDelete,
-} = useJobTable()
+} = useMyJobTable()
 
 // 弹窗状态
 const modalVisible = ref(false)
@@ -64,7 +63,7 @@ const columns = [
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
         <a-input v-model:value="keyword" placeholder="搜索职位" class="w-60" allow-clear />
-        <a-button v-permission="PermissionCode.JOB_CREATE" type="primary" @click="openCreate">
+        <a-button type="primary" @click="openCreate">
           新增职位
         </a-button>
         <a-popconfirm
@@ -72,7 +71,7 @@ const columns = [
           title="确认批量删除选中的职位？"
           @confirm="batchDelete"
         >
-          <a-button v-permission="PermissionCode.JOB_DELETE" danger>
+          <a-button danger>
             批量删除 ({{ selectedRowKeys.length }})
           </a-button>
         </a-popconfirm>
@@ -99,11 +98,11 @@ const columns = [
           </a-tag>
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button v-permission="PermissionCode.JOB_UPDATE" type="link" @click="openEdit(record)">
+          <a-button type="link" @click="openEdit(record)">
             编辑
           </a-button>
           <a-popconfirm title="确认删除该职位？" @confirm="handleDelete(record.id)">
-            <a-button v-permission="PermissionCode.JOB_DELETE" type="link" danger>
+            <a-button type="link" danger>
               删除
             </a-button>
           </a-popconfirm>
@@ -142,10 +141,17 @@ const columns = [
           <a-input v-model:value="formState.address" />
         </a-form-item>
         <a-form-item label="工作性质">
-          <a-input v-model:value="formState.jobNature" />
+          <a-select v-model:value="formState.jobNature" placeholder="选择工作性质" allow-clear>
+            <a-select-option value="fulltime">全职</a-select-option>
+            <a-select-option value="parttime">兼职</a-select-option>
+            <a-select-option value="intern">实习</a-select-option>
+          </a-select>
         </a-form-item>
         <a-form-item label="招聘类型">
-          <a-input v-model:value="formState.recruitType" />
+          <a-select v-model:value="formState.recruitType" placeholder="选择招聘类型" allow-clear>
+            <a-select-option value="experienced">社会招聘</a-select-option>
+            <a-select-option value="campus">校园招聘</a-select-option>
+          </a-select>
         </a-form-item>
         <a-form-item label="职位描述">
           <a-textarea v-model:value="formState.description" :rows="3" />

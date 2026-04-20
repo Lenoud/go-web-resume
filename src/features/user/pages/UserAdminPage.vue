@@ -4,7 +4,7 @@ import { useUserTable, type UserItem } from '../composables/useUser.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {
-  list, total, loading, page, pageSize, keyword,
+  list, total, loading, page, pageSize, keyword, handlePageChange,
   createMutation, updateMutation, deleteMutation,
   selectedRowKeys, batchDelete,
 } = useUserTable()
@@ -118,7 +118,7 @@ const columns = [
       :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="(pag: any) => { page = pag.current; pageSize = pag.pageSize }"
+      @change="handlePageChange"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'role'">

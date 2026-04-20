@@ -35,8 +35,13 @@ export function useOpLogTable() {
     },
   })
 
+  function handlePageChange(pag: { current?: number; pageSize?: number }) {
+    if (pag.current !== undefined) page.value = pag.current
+    if (pag.pageSize !== undefined) pageSize.value = pag.pageSize
+  }
+
   return {
-    page, pageSize,
+    page, pageSize, handlePageChange,
     listQuery,
     list: computed(() => listQuery.data?.value?.list ?? []),
     total: computed(() => listQuery.data?.value?.total ?? 0),
@@ -60,8 +65,13 @@ export function useLoginLogTable() {
     },
   })
 
+  function handlePageChange(pag: { current?: number; pageSize?: number }) {
+    if (pag.current !== undefined) page.value = pag.current
+    if (pag.pageSize !== undefined) pageSize.value = pag.pageSize
+  }
+
   return {
-    page, pageSize,
+    page, pageSize, handlePageChange,
     listQuery,
     list: computed(() => listQuery.data?.value?.list ?? []),
     total: computed(() => listQuery.data?.value?.total ?? 0),
