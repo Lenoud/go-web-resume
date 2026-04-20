@@ -62,13 +62,13 @@ function handlePreview() {
 
 <template>
   <a-layout class="min-h-screen">
-    <!-- 暗色侧边栏 -->
+    <!-- 暗色侧边栏 — 不用 theme="dark"，完全自控样式避免 AntDV 覆盖背景色 -->
     <a-layout-sider
       v-model:collapsed="app.sidebarCollapsed"
       collapsible
       :trigger="null"
       width="220"
-      :style="{ background: 'var(--color-sidebar-bg)' }"
+      class="admin-sider"
     >
       <div class="h-16 flex items-center justify-center border-b border-white/10">
         <h1 v-if="!app.sidebarCollapsed" class="text-lg font-bold text-white m-0">智慧招聘</h1>
@@ -80,7 +80,6 @@ function handlePreview() {
         :selected-keys="selectedKeys"
         @click="handleMenuClick"
         :items="menuItems"
-        :style="{ background: 'transparent', borderRight: 'none', paddingTop: '16px' }"
         class="admin-sidebar-menu"
       />
     </a-layout-sider>
@@ -114,26 +113,42 @@ function handlePreview() {
 </template>
 
 <style scoped>
-/* 暗色侧边栏菜单样式覆盖 */
-:deep(.admin-sidebar-menu .ant-menu-item),
-:deep(.admin-sidebar-menu .ant-menu-submenu-title) {
+/* ===== 侧边栏整体 ===== */
+.admin-sider {
+  background: var(--color-sidebar-bg) !important;
+}
+
+/* 覆盖 AntDV sider-children 的内联背景 */
+.admin-sider :deep(.ant-layout-sider-children) {
+  background: transparent !important;
+}
+
+/* ===== 菜单项 ===== */
+.admin-sidebar-menu {
+  background: transparent !important;
+  border-right: none !important;
+  padding-top: 16px;
+}
+
+.admin-sidebar-menu :deep(.ant-menu-item),
+.admin-sidebar-menu :deep(.ant-menu-submenu-title) {
   color: var(--color-sidebar-text);
   margin: 4px 8px;
   border-radius: 6px;
 }
 
-:deep(.admin-sidebar-menu .ant-menu-item:hover),
-:deep(.admin-sidebar-menu .ant-menu-submenu-title:hover) {
+.admin-sidebar-menu :deep(.ant-menu-item:hover),
+.admin-sidebar-menu :deep(.ant-menu-submenu-title:hover) {
   color: var(--color-sidebar-active);
 }
 
-:deep(.admin-sidebar-menu .ant-menu-item-selected) {
+.admin-sidebar-menu :deep(.ant-menu-item-selected) {
   color: var(--color-sidebar-active) !important;
   background: rgba(59, 125, 216, 0.15) !important;
   position: relative;
 }
 
-:deep(.admin-sidebar-menu .ant-menu-item-selected::after) {
+.admin-sidebar-menu :deep(.ant-menu-item-selected::after) {
   content: '';
   position: absolute;
   left: 0;
@@ -144,26 +159,11 @@ function handlePreview() {
   background: var(--color-primary);
 }
 
-:deep(.admin-sidebar-menu .ant-menu-sub) {
+.admin-sidebar-menu :deep(.ant-menu-sub) {
   background: transparent !important;
 }
 
-:deep(.admin-sidebar-menu .anticon) {
+.admin-sidebar-menu :deep(.anticon) {
   color: inherit;
-}
-</style>
-
-<!-- 全局覆盖 AntDV sider 暗色主题 -->
-<style>
-/* 确保 sider 整体背景统一，避免底部露出默认深灰色 */
-.ant-layout-sider {
-  background: var(--color-sidebar-bg) !important;
-}
-.ant-layout-sider .ant-layout-sider-children {
-  background: var(--color-sidebar-bg) !important;
-}
-/* 覆盖 AntDV dark sider 底部 trigger 区域 */
-.ant-layout-sider-dark {
-  background: var(--color-sidebar-bg) !important;
 }
 </style>
