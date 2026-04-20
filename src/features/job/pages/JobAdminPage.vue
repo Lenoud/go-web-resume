@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useJobTable, type JobItem } from '../composables/useJob.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
-import { RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP } from '@/shared/utils/constants'
+import { RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP, EDUCATION_OPTIONS, WORK_EXPERIENCE_OPTIONS, JOB_CATEGORY_OPTIONS } from '@/shared/utils/constants'
+import { departmentDepartmentList } from '@/client'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -14,8 +15,6 @@ const {
 const modalVisible = ref(false)
 const modalTitle = ref('新增职位')
 const editingItem = ref<JobItem | null>(null)
-
-// 表单默认值（复用 JobItem 类型，所有字段均可选）
 const formState = ref<Partial<JobItem>>({ title: '' })
 
 // ── 招聘类型 / 工作性质联动 ──
@@ -29,7 +28,24 @@ function onRecruitTypeChange() {
   formState.value.jobNature = undefined
 }
 
+// ── 部门数据 ──
+const deptData = ref<Array<{ id: string; title: string }>>([])
+onMounted(async () => {
+  try {
+    const result = await departmentDepartmentList({ query: { page: 1, pageSize: 100 } })
+    const resp = result.data
+    const d = (resp?.data as any)?.list ?? []
+    deptData.value = d.map((x: any) => ({ id: String(x.id), title: x.title }))
+  } catch { /* ignore */ }
+})
+
 // ── 状态映射 ──
+const statusOptions = [
+  { label: '招聘中', value: 1 },
+  { label: '已关闭', value: 2 },
+  { label: '已招满', value: 4 },
+]
+
 const statusColorMap: Record<number, string> = {
   0: 'default',
   1: 'green',
@@ -44,7 +60,6 @@ const statusLabelMap: Record<number, string> = {
   4: '已招满',
 }
 
-// ── 招聘类型 / 工作性质显示映射 ──
 const recruitTypeLabelMap: Record<string, string> = {
   experienced: '社招',
   campus: '校招',
@@ -58,7 +73,7 @@ const jobNatureLabelMap: Record<string, string> = {
 function openCreate() {
   modalTitle.value = '新增职位'
   editingItem.value = null
-  formState.value = { title: '' }
+  formState.value = { title: '', salaryUnit: 1 }
   modalVisible.value = true
 }
 
@@ -66,21 +81,27 @@ function openEdit(record: unknown) {
   const item = record as JobItem
   modalTitle.value = '编辑职位'
   editingItem.value = item
-  // 薪资转换：后端存元 → 前端显示 K（÷1000）
-  const minK = item.minSalary && item.minSalary > 0 ? Math.round(item.minSalary / 1000) : undefined
-  const maxK = item.maxSalary && item.maxSalary > 0 ? Math.round(item.maxSalary / 1000) : undefined
-  formState.value = { ...item, minSalary: minK, maxSalary: maxK }
+  // 薪资转换：根据 salaryUnit 选择除数
+  const divisor = item.salaryUnit === 2 ? 1 : 1000
+  const minK = item.minSalary && item.minSalary > 0 ? Math.round(item.minSalary / divisor) : undefined
+  const maxK = item.maxSalary && item.maxSalary > 0 ? Math.round(item.maxSalary / divisor) : undefined
+  formState.value = {
+    ...item,
+    minSalary: minK,
+    maxSalary: maxK,
+    departmentId: item.departmentId ? String(item.departmentId) : undefined,
+  }
   modalVisible.value = true
 }
 
 function handleSubmit() {
-  // 构建提交数据，薪资从 K 转回元（×1000）
   const payload: Record<string, unknown> = { ...formState.value }
-  const minSalary = formState.value.minSalary
-  const maxSalary = formState.value.maxSalary
-  payload.minSalary = minSalary && minSalary > 0 ? minSalary * 1000 : undefined
-  payload.maxSalary = maxSalary && maxSalary > 0 ? maxSalary * 1000 : undefined
-  payload.salaryUnit = 1 // 默认月薪
+  // 薪资根据单位转回元
+  const salaryMultiplier = (payload.salaryUnit as number) === 2 ? 1 : 1000
+  const minSalary = payload.minSalary as number | undefined
+  const maxSalary = payload.maxSalary as number | undefined
+  payload.minSalary = minSalary && minSalary > 0 ? minSalary * salaryMultiplier : undefined
+  payload.maxSalary = maxSalary && maxSalary > 0 ? maxSalary * salaryMultiplier : undefined
 
   // 清理空值
   for (const key of Object.keys(payload)) {
@@ -101,12 +122,19 @@ function handleDelete(id: string) {
   deleteMutation?.mutate(id)
 }
 
+// 行内状态切换
+function handleStatusChange(record: Record<string, any>, newStatus: number) {
+  if (record.status === newStatus) return
+  updateMutation?.mutate({ id: record.id, status: newStatus } as any)
+}
+
 // 表格列定义
 const columns = [
   { title: '职位名称', dataIndex: 'title', key: 'title' },
   { title: '岗位编号', dataIndex: 'jobCode', key: 'jobCode' },
   { title: '招聘类型', dataIndex: 'recruitType', key: 'recruitType' },
   { title: '工作性质', dataIndex: 'jobNature', key: 'jobNature' },
+  { title: '部门', dataIndex: 'departmentTitle', key: 'departmentTitle' },
   { title: '分类', dataIndex: 'category', key: 'category' },
   { title: '薪资', key: 'salaryShow' },
   { title: '学历', dataIndex: 'education', key: 'education' },
@@ -114,7 +142,7 @@ const columns = [
   { title: '地点', dataIndex: 'location', key: 'location' },
   { title: '状态', dataIndex: 'status', key: 'status' },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
-  { title: '操作', key: 'action', width: 200, fixed: 'right' as const },
+  { title: '操作', key: 'action', width: 240, fixed: 'right' as const },
 ]
 </script>
 
@@ -160,6 +188,9 @@ const columns = [
         <template v-else-if="column.key === 'jobNature'">
           {{ jobNatureLabelMap[record.jobNature] || '--' }}
         </template>
+        <template v-else-if="column.key === 'departmentTitle'">
+          {{ record.departmentTitle || '--' }}
+        </template>
         <template v-else-if="column.key === 'salaryShow'">
           {{ record.salaryShow || '--' }}
         </template>
@@ -172,6 +203,18 @@ const columns = [
           </a-tag>
         </template>
         <template v-else-if="column.key === 'action'">
+          <a-dropdown :trigger="['click']">
+            <a-button v-permission="PermissionCode.JOB_UPDATE" type="link" size="small">
+              {{ statusLabelMap[record.status] ?? '状态' }} ▾
+            </a-button>
+            <template #overlay>
+              <a-menu @click="(e: any) => handleStatusChange(record, Number(e.key))">
+                <a-menu-item key="1" :disabled="record.status === 1">招聘中</a-menu-item>
+                <a-menu-item key="2" :disabled="record.status === 2">已关闭</a-menu-item>
+                <a-menu-item key="4" :disabled="record.status === 4">已招满</a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <a-button v-permission="PermissionCode.JOB_UPDATE" type="link" @click="openEdit(record)">
             编辑
           </a-button>
@@ -185,79 +228,113 @@ const columns = [
     </a-table>
 
     <!-- 新增/编辑弹窗 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="640px">
+    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="880px">
       <a-form :label-col="{ span: 4 }">
-        <a-form-item label="职位名称" required>
-          <a-input v-model:value="formState.title" placeholder="请输入职位名称" allow-clear />
-        </a-form-item>
-        <a-form-item label="岗位编号">
-          <a-input v-model:value="formState.jobCode" placeholder="请输入岗位编号" allow-clear />
-        </a-form-item>
-        <a-form-item label="招聘类型" required>
-          <a-select
-            v-model:value="formState.recruitType"
-            :options="RECRUIT_TYPE_OPTIONS"
-            placeholder="请选择招聘类型"
-            allow-clear
-            @change="onRecruitTypeChange"
-          />
-        </a-form-item>
-        <a-form-item label="工作性质" required>
-          <a-select
-            v-model:value="formState.jobNature"
-            :options="jobNatureOptions"
-            placeholder="请选择工作性质"
-            allow-clear
-          />
-        </a-form-item>
-        <a-form-item label="薪资范围">
-          <div class="flex items-center gap-1">
-            <a-input-number
-              v-model:value="formState.minSalary"
-              placeholder="最低"
-              class="flex-1"
-              :min="0"
-              :precision="0"
-            />
-            <span class="text-gray-400">~</span>
-            <a-input-number
-              v-model:value="formState.maxSalary"
-              placeholder="最高"
-              class="flex-1"
-              :min="0"
-              :precision="0"
-            />
-            <span class="whitespace-nowrap text-gray-400">K/月</span>
-          </div>
-        </a-form-item>
-        <a-form-item label="薪资展示">
-          <a-input
-            v-model:value="formState.salaryShow"
-            placeholder="如：10-20K/月、面议，留空则自动生成"
-            allow-clear
-          />
-        </a-form-item>
-        <a-form-item label="学历">
-          <a-input v-model:value="formState.education" placeholder="如：本科" allow-clear />
-        </a-form-item>
-        <a-form-item label="经验">
-          <a-input v-model:value="formState.workExpe" placeholder="如：3-5年" allow-clear />
-        </a-form-item>
-        <a-form-item label="工作地点">
-          <a-input v-model:value="formState.location" placeholder="请输入工作地点" allow-clear />
-        </a-form-item>
-        <a-form-item label="详细地址">
-          <a-input v-model:value="formState.address" placeholder="请输入详细地址" allow-clear />
-        </a-form-item>
-        <a-form-item label="分类">
-          <a-input v-model:value="formState.category" placeholder="如：技术、产品、设计" allow-clear />
-        </a-form-item>
-        <a-form-item label="职位描述">
-          <a-textarea v-model:value="formState.description" :rows="3" placeholder="请输入职位描述" />
-        </a-form-item>
-        <a-form-item label="任职要求">
-          <a-textarea v-model:value="formState.requirement" :rows="3" placeholder="请输入任职要求" />
-        </a-form-item>
+        <a-row :gutter="24">
+          <a-col :span="24">
+            <a-form-item label="职位名称" required>
+              <a-input v-model:value="formState.title" placeholder="请输入职位名称" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="岗位编号">
+              <a-input v-model:value="formState.jobCode" placeholder="请输入岗位编号" allow-clear />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="分类">
+              <a-select v-model:value="formState.category" placeholder="请选择分类" allow-clear>
+                <a-select-option v-for="c in JOB_CATEGORY_OPTIONS" :key="c.value" :value="c.value">{{ c.label }}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="招聘类型">
+              <a-select
+                v-model:value="formState.recruitType"
+                :options="RECRUIT_TYPE_OPTIONS"
+                placeholder="请选择招聘类型"
+                allow-clear
+                @change="onRecruitTypeChange"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="工作性质">
+              <a-select
+                v-model:value="formState.jobNature"
+                :options="jobNatureOptions"
+                placeholder="请选择工作性质"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="部门">
+              <a-select
+                v-model:value="formState.departmentId"
+                placeholder="请选择部门"
+                allow-clear
+                :options="deptData"
+                :field-names="{ label: 'title', value: 'id' }"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="职位描述">
+              <a-textarea v-model:value="formState.description" :rows="4" placeholder="请输入职位描述" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="岗位要求">
+              <a-textarea v-model:value="formState.requirement" :rows="4" placeholder="请输入岗位要求" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="工作地点">
+              <a-input v-model:value="formState.location" placeholder="请输入工作地点" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="详细地址">
+              <a-input v-model:value="formState.address" placeholder="请输入详细地址" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="薪资范围">
+              <div class="flex items-center gap-1">
+                <a-input-number v-model:value="formState.minSalary" placeholder="最低" class="flex-1" :min="0" :precision="0" />
+                <span class="text-gray-400">~</span>
+                <a-input-number v-model:value="formState.maxSalary" placeholder="最高" class="flex-1" :min="0" :precision="0" />
+                <a-select v-model:value="formState.salaryUnit" style="width: 80px">
+                  <a-select-option :value="1">K/月</a-select-option>
+                  <a-select-option :value="2">元/天</a-select-option>
+                  <a-select-option :value="3">K/年</a-select-option>
+                </a-select>
+              </div>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="薪资展示">
+              <a-input v-model:value="formState.salaryShow" placeholder="如：10-20K/月、面议" allow-clear />
+            </a-form-item>
+          </a-col>
+          <a-col v-if="editingItem" :span="12">
+            <a-form-item label="状态">
+              <a-select v-model:value="formState.status" :options="statusOptions" placeholder="请选择状态" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="学历要求">
+              <a-select v-model:value="formState.education" :options="EDUCATION_OPTIONS" placeholder="请选择学历" allow-clear />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="经验要求">
+              <a-select v-model:value="formState.workExpe" :options="WORK_EXPERIENCE_OPTIONS" placeholder="请选择经验" allow-clear />
+            </a-form-item>
+          </a-col>
+        </a-row>
       </a-form>
     </a-modal>
   </div>

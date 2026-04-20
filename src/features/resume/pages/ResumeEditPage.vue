@@ -3,6 +3,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { resumeResumeDetail } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
+import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { message } from 'ant-design-vue'
 
@@ -208,11 +209,7 @@ async function handleSave() {
   }
 }
 
-const sourceOptions = [
-  '官网投递', '内部推荐', '招聘网站', '校园招聘', '猎头推荐', '社交媒体', '其他',
-]
-
-const degreeOptions = ['博士', '硕士', '本科', '大专', '专科', '高中']
+const degreeOptions = EDUCATION_OPTIONS.filter(o => o.value !== '不限').map(o => o.value)
 
 // ── 简历预览抽屉 ──
 const previewVisible = ref(false)
@@ -260,10 +257,7 @@ function openPreview() {
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">性别 <span class="text-accent">*</span></label>
-              <a-select v-model:value="base.sex" placeholder="请选择" allow-clear>
-                <a-select-option value="男">男</a-select-option>
-                <a-select-option value="女">女</a-select-option>
-              </a-select>
+              <a-select v-model:value="base.sex" placeholder="请选择" allow-clear :options="SEX_OPTIONS" />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">出生日期 <span class="text-accent">*</span></label>
@@ -375,9 +369,7 @@ function openPreview() {
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">来源渠道</label>
-              <a-select v-model:value="ext.source" placeholder="请选择" allow-clear>
-                <a-select-option v-for="s in sourceOptions" :key="s" :value="s">{{ s }}</a-select-option>
-              </a-select>
+              <a-select v-model:value="ext.source" placeholder="请选择" allow-clear :options="RESUME_SOURCE_OPTIONS" />
             </div>
           </div>
         </div>

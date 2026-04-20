@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { jobJobList, jobJobCategoryList } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
+import { JOB_NATURE_MAP } from '@/shared/utils/constants'
 import JobCard from '../components/JobCard.vue'
 
 const route = useRoute()
@@ -249,7 +250,7 @@ function selectSort(index: number) {
                 @click="jobNature = ''; page = 1"
               >全部</span>
               <span
-                v-for="item in [{ value: 'fulltime', label: '全职' }, { value: 'parttime', label: '兼职' }, { value: 'intern', label: '实习' }]" :key="item.value"
+                v-for="item in JOB_NATURE_MAP.all" :key="item.value"
                 class="block px-3 py-[7px] text-sm text-text-secondary bg-transparent rounded-md cursor-pointer transition-all hover:text-primary hover:bg-primary-bg select-none"
                 :class="{ '!text-primary !bg-primary-light !font-medium': jobNature === item.value }"
                 @click="jobNature = jobNature === item.value ? '' : item.value; page = 1"
