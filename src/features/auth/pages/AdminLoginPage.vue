@@ -72,10 +72,10 @@ function handleSubmit() {
 
 <style scoped>
 .admin-login-btn {
-  background: linear-gradient(128deg, #00aaeb, #00c1cd 59%, #0ac2b0 100%) !important;
+  background: var(--color-primary) !important;
   border: none !important;
 }
 .admin-login-btn:hover {
-  opacity: 0.9;
+  background: var(--color-primary-hover) !important;
 }
 </style>
