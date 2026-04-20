@@ -18,6 +18,11 @@ const ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {
 
 /** 检查当前用户是否拥有指定权限 */
 export function hasPermission(code: PermissionCode): boolean {
+  // 管理员后台路由直接放行（管理员拥有所有权限）
+  if (window.location.pathname.startsWith('/admin')) {
+    const adminToken = localStorage.getItem('admin_token')
+    if (adminToken) return true
+  }
   const role = localStorage.getItem('user_role') ?? '1'
   return ROLE_PERMISSIONS[role]?.includes(code) ?? false
 }

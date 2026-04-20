@@ -152,3 +152,18 @@ function handlePreview() {
   color: inherit;
 }
 </style>
+
+<!-- 全局覆盖 AntDV sider 暗色主题 -->
+<style>
+/* 确保 sider 整体背景统一，避免底部露出默认深灰色 */
+.ant-layout-sider {
+  background: var(--color-sidebar-bg) !important;
+}
+.ant-layout-sider .ant-layout-sider-children {
+  background: var(--color-sidebar-bg) !important;
+}
+/* 覆盖 AntDV dark sider 底部 trigger 区域 */
+.ant-layout-sider-dark {
+  background: var(--color-sidebar-bg) !important;
+}
+</style>
