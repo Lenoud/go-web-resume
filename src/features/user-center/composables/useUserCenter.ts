@@ -13,11 +13,7 @@ export function useUserInfo() {
     queryKey: queryKeys.users.detail(auth.userId),
     queryFn: async () => {
       const result = await userUserDetail({ query: { userId: auth.userId } })
-      const resp = result.data
-      if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-        throw new Error(resp?.msg ?? '获取用户信息失败')
-      }
-      return resp.data
+      return result.data?.data
     },
     enabled: !!auth.userId,
   })
@@ -48,12 +44,7 @@ export function useUpdatePwd() {
   return useMutation({
     mutationFn: (body: { userId: string; oldPassword: string; newPassword: string }) =>
       userUserUpdatePwd({ body }),
-    onSuccess: (result) => {
-      const resp = result.data
-      if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
-        message.error(resp.msg ?? '修改失败')
-        return
-      }
+    onSuccess: () => {
       message.success('密码修改成功')
     },
     onError: (err: Error) => message.error(err.message || '修改失败'),
