@@ -21,6 +21,7 @@ test('parseJobApi extracts types, response kinds, and route returns', async () =
 
   assert.deepEqual(parsed.routes.find((route) => route.path === '/api/company/list'), {
     method: 'GET',
+    operationId: 'companyCompanyList',
     path: '/api/company/list',
     requestType: 'CompanyListReq',
     responseType: 'CompanyListResp',
@@ -60,8 +61,32 @@ test('parseJobApi strips block comments and tolerates trailing field tags', () =
   assert.equal(parsed.typesByName.CommentedResp.data.typeName, 'CommentedInfo')
   assert.deepEqual(parsed.routes[0], {
     method: 'GET',
+    operationId: 'commentRoute',
     path: '/api/commented',
     requestType: 'CommentedReq',
     responseType: 'CommentedResp',
+  })
+})
+
+test('parseJobApi applies @server prefix and group-derived operation ids', () => {
+  const parsed = parseJobApi([
+    'syntax = "v1"',
+    '',
+    '@server (',
+    '    prefix: /api/user',
+    '    group: user',
+    ')',
+    'service server-api {',
+    '    @handler login',
+    '    post /signin (LoginReq) returns (LoginResp)',
+    '}',
+  ].join('\n'))
+
+  assert.deepEqual(parsed.routes[0], {
+    method: 'POST',
+    operationId: 'userLogin',
+    path: '/api/user/signin',
+    requestType: 'LoginReq',
+    responseType: 'LoginResp',
   })
 })

@@ -1,9 +1,8 @@
-import { existsSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { parseJobApi } from './parse-job-api.mjs'
+import { resolveSwaggerProjectPaths } from './project-paths.mjs'
 import { dereferenceSchema, rewriteSwaggerDoc } from './rewrite-swagger.mjs'
 
 const SWAGGER_METHODS = new Set(['get', 'post', 'put', 'delete', 'patch', 'head', 'options'])
@@ -12,191 +11,8 @@ function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function findCanonicalWebDir(startDir) {
-  let currentDir = startDir
-
-  while (true) {
-    const candidateApiPath = path.resolve(currentDir, '../api/job.api')
-    if (path.basename(currentDir) === 'web' && existsSync(candidateApiPath)) {
-      return currentDir
-    }
-
-    const parentDir = path.dirname(currentDir)
-    if (parentDir === currentDir) {
-      throw new Error(`Unable to resolve the canonical web directory from "${startDir}"`)
-    }
-
-    currentDir = parentDir
-  }
-}
-
 function resolveProjectPaths() {
-  const scriptDir = path.dirname(fileURLToPath(import.meta.url))
-  const webDir = findCanonicalWebDir(scriptDir)
-  const apiDir = path.resolve(webDir, '../api')
-
-  return {
-    apiDir,
-    jobApiPath: path.resolve(apiDir, 'job.api'),
-    swaggerPath: path.resolve(apiDir, 'doc/swagger/swagger.json'),
-    outputPath: path.resolve(apiDir, 'doc/swagger/swagger.named.json'),
-    webDir,
-  }
-}
-
-function normalizeSource(source) {
-  return source.replace(/\r\n?/g, '\n')
-}
-
-function stripComments(source) {
-  let result = ''
-  let inBlockComment = false
-
-  for (let index = 0; index < source.length; index += 1) {
-    const char = source[index]
-    const next = source[index + 1]
-
-    if (inBlockComment) {
-      if (char === '*' && next === '/') {
-        inBlockComment = false
-        index += 1
-      } else if (char === '\n') {
-        result += '\n'
-      }
-      continue
-    }
-
-    if (char === '/' && next === '/') {
-      while (index < source.length && source[index] !== '\n') {
-        index += 1
-      }
-      if (source[index] === '\n') {
-        result += '\n'
-      }
-      continue
-    }
-
-    if (char === '/' && next === '*') {
-      inBlockComment = true
-      index += 1
-      continue
-    }
-
-    result += char
-  }
-
-  return result
-}
-
-function joinRoutePath(prefix, routePath) {
-  const segments = [prefix, routePath]
-    .filter(Boolean)
-    .flatMap((value) => value.split('/'))
-    .filter(Boolean)
-
-  return `/${segments.join('/')}`
-}
-
-function toOperationId(group, handler) {
-  if (!handler) {
-    return undefined
-  }
-
-  if (!group) {
-    return handler
-  }
-
-  return `${group}${handler[0].toUpperCase()}${handler.slice(1)}`
-}
-
-function parseServerRoutes(source) {
-  const lines = stripComments(normalizeSource(source)).split('\n')
-  const routes = []
-
-  let inServerAnnotation = false
-  let inServiceBlock = false
-  let pendingHandler = null
-  let pendingGroup = ''
-  let pendingPrefix = ''
-  let currentGroup = ''
-  let currentPrefix = ''
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim()
-    if (!line) {
-      continue
-    }
-
-    if (!inServiceBlock && line === '@server (') {
-      inServerAnnotation = true
-      pendingGroup = ''
-      pendingPrefix = ''
-      continue
-    }
-
-    if (inServerAnnotation) {
-      if (line === ')') {
-        inServerAnnotation = false
-        continue
-      }
-
-      const prefixMatch = line.match(/^prefix:\s*(\S+)$/)
-      if (prefixMatch) {
-        pendingPrefix = prefixMatch[1]
-        continue
-      }
-
-      const groupMatch = line.match(/^group:\s*(\S+)$/)
-      if (groupMatch) {
-        pendingGroup = groupMatch[1]
-      }
-      continue
-    }
-
-    if (!inServiceBlock) {
-      if (line.startsWith('service ')) {
-        inServiceBlock = true
-        currentGroup = pendingGroup
-        currentPrefix = pendingPrefix
-        pendingHandler = null
-      }
-      continue
-    }
-
-    if (line === '}') {
-      inServiceBlock = false
-      pendingHandler = null
-      currentGroup = ''
-      currentPrefix = ''
-      continue
-    }
-
-    const handlerMatch = line.match(/^@handler\s+([A-Za-z_][A-Za-z0-9_]*)$/)
-    if (handlerMatch) {
-      pendingHandler = handlerMatch[1]
-      continue
-    }
-
-    const routeMatch = line.match(/^([a-z]+)\s+(\S+)\s+\(([^)]+)\)\s+returns\s+\(([^)]+)\)$/i)
-    if (!routeMatch) {
-      continue
-    }
-
-    const [, method, routePath, requestType, responseType] = routeMatch
-    if (!SWAGGER_METHODS.has(method.toLowerCase())) {
-      continue
-    }
-
-    routes.push({
-      method: method.toUpperCase(),
-      operationId: toOperationId(currentGroup, pendingHandler),
-      path: joinRoutePath(currentPrefix, routePath),
-      requestType,
-      responseType,
-    })
-  }
-
-  return routes
+  return resolveSwaggerProjectPaths(import.meta.url)
 }
 
 function getSuccessSchema(operation) {
@@ -317,11 +133,7 @@ async function main() {
     readFile(paths.swaggerPath, 'utf8'),
   ])
 
-  const parsedTypes = parseJobApi(jobApiSource)
-  const parsed = {
-    ...parsedTypes,
-    routes: parseServerRoutes(jobApiSource),
-  }
+  const parsed = parseJobApi(jobApiSource)
   const swaggerDoc = JSON.parse(swaggerSource)
   const rewritten = rewriteSwaggerDoc({
     parsed,

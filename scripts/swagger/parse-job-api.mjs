@@ -224,9 +224,36 @@ function parseTypeDeclarations(lines) {
   return typesByName
 }
 
+function joinRoutePath(prefix, routePath) {
+  const segments = [prefix, routePath]
+    .filter(Boolean)
+    .flatMap((value) => value.split('/'))
+    .filter(Boolean)
+
+  return `/${segments.join('/')}`
+}
+
+function toOperationId(group, handler) {
+  if (!handler) {
+    return undefined
+  }
+
+  if (!group) {
+    return handler
+  }
+
+  return `${group}${handler[0].toUpperCase()}${handler.slice(1)}`
+}
+
 function parseRoutes(lines) {
   const routes = []
+  let inServerAnnotation = false
   let inServiceBlock = false
+  let pendingGroup = ''
+  let pendingHandler = null
+  let pendingPrefix = ''
+  let currentGroup = ''
+  let currentPrefix = ''
 
   for (const rawLine of lines) {
     const line = rawLine.trim()
@@ -234,15 +261,53 @@ function parseRoutes(lines) {
       continue
     }
 
+    if (!inServiceBlock && line === '@server (') {
+      inServerAnnotation = true
+      pendingGroup = ''
+      pendingPrefix = ''
+      continue
+    }
+
+    if (inServerAnnotation) {
+      if (line === ')') {
+        inServerAnnotation = false
+        continue
+      }
+
+      const prefixMatch = line.match(/^prefix:\s*(\S+)$/)
+      if (prefixMatch) {
+        pendingPrefix = prefixMatch[1]
+        continue
+      }
+
+      const groupMatch = line.match(/^group:\s*(\S+)$/)
+      if (groupMatch) {
+        pendingGroup = groupMatch[1]
+      }
+      continue
+    }
+
     if (!inServiceBlock) {
       if (line.startsWith('service ')) {
         inServiceBlock = true
+        currentGroup = pendingGroup
+        currentPrefix = pendingPrefix
+        pendingHandler = null
       }
       continue
     }
 
     if (line === '}') {
       inServiceBlock = false
+      currentGroup = ''
+      currentPrefix = ''
+      pendingHandler = null
+      continue
+    }
+
+    const handlerMatch = line.match(/^@handler\s+([A-Za-z_][A-Za-z0-9_]*)$/)
+    if (handlerMatch) {
+      pendingHandler = handlerMatch[1]
       continue
     }
 
@@ -258,7 +323,8 @@ function parseRoutes(lines) {
 
     routes.push({
       method: method.toUpperCase(),
-      path,
+      operationId: toOperationId(currentGroup, pendingHandler),
+      path: joinRoutePath(currentPrefix, path),
       requestType,
       responseType,
     })
