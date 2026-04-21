@@ -6,7 +6,7 @@ import {
 } from './interceptors.js'
 
 // 初始化客户端
-client.setConfig({ baseUrl: '' })
+client.setConfig({ baseURL: '' })
 
 // 注册拦截器（顺序重要）
 attachRequestInterceptor()

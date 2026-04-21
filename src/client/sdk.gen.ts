@@ -22,6 +22,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * 管理员-创建公司
  */
 export const companyCompanyCreate = <ThrowOnError extends boolean = false>(options: Options<CompanyCompanyCreateData, ThrowOnError>) => (options.client ?? client).post<CompanyCompanyCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/company/create',
     ...options,
     headers: {
@@ -34,6 +35,7 @@ export const companyCompanyCreate = <ThrowOnError extends boolean = false>(optio
  * 管理员-删除公司
  */
 export const companyCompanyDelete = <ThrowOnError extends boolean = false>(options: Options<CompanyCompanyDeleteData, ThrowOnError>) => (options.client ?? client).post<CompanyCompanyDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/company/delete',
     ...options,
     headers: {
@@ -45,12 +47,17 @@ export const companyCompanyDelete = <ThrowOnError extends boolean = false>(optio
 /**
  * 公司列表
  */
-export const companyCompanyList = <ThrowOnError extends boolean = false>(options?: Options<CompanyCompanyListData, ThrowOnError>) => (options?.client ?? client).get<CompanyCompanyListResponses, unknown, ThrowOnError>({ url: '/api/company/list', ...options });
+export const companyCompanyList = <ThrowOnError extends boolean = false>(options?: Options<CompanyCompanyListData, ThrowOnError>) => (options?.client ?? client).get<CompanyCompanyListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/company/list',
+    ...options
+});
 
 /**
  * 管理员-更新公司
  */
 export const companyCompanyUpdate = <ThrowOnError extends boolean = false>(options: Options<CompanyCompanyUpdateData, ThrowOnError>) => (options.client ?? client).post<CompanyCompanyUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/company/update',
     ...options,
     headers: {
@@ -63,6 +70,7 @@ export const companyCompanyUpdate = <ThrowOnError extends boolean = false>(optio
  * 管理员-创建部门
  */
 export const departmentDepartmentCreate = <ThrowOnError extends boolean = false>(options: Options<DepartmentDepartmentCreateData, ThrowOnError>) => (options.client ?? client).post<DepartmentDepartmentCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/department/create',
     ...options,
     headers: {
@@ -75,6 +83,7 @@ export const departmentDepartmentCreate = <ThrowOnError extends boolean = false>
  * 管理员-删除部门
  */
 export const departmentDepartmentDelete = <ThrowOnError extends boolean = false>(options: Options<DepartmentDepartmentDeleteData, ThrowOnError>) => (options.client ?? client).post<DepartmentDepartmentDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/department/delete',
     ...options,
     headers: {
@@ -86,12 +95,17 @@ export const departmentDepartmentDelete = <ThrowOnError extends boolean = false>
 /**
  * 部门列表
  */
-export const departmentDepartmentList = <ThrowOnError extends boolean = false>(options?: Options<DepartmentDepartmentListData, ThrowOnError>) => (options?.client ?? client).get<DepartmentDepartmentListResponses, unknown, ThrowOnError>({ url: '/api/department/list', ...options });
+export const departmentDepartmentList = <ThrowOnError extends boolean = false>(options?: Options<DepartmentDepartmentListData, ThrowOnError>) => (options?.client ?? client).get<DepartmentDepartmentListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/department/list',
+    ...options
+});
 
 /**
  * 管理员-更新部门
  */
 export const departmentDepartmentUpdate = <ThrowOnError extends boolean = false>(options: Options<DepartmentDepartmentUpdateData, ThrowOnError>) => (options.client ?? client).post<DepartmentDepartmentUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/department/update',
     ...options,
     headers: {
@@ -104,6 +118,7 @@ export const departmentDepartmentUpdate = <ThrowOnError extends boolean = false>
  * 创建面试安排
  */
 export const interviewInterviewCreate = <ThrowOnError extends boolean = false>(options: Options<InterviewInterviewCreateData, ThrowOnError>) => (options.client ?? client).post<InterviewInterviewCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/interview/create',
     ...options,
     headers: {
@@ -115,12 +130,17 @@ export const interviewInterviewCreate = <ThrowOnError extends boolean = false>(o
 /**
  * 面试列表(按postId)
  */
-export const interviewInterviewList = <ThrowOnError extends boolean = false>(options: Options<InterviewInterviewListData, ThrowOnError>) => (options.client ?? client).get<InterviewInterviewListResponses, unknown, ThrowOnError>({ url: '/api/interview/list', ...options });
+export const interviewInterviewList = <ThrowOnError extends boolean = false>(options: Options<InterviewInterviewListData, ThrowOnError>) => (options.client ?? client).get<InterviewInterviewListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/interview/list',
+    ...options
+});
 
 /**
  * 更新面试安排
  */
 export const interviewInterviewUpdate = <ThrowOnError extends boolean = false>(options: Options<InterviewInterviewUpdateData, ThrowOnError>) => (options.client ?? client).post<InterviewInterviewUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/interview/update',
     ...options,
     headers: {
@@ -132,12 +152,17 @@ export const interviewInterviewUpdate = <ThrowOnError extends boolean = false>(o
 /**
  * 分类列表
  */
-export const jobJobCategoryList = <ThrowOnError extends boolean = false>(options?: Options<JobJobCategoryListData, ThrowOnError>) => (options?.client ?? client).get<JobJobCategoryListResponses, unknown, ThrowOnError>({ url: '/api/job/categoryList', ...options });
+export const jobJobCategoryList = <ThrowOnError extends boolean = false>(options?: Options<JobJobCategoryListData, ThrowOnError>) => (options?.client ?? client).get<JobJobCategoryListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/job/categoryList',
+    ...options
+});
 
 /**
  * 管理员-创建职位
  */
 export const jobJobCreate = <ThrowOnError extends boolean = false>(options: Options<JobJobCreateData, ThrowOnError>) => (options.client ?? client).post<JobJobCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/job/create',
     ...options,
     headers: {
@@ -150,6 +175,7 @@ export const jobJobCreate = <ThrowOnError extends boolean = false>(options: Opti
  * 管理员-删除职位
  */
 export const jobJobDelete = <ThrowOnError extends boolean = false>(options: Options<JobJobDeleteData, ThrowOnError>) => (options.client ?? client).post<JobJobDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/job/delete',
     ...options,
     headers: {
@@ -161,22 +187,35 @@ export const jobJobDelete = <ThrowOnError extends boolean = false>(options: Opti
 /**
  * 职位详情
  */
-export const jobJobDetail = <ThrowOnError extends boolean = false>(options: Options<JobJobDetailData, ThrowOnError>) => (options.client ?? client).get<JobJobDetailResponses, unknown, ThrowOnError>({ url: '/api/job/detail', ...options });
+export const jobJobDetail = <ThrowOnError extends boolean = false>(options: Options<JobJobDetailData, ThrowOnError>) => (options.client ?? client).get<JobJobDetailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/job/detail',
+    ...options
+});
 
 /**
  * 职位列表
  */
-export const jobJobList = <ThrowOnError extends boolean = false>(options?: Options<JobJobListData, ThrowOnError>) => (options?.client ?? client).get<JobJobListResponses, unknown, ThrowOnError>({ url: '/api/job/list', ...options });
+export const jobJobList = <ThrowOnError extends boolean = false>(options?: Options<JobJobListData, ThrowOnError>) => (options?.client ?? client).get<JobJobListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/job/list',
+    ...options
+});
 
 /**
  * 用户的职位
  */
-export const jobJobUserList = <ThrowOnError extends boolean = false>(options?: Options<JobJobUserListData, ThrowOnError>) => (options?.client ?? client).get<JobJobUserListResponses, unknown, ThrowOnError>({ url: '/api/job/listUserJobApi', ...options });
+export const jobJobUserList = <ThrowOnError extends boolean = false>(options?: Options<JobJobUserListData, ThrowOnError>) => (options?.client ?? client).get<JobJobUserListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/job/listUserJobApi',
+    ...options
+});
 
 /**
  * 管理员-更新职位
  */
 export const jobJobUpdate = <ThrowOnError extends boolean = false>(options: Options<JobJobUpdateData, ThrowOnError>) => (options.client ?? client).post<JobJobUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/job/update',
     ...options,
     headers: {
@@ -189,6 +228,7 @@ export const jobJobUpdate = <ThrowOnError extends boolean = false>(options: Opti
  * 创建Offer
  */
 export const offerOfferCreate = <ThrowOnError extends boolean = false>(options: Options<OfferOfferCreateData, ThrowOnError>) => (options.client ?? client).post<OfferOfferCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/offer/create',
     ...options,
     headers: {
@@ -201,6 +241,7 @@ export const offerOfferCreate = <ThrowOnError extends boolean = false>(options: 
  * 删除Offer
  */
 export const offerOfferDelete = <ThrowOnError extends boolean = false>(options: Options<OfferOfferDeleteData, ThrowOnError>) => (options.client ?? client).post<OfferOfferDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/offer/delete',
     ...options,
     headers: {
@@ -212,17 +253,26 @@ export const offerOfferDelete = <ThrowOnError extends boolean = false>(options: 
 /**
  * 查询Offer详情(按postId)
  */
-export const offerOfferDetail = <ThrowOnError extends boolean = false>(options: Options<OfferOfferDetailData, ThrowOnError>) => (options.client ?? client).get<OfferOfferDetailResponses, unknown, ThrowOnError>({ url: '/api/offer/detail', ...options });
+export const offerOfferDetail = <ThrowOnError extends boolean = false>(options: Options<OfferOfferDetailData, ThrowOnError>) => (options.client ?? client).get<OfferOfferDetailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/offer/detail',
+    ...options
+});
 
 /**
  * Offer列表
  */
-export const offerOfferList = <ThrowOnError extends boolean = false>(options?: Options<OfferOfferListData, ThrowOnError>) => (options?.client ?? client).get<OfferOfferListResponses, unknown, ThrowOnError>({ url: '/api/offer/list', ...options });
+export const offerOfferList = <ThrowOnError extends boolean = false>(options?: Options<OfferOfferListData, ThrowOnError>) => (options?.client ?? client).get<OfferOfferListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/offer/list',
+    ...options
+});
 
 /**
  * 更新Offer
  */
 export const offerOfferUpdate = <ThrowOnError extends boolean = false>(options: Options<OfferOfferUpdateData, ThrowOnError>) => (options.client ?? client).post<OfferOfferUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/offer/update',
     ...options,
     headers: {
@@ -234,17 +284,26 @@ export const offerOfferUpdate = <ThrowOnError extends boolean = false>(options: 
 /**
  * 操作日志列表
  */
-export const oplogOpLogList = <ThrowOnError extends boolean = false>(options?: Options<OplogOpLogListData, ThrowOnError>) => (options?.client ?? client).get<OplogOpLogListResponses, unknown, ThrowOnError>({ url: '/api/opLog/list', ...options });
+export const oplogOpLogList = <ThrowOnError extends boolean = false>(options?: Options<OplogOpLogListData, ThrowOnError>) => (options?.client ?? client).get<OplogOpLogListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/opLog/list',
+    ...options
+});
 
 /**
  * 登录日志列表
  */
-export const oplogLoginLogList = <ThrowOnError extends boolean = false>(options?: Options<OplogLoginLogListData, ThrowOnError>) => (options?.client ?? client).get<OplogLoginLogListResponses, unknown, ThrowOnError>({ url: '/api/opLog/loginLogList', ...options });
+export const oplogLoginLogList = <ThrowOnError extends boolean = false>(options?: Options<OplogLoginLogListData, ThrowOnError>) => (options?.client ?? client).get<OplogLoginLogListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/opLog/loginLogList',
+    ...options
+});
 
 /**
  * 管理员-创建投递
  */
 export const postPostCreate = <ThrowOnError extends boolean = false>(options: Options<PostPostCreateData, ThrowOnError>) => (options.client ?? client).post<PostPostCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/post/create',
     ...options,
     headers: {
@@ -257,6 +316,7 @@ export const postPostCreate = <ThrowOnError extends boolean = false>(options: Op
  * 从快照推荐到岗位
  */
 export const postPostCreateFromSnapshot = <ThrowOnError extends boolean = false>(options: Options<PostPostCreateFromSnapshotData, ThrowOnError>) => (options.client ?? client).post<PostPostCreateFromSnapshotResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/post/createFromSnapshot',
     ...options,
     headers: {
@@ -269,6 +329,7 @@ export const postPostCreateFromSnapshot = <ThrowOnError extends boolean = false>
  * 管理员-删除投递
  */
 export const postPostDelete = <ThrowOnError extends boolean = false>(options: Options<PostPostDeleteData, ThrowOnError>) => (options.client ?? client).post<PostPostDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/post/delete',
     ...options,
     headers: {
@@ -280,27 +341,44 @@ export const postPostDelete = <ThrowOnError extends boolean = false>(options: Op
 /**
  * 投递列表
  */
-export const postPostList = <ThrowOnError extends boolean = false>(options?: Options<PostPostListData, ThrowOnError>) => (options?.client ?? client).get<PostPostListResponses, unknown, ThrowOnError>({ url: '/api/post/list', ...options });
+export const postPostList = <ThrowOnError extends boolean = false>(options?: Options<PostPostListData, ThrowOnError>) => (options?.client ?? client).get<PostPostListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/post/list',
+    ...options
+});
 
 /**
  * 公司投递
  */
-export const postPostCompanyList = <ThrowOnError extends boolean = false>(options: Options<PostPostCompanyListData, ThrowOnError>) => (options.client ?? client).get<PostPostCompanyListResponses, unknown, ThrowOnError>({ url: '/api/post/listCompanyPostApi', ...options });
+export const postPostCompanyList = <ThrowOnError extends boolean = false>(options: Options<PostPostCompanyListData, ThrowOnError>) => (options.client ?? client).get<PostPostCompanyListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/post/listCompanyPostApi',
+    ...options
+});
 
 /**
  * 用户投递
  */
-export const postPostUserList = <ThrowOnError extends boolean = false>(options: Options<PostPostUserListData, ThrowOnError>) => (options.client ?? client).get<PostPostUserListResponses, unknown, ThrowOnError>({ url: '/api/post/listUserPostApi', ...options });
+export const postPostUserList = <ThrowOnError extends boolean = false>(options: Options<PostPostUserListData, ThrowOnError>) => (options.client ?? client).get<PostPostUserListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/post/listUserPostApi',
+    ...options
+});
 
 /**
  * 状态流转日志列表
  */
-export const postPostStatusLogList = <ThrowOnError extends boolean = false>(options: Options<PostPostStatusLogListData, ThrowOnError>) => (options.client ?? client).get<PostPostStatusLogListResponses, unknown, ThrowOnError>({ url: '/api/post/statusLogList', ...options });
+export const postPostStatusLogList = <ThrowOnError extends boolean = false>(options: Options<PostPostStatusLogListData, ThrowOnError>) => (options.client ?? client).get<PostPostStatusLogListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/post/statusLogList',
+    ...options
+});
 
 /**
  * 管理员-更新投递
  */
 export const postPostUpdate = <ThrowOnError extends boolean = false>(options: Options<PostPostUpdateData, ThrowOnError>) => (options.client ?? client).post<PostPostUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/post/update',
     ...options,
     headers: {
@@ -312,18 +390,27 @@ export const postPostUpdate = <ThrowOnError extends boolean = false>(options: Op
 /**
  * 用户面试列表
  */
-export const postPostUserInterviewList = <ThrowOnError extends boolean = false>(options?: Options<PostPostUserInterviewListData, ThrowOnError>) => (options?.client ?? client).get<PostPostUserInterviewListResponses, unknown, ThrowOnError>({ url: '/api/post/userInterviewList', ...options });
+export const postPostUserInterviewList = <ThrowOnError extends boolean = false>(options?: Options<PostPostUserInterviewListData, ThrowOnError>) => (options?.client ?? client).get<PostPostUserInterviewListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/post/userInterviewList',
+    ...options
+});
 
 /**
  * 用户Offer列表
  */
-export const postPostUserOfferList = <ThrowOnError extends boolean = false>(options?: Options<PostPostUserOfferListData, ThrowOnError>) => (options?.client ?? client).get<PostPostUserOfferListResponses, unknown, ThrowOnError>({ url: '/api/post/userOfferList', ...options });
+export const postPostUserOfferList = <ThrowOnError extends boolean = false>(options?: Options<PostPostUserOfferListData, ThrowOnError>) => (options?.client ?? client).get<PostPostUserOfferListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/post/userOfferList',
+    ...options
+});
 
 /**
  * 企业端上传简历解析
  */
 export const resumeResumeCompanyUpload = <ThrowOnError extends boolean = false>(options?: Options<ResumeResumeCompanyUploadData, ThrowOnError>) => (options?.client ?? client).post<ResumeResumeCompanyUploadResponses, unknown, ThrowOnError>({
     ...urlSearchParamsBodySerializer,
+    responseType: 'json',
     url: '/api/resume/companyUpload',
     ...options,
     headers: {
@@ -337,6 +424,7 @@ export const resumeResumeCompanyUpload = <ThrowOnError extends boolean = false>(
  */
 export const resumeResumeCreate = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeCreateData, ThrowOnError>) => (options.client ?? client).post<ResumeResumeCreateResponses, unknown, ThrowOnError>({
     ...urlSearchParamsBodySerializer,
+    responseType: 'json',
     url: '/api/resume/create',
     ...options,
     headers: {
@@ -349,6 +437,7 @@ export const resumeResumeCreate = <ThrowOnError extends boolean = false>(options
  * 管理员-删除简历
  */
 export const resumeResumeDelete = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeDeleteData, ThrowOnError>) => (options.client ?? client).post<ResumeResumeDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/resume/delete',
     ...options,
     headers: {
@@ -360,18 +449,27 @@ export const resumeResumeDelete = <ThrowOnError extends boolean = false>(options
 /**
  * 用户简历详情
  */
-export const resumeResumeDetail = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeDetailData, ThrowOnError>) => (options.client ?? client).get<ResumeResumeDetailResponses, unknown, ThrowOnError>({ url: '/api/resume/detail', ...options });
+export const resumeResumeDetail = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeDetailData, ThrowOnError>) => (options.client ?? client).get<ResumeResumeDetailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/resume/detail',
+    ...options
+});
 
 /**
  * 简历列表
  */
-export const resumeResumeList = <ThrowOnError extends boolean = false>(options?: Options<ResumeResumeListData, ThrowOnError>) => (options?.client ?? client).get<ResumeResumeListResponses, unknown, ThrowOnError>({ url: '/api/resume/list', ...options });
+export const resumeResumeList = <ThrowOnError extends boolean = false>(options?: Options<ResumeResumeListData, ThrowOnError>) => (options?.client ?? client).get<ResumeResumeListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/resume/list',
+    ...options
+});
 
 /**
  * 解析简历
  */
 export const resumeResumeParse = <ThrowOnError extends boolean = false>(options?: Options<ResumeResumeParseData, ThrowOnError>) => (options?.client ?? client).post<ResumeResumeParseResponses, unknown, ThrowOnError>({
     ...urlSearchParamsBodySerializer,
+    responseType: 'json',
     url: '/api/resume/parse',
     ...options,
     headers: {
@@ -383,13 +481,18 @@ export const resumeResumeParse = <ThrowOnError extends boolean = false>(options?
 /**
  * 查询解析结果
  */
-export const resumeResumeParseResult = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeParseResultData, ThrowOnError>) => (options.client ?? client).get<ResumeResumeParseResultResponses, unknown, ThrowOnError>({ url: '/api/resume/parseResult', ...options });
+export const resumeResumeParseResult = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeParseResultData, ThrowOnError>) => (options.client ?? client).get<ResumeResumeParseResultResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/resume/parseResult',
+    ...options
+});
 
 /**
  * 管理员-更新简历
  */
 export const resumeResumeUpdate = <ThrowOnError extends boolean = false>(options: Options<ResumeResumeUpdateData, ThrowOnError>) => (options.client ?? client).post<ResumeResumeUpdateResponses, unknown, ThrowOnError>({
     ...urlSearchParamsBodySerializer,
+    responseType: 'json',
     url: '/api/resume/update',
     ...options,
     headers: {
@@ -402,6 +505,7 @@ export const resumeResumeUpdate = <ThrowOnError extends boolean = false>(options
  * 删除简历快照
  */
 export const resumesnapshotResumeSnapshotDelete = <ThrowOnError extends boolean = false>(options: Options<ResumesnapshotResumeSnapshotDeleteData, ThrowOnError>) => (options.client ?? client).post<ResumesnapshotResumeSnapshotDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/resumeSnapshot/delete',
     ...options,
     headers: {
@@ -413,22 +517,35 @@ export const resumesnapshotResumeSnapshotDelete = <ThrowOnError extends boolean 
 /**
  * 简历快照详情
  */
-export const resumesnapshotResumeSnapshotDetail = <ThrowOnError extends boolean = false>(options: Options<ResumesnapshotResumeSnapshotDetailData, ThrowOnError>) => (options.client ?? client).get<ResumesnapshotResumeSnapshotDetailResponses, unknown, ThrowOnError>({ url: '/api/resumeSnapshot/detail', ...options });
+export const resumesnapshotResumeSnapshotDetail = <ThrowOnError extends boolean = false>(options: Options<ResumesnapshotResumeSnapshotDetailData, ThrowOnError>) => (options.client ?? client).get<ResumesnapshotResumeSnapshotDetailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/resumeSnapshot/detail',
+    ...options
+});
 
 /**
  * 简历快照列表
  */
-export const resumesnapshotResumeSnapshotList = <ThrowOnError extends boolean = false>(options?: Options<ResumesnapshotResumeSnapshotListData, ThrowOnError>) => (options?.client ?? client).get<ResumesnapshotResumeSnapshotListResponses, unknown, ThrowOnError>({ url: '/api/resumeSnapshot/list', ...options });
+export const resumesnapshotResumeSnapshotList = <ThrowOnError extends boolean = false>(options?: Options<ResumesnapshotResumeSnapshotListData, ThrowOnError>) => (options?.client ?? client).get<ResumesnapshotResumeSnapshotListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/resumeSnapshot/list',
+    ...options
+});
 
 /**
  * 状态流转日志列表
  */
-export const resumesnapshotResumeSnapshotStatusLogList = <ThrowOnError extends boolean = false>(options: Options<ResumesnapshotResumeSnapshotStatusLogListData, ThrowOnError>) => (options.client ?? client).get<ResumesnapshotResumeSnapshotStatusLogListResponses, unknown, ThrowOnError>({ url: '/api/resumeSnapshot/statusLogList', ...options });
+export const resumesnapshotResumeSnapshotStatusLogList = <ThrowOnError extends boolean = false>(options: Options<ResumesnapshotResumeSnapshotStatusLogListData, ThrowOnError>) => (options.client ?? client).get<ResumesnapshotResumeSnapshotStatusLogListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/resumeSnapshot/statusLogList',
+    ...options
+});
 
 /**
  * 更新简历快照
  */
 export const resumesnapshotResumeSnapshotUpdate = <ThrowOnError extends boolean = false>(options: Options<ResumesnapshotResumeSnapshotUpdateData, ThrowOnError>) => (options.client ?? client).post<ResumesnapshotResumeSnapshotUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/resumeSnapshot/update',
     ...options,
     headers: {
@@ -441,6 +558,7 @@ export const resumesnapshotResumeSnapshotUpdate = <ThrowOnError extends boolean 
  * 加入人才库
  */
 export const talentpoolTalentPoolAdd = <ThrowOnError extends boolean = false>(options: Options<TalentpoolTalentPoolAddData, ThrowOnError>) => (options.client ?? client).post<TalentpoolTalentPoolAddResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/talentPool/add',
     ...options,
     headers: {
@@ -452,12 +570,17 @@ export const talentpoolTalentPoolAdd = <ThrowOnError extends boolean = false>(op
 /**
  * 人才库列表
  */
-export const talentpoolTalentPoolList = <ThrowOnError extends boolean = false>(options?: Options<TalentpoolTalentPoolListData, ThrowOnError>) => (options?.client ?? client).get<TalentpoolTalentPoolListResponses, unknown, ThrowOnError>({ url: '/api/talentPool/list', ...options });
+export const talentpoolTalentPoolList = <ThrowOnError extends boolean = false>(options?: Options<TalentpoolTalentPoolListData, ThrowOnError>) => (options?.client ?? client).get<TalentpoolTalentPoolListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/talentPool/list',
+    ...options
+});
 
 /**
  * 移出人才库
  */
 export const talentpoolTalentPoolRemove = <ThrowOnError extends boolean = false>(options: Options<TalentpoolTalentPoolRemoveData, ThrowOnError>) => (options.client ?? client).post<TalentpoolTalentPoolRemoveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/talentPool/remove',
     ...options,
     headers: {
@@ -470,6 +593,7 @@ export const talentpoolTalentPoolRemove = <ThrowOnError extends boolean = false>
  * 编辑人才库标签备注
  */
 export const talentpoolTalentPoolUpdate = <ThrowOnError extends boolean = false>(options: Options<TalentpoolTalentPoolUpdateData, ThrowOnError>) => (options.client ?? client).post<TalentpoolTalentPoolUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/talentPool/update',
     ...options,
     headers: {
@@ -482,6 +606,7 @@ export const talentpoolTalentPoolUpdate = <ThrowOnError extends boolean = false>
  * 管理员-创建用户
  */
 export const userUserCreate = <ThrowOnError extends boolean = false>(options: Options<UserUserCreateData, ThrowOnError>) => (options.client ?? client).post<UserUserCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/create',
     ...options,
     headers: {
@@ -494,6 +619,7 @@ export const userUserCreate = <ThrowOnError extends boolean = false>(options: Op
  * 管理员-删除用户
  */
 export const userUserDelete = <ThrowOnError extends boolean = false>(options: Options<UserUserDeleteData, ThrowOnError>) => (options.client ?? client).post<UserUserDeleteResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/delete',
     ...options,
     headers: {
@@ -505,17 +631,26 @@ export const userUserDelete = <ThrowOnError extends boolean = false>(options: Op
 /**
  * 用户详情
  */
-export const userUserDetail = <ThrowOnError extends boolean = false>(options: Options<UserUserDetailData, ThrowOnError>) => (options.client ?? client).get<UserUserDetailResponses, unknown, ThrowOnError>({ url: '/api/user/detail', ...options });
+export const userUserDetail = <ThrowOnError extends boolean = false>(options: Options<UserUserDetailData, ThrowOnError>) => (options.client ?? client).get<UserUserDetailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/user/detail',
+    ...options
+});
 
 /**
  * 用户列表
  */
-export const userUserList = <ThrowOnError extends boolean = false>(options?: Options<UserUserListData, ThrowOnError>) => (options?.client ?? client).get<UserUserListResponses, unknown, ThrowOnError>({ url: '/api/user/list', ...options });
+export const userUserList = <ThrowOnError extends boolean = false>(options?: Options<UserUserListData, ThrowOnError>) => (options?.client ?? client).get<UserUserListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/user/list',
+    ...options
+});
 
 /**
  * 管理员登录
  */
 export const userUserLogin = <ThrowOnError extends boolean = false>(options: Options<UserUserLoginData, ThrowOnError>) => (options.client ?? client).post<UserUserLoginResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/login',
     ...options,
     headers: {
@@ -528,6 +663,7 @@ export const userUserLogin = <ThrowOnError extends boolean = false>(options: Opt
  * 管理员-更新用户
  */
 export const userUserUpdate = <ThrowOnError extends boolean = false>(options: Options<UserUserUpdateData, ThrowOnError>) => (options.client ?? client).post<UserUserUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/update',
     ...options,
     headers: {
@@ -540,6 +676,7 @@ export const userUserUpdate = <ThrowOnError extends boolean = false>(options: Op
  * 用户-修改密码
  */
 export const userUserUpdatePwd = <ThrowOnError extends boolean = false>(options: Options<UserUserUpdatePwdData, ThrowOnError>) => (options.client ?? client).post<UserUserUpdatePwdResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/updatePwd',
     ...options,
     headers: {
@@ -552,6 +689,7 @@ export const userUserUpdatePwd = <ThrowOnError extends boolean = false>(options:
  * 用户-更新信息
  */
 export const userUserUpdateUserInfo = <ThrowOnError extends boolean = false>(options: Options<UserUserUpdateUserInfoData, ThrowOnError>) => (options.client ?? client).post<UserUserUpdateUserInfoResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/updateUserInfo',
     ...options,
     headers: {
@@ -564,6 +702,7 @@ export const userUserUpdateUserInfo = <ThrowOnError extends boolean = false>(opt
  * 普通用户登录
  */
 export const userUserUserLogin = <ThrowOnError extends boolean = false>(options: Options<UserUserUserLoginData, ThrowOnError>) => (options.client ?? client).post<UserUserUserLoginResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/userLogin',
     ...options,
     headers: {
@@ -576,6 +715,7 @@ export const userUserUserLogin = <ThrowOnError extends boolean = false>(options:
  * 用户注册
  */
 export const userUserRegister = <ThrowOnError extends boolean = false>(options: Options<UserUserRegisterData, ThrowOnError>) => (options.client ?? client).post<UserUserRegisterResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/user/userRegister',
     ...options,
     headers: {
