@@ -224,10 +224,6 @@ async function startBatchUpload() {
       })
       const result = await resp.json()
 
-      if (result.code !== 200 && result.code !== 0) {
-        throw new Error(result.msg || '上传失败')
-      }
-
       const taskId: string = result.data?.taskId
       if (!taskId) throw new Error('服务端未返回 taskId')
 

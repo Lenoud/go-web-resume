@@ -10,24 +10,15 @@ import {
   postPostCreateFromSnapshot,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
+import type { TalentPoolInfo } from '@/client'
 
 const queryClient = useQueryClient()
 const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
 
-interface TalentItem {
-  id?: string
-  name?: string
-  education?: string
-  email?: string
-  mobile?: string
-  rating?: number
-  remark?: string
-  resumeSnapshotId: string
-  tags?: string
-  createTime?: string
-  // 额外字段（后端可能返回）
+// TalentPoolInfo from generated types + extra fields returned by backend (joined from snapshot)
+interface TalentItem extends TalentPoolInfo {
   sex?: string
   school?: string
   skills?: string
@@ -47,11 +38,7 @@ const listQuery = useQuery({
     const result = await talentpoolTalentPoolList({
       query: { page: page.value, pageSize: pageSize.value },
     })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return normalizePaginated<TalentItem>(resp.data)
+    return normalizePaginated<TalentItem>(result.data?.data)
   },
 })
 

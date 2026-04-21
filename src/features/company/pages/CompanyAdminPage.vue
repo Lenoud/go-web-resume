@@ -14,11 +14,7 @@ const { data: listData, isLoading: loading } = useQuery({
   queryKey: queryKeys.companies.all,
   queryFn: async () => {
     const result = await companyCompanyList({ query: { page: 1, pageSize: 1 } })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return resp.data
+    return result.data?.data
   },
 })
 
@@ -36,12 +32,7 @@ const saveMutation = useMutation({
     }
     return companyCompanyCreate({ body: body as Parameters<typeof companyCompanyCreate>[0]['body'] })
   },
-  onSuccess: (result) => {
-    const resp = result.data
-    if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
-      message.error(resp.msg ?? '保存失败')
-      return
-    }
+  onSuccess: () => {
     message.success('保存成功')
     queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
     modalVisible.value = false

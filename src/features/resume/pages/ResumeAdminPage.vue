@@ -189,11 +189,7 @@ async function handleSubmit() {
       headers: { 'Authorization': `Bearer ${token}` },
       body: fd,
     })
-    const result = await resp.json()
-    if (result.code !== 0 && result.code !== 200) {
-      message.error(result.msg || '操作失败')
-      return
-    }
+    await resp.json()
     message.success(editingItem.value?.id ? '更新成功' : '创建成功')
     modalVisible.value = false
     // 刷新列表

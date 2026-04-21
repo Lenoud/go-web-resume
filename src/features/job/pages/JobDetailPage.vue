@@ -19,11 +19,7 @@ const detailQuery = useQuery({
   queryKey: ['jobDetail', jobId],
   queryFn: async () => {
     const result = await jobJobDetail({ query: { id: jobId.value } })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return resp.data
+    return result.data?.data
   },
   enabled: !!jobId.value,
 })
@@ -33,9 +29,7 @@ const recommendQuery = useQuery({
   queryKey: ['jobRecommend'],
   queryFn: async () => {
     const result = await jobJobList({ query: { page: 1, pageSize: 10 } as Record<string, unknown> })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) return []
-    const paginated = normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; status: number }>(resp.data)
+    const paginated = normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; status: number }>(result.data?.data)
     return paginated.list.filter(j => String(j.id) !== jobId.value).slice(0, 6)
   },
 })
@@ -66,19 +60,14 @@ async function handleApply() {
   try {
     // 获取简历
     const resumeResult = await resumeResumeDetail({ query: { userId: auth.userId } })
-    const resumeResp = resumeResult.data
-    if (!resumeResp || (resumeResp.code !== undefined && resumeResp.code !== 0 && resumeResp.code !== 200)) {
-      message.error(resumeResp?.msg ?? '获取简历失败')
-      return
-    }
-    const resumeData = resumeResp.data
+    const resumeData = resumeResult.data?.data
     if (!resumeData?.id) {
       message.warning('请先完善简历')
       router.push({ name: 'resumeEditView' })
       return
     }
     // 提交投递
-    const result = await postPostCreate({
+    await postPostCreate({
       body: {
         userId: auth.userId,
         jobId: jobId.value,
@@ -86,11 +75,6 @@ async function handleApply() {
         companyId: detail.value?.companyId ?? '',
       },
     })
-    const resp = result.data
-    if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
-      message.error(resp.msg ?? '投递失败')
-      return
-    }
     message.success('投递成功')
   } catch (err) {
     message.error((err as Error).message || '投递失败')
