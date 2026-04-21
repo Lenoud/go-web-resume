@@ -6,6 +6,9 @@ import { normalizePaginated } from '@/infrastructure/api/normalize'
 /**
  * 通用 CRUD 表格逻辑封装
  *
+ * throwOnError + 拦截器已保证：失败时 throw，成功时 code 为 0/200。
+ * 此处不再重复检查 code。
+ *
  * @param options.queryKey   TanStack Query 缓存键
  * @param options.listFn     列表查询 SDK 函数
  * @param options.createFn   创建 SDK 函数
@@ -14,10 +17,10 @@ import { normalizePaginated } from '@/infrastructure/api/normalize'
  */
 export function useCrudTable<T extends { id?: string }>(options: {
   queryKey: MaybeRef<QueryKey>
-  listFn: (params: Record<string, unknown>) => Promise<{ data?: { code?: number; msg?: string; data?: unknown } }>
-  createFn?: (body: Record<string, unknown>) => Promise<{ data?: { code?: number; msg?: string } }>
-  updateFn?: (body: Record<string, unknown>) => Promise<{ data?: { code?: number; msg?: string } }>
-  deleteFn?: (ids: string) => Promise<{ data?: { code?: number; msg?: string } }>
+  listFn: (params: Record<string, unknown>) => Promise<{ data?: { data?: unknown } }>
+  createFn?: (body: Record<string, unknown>) => Promise<unknown>
+  updateFn?: (body: Record<string, unknown>) => Promise<unknown>
+  deleteFn?: (ids: string) => Promise<unknown>
 }) {
   const queryClient = useQueryClient()
 
@@ -38,11 +41,7 @@ export function useCrudTable<T extends { id?: string }>(options: {
         pageSize: pageSize.value,
         keyword: keyword.value || undefined,
       })
-      const resp = result.data
-      if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-        throw new Error(resp?.msg ?? '列表查询失败')
-      }
-      return normalizePaginated<T>(resp.data)
+      return normalizePaginated<T>(result.data?.data)
     },
   })
 
@@ -51,12 +50,7 @@ export function useCrudTable<T extends { id?: string }>(options: {
   const createMutation = createFn
     ? useMutation({
         mutationFn: (body: Record<string, unknown>) => createFn(body),
-        onSuccess: (result) => {
-          const resp = result.data
-          if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
-            message.error(resp.msg ?? '创建失败')
-            return
-          }
+        onSuccess: () => {
           message.success('创建成功')
           queryClient.invalidateQueries({ queryKey: toValue(options.queryKey) })
         },
@@ -69,12 +63,7 @@ export function useCrudTable<T extends { id?: string }>(options: {
   const updateMutation = updateFn
     ? useMutation({
         mutationFn: (body: Record<string, unknown>) => updateFn(body),
-        onSuccess: (result) => {
-          const resp = result.data
-          if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
-            message.error(resp.msg ?? '更新失败')
-            return
-          }
+        onSuccess: () => {
           message.success('更新成功')
           queryClient.invalidateQueries({ queryKey: toValue(options.queryKey) })
         },
@@ -87,12 +76,7 @@ export function useCrudTable<T extends { id?: string }>(options: {
   const deleteMutation = deleteFn
     ? useMutation({
         mutationFn: (ids: string) => deleteFn(ids),
-        onSuccess: (result) => {
-          const resp = result.data
-          if (resp && resp.code !== undefined && resp.code !== 0 && resp.code !== 200) {
-            message.error(resp.msg ?? '删除失败')
-            return
-          }
+        onSuccess: () => {
           message.success('删除成功')
           queryClient.invalidateQueries({ queryKey: toValue(options.queryKey) })
         },
