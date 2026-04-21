@@ -11,21 +11,15 @@ export function useUserLogin() {
   return useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
       const result = await userUserUserLogin({ body: credentials })
-      if (result.error) {
-        throw new Error((result.error as Record<string, unknown>)?.msg as string ?? '登录失败')
-      }
       return result.data
     },
     onSuccess: (data) => {
-      if (!data?.data) {
+      const inner = data?.data
+      if (!inner) {
         message.error('登录失败：服务器未返回数据')
         return
       }
-      if (data.code !== 0 && data.code !== 200) {
-        message.error(data.msg ?? '登录失败')
-        return
-      }
-      const { token, id, username, role } = data.data
+      const { token, id, username, role } = inner
       auth.setUserAuth({ token, userId: id, username, role })
       message.success('登录成功')
       const redirect = router.currentRoute.value.query.redirect as string
