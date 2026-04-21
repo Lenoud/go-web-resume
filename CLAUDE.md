@@ -11,8 +11,8 @@ pnpm build                # 类型检查 + 生产构建
 pnpm typecheck            # 仅类型检查（vue-tsc）
 pnpm lint                 # ESLint 检查
 pnpm lint:fix             # ESLint 自动修复
-pnpm generate:swagger:named  # 用 ../api/job.api + ../api/doc/swagger/swagger.json 生成 ../api/doc/swagger/swagger.named.json
-pnpm generate:client         # 先生成 swagger.named.json，再从它重新生成 axios API 客户端
+pnpm generate:swagger:named  # 用 job.api 命名元数据后处理 swagger.json → swagger.named.json
+pnpm generate:client         # 先 postprocess 再基于 swagger.named.json 生成 axios 客户端
 ```
 
 后端必须先启动（`cd ../api && scripts/dev.sh`），前端 dev server 通过 Vite proxy 将 `/api/*` 转发到 `127.0.0.1:9100`。
@@ -53,7 +53,7 @@ src/
 │   ├── oplog/             #   操作日志
 │   └── user/              #   用户管理
 ├── infrastructure/        # 基础设施
-│   ├── api/               #   HTTP 客户端、拦截器、响应规范化
+│   ├── api/               #   HTTP 客户端、拦截器（token 注入 + 业务错误 throw + 401 跳转）
 │   ├── permission/        #   路由守卫 + v-permission 指令
 │   ├── query/             #   TanStack Query 插件 + 集中 queryKeys
 │   ├── router/            #   路由（admin.ts / frontend.ts 分文件）
@@ -63,6 +63,8 @@ src/
     ├── composables/       #   useCrudTable / useConfirmAction
     ├── types/             #   recruitment.ts（招聘 13 状态）
     └── utils/             #   auth.ts / constants.ts
+
+scripts/swagger/              # Swagger 后处理（见 scripts/swagger/README.md）
 ```
 
 每个 feature 模块内部统一：`components/` → `composables/` → `pages/`。
@@ -85,7 +87,7 @@ Query keys 集中管理在 `infrastructure/query/query-keys.ts`，层级结构 `
 
 ### useCrudTable 通用逻辑
 
-`shared/composables/useCrudTable.ts` 封装了管理后台表格的完整 CRUD 流程：分页状态、列表查询（含 normalizePaginated）、创建/更新/删除 mutation（含自动 invalidate + message 提示）、批量删除。新模块的管理后台页面应使用此 composable。
+`shared/composables/useCrudTable.ts` 封装了管理后台表格的完整 CRUD 流程：分页状态、列表查询（含 `normalizePaginated`）、创建/更新/删除 mutation（含自动 invalidate + message 提示）、批量删除。拦截器 + `throwOnError` 已处理错误，composable 内无需检查 `code`。
 
 ### 招聘流程 13 状态
 
@@ -98,12 +100,25 @@ Query keys 集中管理在 `infrastructure/query/query-keys.ts`，层级结构 `
 pnpm generate:client
 ```
 生成链路：
-- `pnpm generate:swagger:named`：读取 `../api/job.api` 作为命名来源，对 `../api/doc/swagger/swagger.json` 做后处理并写出 `../api/doc/swagger/swagger.named.json`
-- `pnpm generate:client`：先执行上面的后处理，再让 `@hey-api/openapi-ts` 基于 `swagger.named.json` 生成 `src/client/`
+1. `goctl api swagger`（后端）→ `swagger.json`
+2. `pnpm generate:swagger:named` → 用 `job.api` 命名元数据后处理 `swagger.json`，写出 `swagger.named.json`
+3. `@hey-api/openapi-ts` → 基于 `swagger.named.json` 生成 `src/client/`
 
-后处理在写文件前会做结构校验：把命名后的成功响应 schema 解引用后，与原始 Swagger 的对应 schema 做规范化比对，避免命名提升改变响应结构。
+后处理脚本见 `scripts/swagger/`，详细说明见 `scripts/swagger/README.md`。
 
-`swagger.named.json` 位于后端目录，不属于 `web/` 仓库提交内容。脚本需要兼容 `web/.worktrees/*` 工作区，因此应始终解析到真实的兄弟 `api/` 目录。生成后 `src/client/` 全部覆盖，禁止手动修改。修改后端 `.api` 文件后应先跑 `goctl api swagger`，再回前端执行 `pnpm generate:client`。
+生成后类型全链路贯通：`CompanyListResp.data` → `CompanyListData` → `CompanyInfo`，无需手写任何 interface。
+
+`swagger.named.json` 位于后端目录，不属于 `web/` 仓库提交内容。脚本兼容 `web/.worktrees/*` 工作区。生成后 `src/client/` 全部覆盖，禁止手动修改。
+
+### 响应处理架构
+
+后端统一信封 `{ code, msg, data, timestamp, trace }`：
+- **拦截器**：校验 `code`，非 0/200 直接 throw；注入 token；401/403 清除 token 并跳转
+- **SDK**：全局 `throwOnError: true`，错误走 `onError`，成功直接返回 `AxiosResponse<T>`
+- **Composable**：`result.data?.data` 一行提取业务数据，类型由生成器保证
+- **useCrudTable**：通用 CRUD 表格逻辑，mutation 成功自动 invalidate + message 提示
+
+无需在 composable 中检查 `resp.code`，无需手写 interface，零 `any`。
 
 ### 样式约定
 

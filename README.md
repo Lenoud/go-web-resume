@@ -127,11 +127,12 @@ pnpm generate:swagger:named
 | `pnpm lint` | ESLint 检查 |
 | `pnpm lint:fix` | ESLint 自动修复 |
 | `pnpm generate:swagger:named` | 用 `job.api` 为 Swagger 成功响应补齐命名 schema，并写出 `swagger.named.json` |
-| `pnpm generate:client` | 从 Swagger 生成类型化 API 客户端 |
+| `pnpm generate:client` | 先 postprocess 再从 `swagger.named.json` 生成类型化 API 客户端 |
+| `pnpm test:scripts` | 运行 swagger 后处理脚本的单元测试 |
 
 ## API 客户端生成
 
-客户端生成现在分两步执行：
+客户端生成分两步执行：
 
 1. `pnpm generate:swagger:named`
    - 读取 `../api/job.api` 作为命名来源
@@ -151,13 +152,16 @@ pnpm generate:client
 
 生成后 `src/client/` 目录包含：
 - `client/client.gen.ts` — 客户端实例配置
-- `client/types.gen.ts` — 所有请求/响应的 TypeScript 接口
+- `client/types.gen.ts` — 所有请求/响应的 TypeScript 接口（含命名类型：`CompanyInfo`、`JobInfo` 等）
 - `client/utils.gen.ts` — 工具函数
 - `core/` — 认证、序列化等核心逻辑
+- `schemas.gen.ts` — JSON Schema 定义
 
 **注意**：
 - `src/client/` 目录由工具自动生成，禁止手动修改。ESLint 已配置忽略此目录。
 - 修改后端 `.api` 文件后，先重新产出最新 `swagger.json`，再运行 `pnpm generate:client`。
+
+后处理脚本的详细说明见 `scripts/swagger/README.md`。
 
 ## 代理配置
 
@@ -193,8 +197,6 @@ Vite 配置了手动分包策略：
 
 ### 数据规范化
 
-API 响应字段名规范化在 infrastructure 层完成，composable 和 page 直接使用统一字段名。
+后端统一响应信封 `{ code, msg, data, timestamp, trace }`。拦截器校验 `code`，非 0/200 直接 throw。Composable 层通过 `result.data?.data` 一行提取业务数据，类型由生成器全链路贯通（`CompanyListResp.data` → `CompanyListData` → `CompanyInfo`）。
 
-### CRUD 模式
-
-`shared/composables/useCrudTable` 提供通用 CRUD 表格逻辑，管理后台页面统一使用。文件上传模块（如 resume）需显式设置 `useFormData: true`。
+`shared/composables/useCrudTable` 提供通用 CRUD 表格逻辑，管理后台页面统一使用。
