@@ -16,7 +16,7 @@ test('parseJobApi extracts types, response kinds, and route returns', async () =
   assert.equal(parsed.typesByName.PostUserInterviewListResp.data.kind, 'array')
   assert.equal(parsed.typesByName.PostUserInterviewListResp.data.typeName, 'InterviewWithJobInfo')
 
-  assert.deepEqual(parsed.routes[0], {
+  assert.deepEqual(parsed.routes.find((route) => route.path === '/api/company/list'), {
     method: 'GET',
     path: '/api/company/list',
     requestType: 'CompanyListReq',

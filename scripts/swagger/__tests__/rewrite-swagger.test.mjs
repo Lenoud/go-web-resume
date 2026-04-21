@@ -16,6 +16,7 @@ test('rewriteSwaggerDoc hoists response schemas bottom-up and preserves structur
 
   const parsed = parseJobApi(apiSource)
   const original = JSON.parse(swaggerSource)
+  const before = structuredClone(original.paths['/api/company/list'].get.responses['200'].schema)
   const rewritten = rewriteSwaggerDoc({
     parsed,
     swaggerDoc: original,
@@ -29,7 +30,6 @@ test('rewriteSwaggerDoc hoists response schemas bottom-up and preserves structur
     '#/definitions/CompanyListResp',
   )
 
-  const before = original.paths['/api/company/list'].get.responses['200'].schema
   const after = dereferenceSchema({
     root: rewritten,
     schema: rewritten.paths['/api/company/list'].get.responses['200'].schema,
