@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
+import { useQueryClient } from '@tanstack/vue-query'
 import { useResumeSnapshotTable, type ResumeSnapshotItem } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
-import { postPostCreateFromSnapshot, jobJobList } from '@/client'
+import { postPostCreateFromSnapshot, jobJobList, resumeResumeParseResult } from '@/client'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
+import { queryKeys } from '@/infrastructure/query/query-keys'
+import { useAuthStore } from '@/infrastructure/store/auth'
+
+const auth = useAuthStore()
+const queryClient = useQueryClient()
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -130,6 +136,169 @@ async function submitRecommend() {
   }
 }
 
+// ── 批量上传 ──
+interface BatchUploadItem {
+  uid: string
+  file: File
+  fileName: string
+  status: 'waiting' | 'uploading' | 'parsing' | 'success' | 'failed'
+  taskId?: string
+  errorMsg?: string
+}
+
+const batchUploadModal = reactive({
+  visible: false,
+  source: '' as string,
+  addToTalentPool: false,
+  fileList: [] as BatchUploadItem[],
+  uploading: false,
+})
+
+function openBatchUploadModal() {
+  batchUploadModal.fileList = []
+  batchUploadModal.source = ''
+  batchUploadModal.addToTalentPool = false
+  batchUploadModal.uploading = false
+  batchUploadModal.visible = true
+}
+
+function handleBatchFileSelect(file: File) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    message.warning('仅支持 PDF 文件')
+    return false
+  }
+  batchUploadModal.fileList.push({
+    uid: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    file,
+    fileName: file.name,
+    status: 'waiting',
+  })
+  return false
+}
+
+function removeBatchFile(uid: string) {
+  if (batchUploadModal.uploading) return
+  const idx = batchUploadModal.fileList.findIndex(f => f.uid === uid)
+  if (idx >= 0) batchUploadModal.fileList.splice(idx, 1)
+}
+
+async function startBatchUpload() {
+  if (!batchUploadModal.source) {
+    message.warning('请选择简历来源')
+    return
+  }
+  if (batchUploadModal.fileList.length === 0) {
+    message.warning('请先选择文件')
+    return
+  }
+  batchUploadModal.uploading = true
+
+  const token = window.location.pathname.startsWith('/admin')
+    ? (auth.adminToken || localStorage.getItem('admin_token'))
+    : (auth.userToken || localStorage.getItem('user_token'))
+  if (!token) {
+    message.error('登录已过期，请重新登录')
+    batchUploadModal.uploading = false
+    return
+  }
+  let successCount = 0
+
+  for (const item of batchUploadModal.fileList) {
+    if ((item.status as string) === 'success') continue
+    item.status = 'uploading'
+    item.errorMsg = undefined
+
+    try {
+      // 上传文件
+      const fd = new FormData()
+      fd.append('rawFile', item.file)
+      fd.append('source', batchUploadModal.source)
+      if (batchUploadModal.addToTalentPool) {
+        fd.append('addToTalentPool', 'true')
+      }
+
+      const resp = await fetch('/api/resume/companyUpload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd,
+      })
+      const result = await resp.json()
+
+      if (result.code !== 200 && result.code !== 0) {
+        throw new Error(result.msg || '上传失败')
+      }
+
+      const taskId: string = result.data?.taskId
+      if (!taskId) throw new Error('服务端未返回 taskId')
+
+      item.taskId = taskId
+      item.status = 'parsing'
+
+      // 轮询解析结果
+      await pollTaskResult(item)
+
+      if ((item.status as string) === 'success') successCount++
+    } catch (err: any) {
+      item.status = 'failed'
+      item.errorMsg = err?.message || '上传失败'
+    }
+  }
+
+  batchUploadModal.uploading = false
+
+  if (successCount > 0) {
+    queryClient.invalidateQueries({ queryKey: queryKeys.resumeSnapshots.all })
+    message.success(`批量上传完成：${successCount}/${batchUploadModal.fileList.length} 成功`)
+  } else {
+    message.warning('批量上传完成，全部失败')
+  }
+}
+
+function pollTaskResult(item: BatchUploadItem): Promise<void> {
+  return new Promise((resolve) => {
+    const interval = setInterval(async () => {
+      try {
+        const result = await resumeResumeParseResult({
+          query: { taskId: item.taskId! },
+        })
+        const resp = result.data as any
+        const status: string = resp?.data?.status ?? ''
+
+        if (status === 'done') {
+          clearInterval(interval)
+          item.status = 'success'
+          resolve()
+        } else if (status === 'failed') {
+          clearInterval(interval)
+          item.status = 'failed'
+          item.errorMsg = resp?.data?.msg || '解析失败'
+          resolve()
+        }
+      } catch {
+        // 网络错误继续轮询
+      }
+    }, 2000)
+
+    // 5 分钟超时
+    setTimeout(() => {
+      clearInterval(interval)
+      if (item.status === 'parsing') {
+        item.status = 'failed'
+        item.errorMsg = '解析超时'
+      }
+      resolve()
+    }, 5 * 60 * 1000)
+  })
+}
+
+function closeBatchUploadModal() {
+  if (batchUploadModal.uploading) {
+    message.warning('上传进行中，请等待完成')
+    return
+  }
+  batchUploadModal.visible = false
+}
+
 // 表格列定义
 const columns = [
   { title: '姓名', dataIndex: 'name', key: 'name' },
@@ -152,6 +321,9 @@ const columns = [
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
         <a-input v-model:value="keyword" placeholder="搜索快照" class="w-60" allow-clear />
+        <a-button v-permission="PermissionCode.RESUME_CREATE" type="primary" @click="openBatchUploadModal">
+          批量上传
+        </a-button>
         <a-popconfirm
           v-if="selectedRowKeys.length > 0"
           title="确认批量删除选中的快照？"
@@ -298,6 +470,96 @@ const columns = [
           </a-select>
         </a-form-item>
       </a-form>
+    </a-modal>
+
+    <!-- 批量上传 Modal -->
+    <a-modal
+      v-model:open="batchUploadModal.visible"
+      title="批量上传简历"
+      width="680px"
+      :footer="null"
+      :mask-closable="!batchUploadModal.uploading"
+      :closable="!batchUploadModal.uploading"
+    >
+      <!-- 配置区域 -->
+      <div v-if="!batchUploadModal.uploading">
+        <a-form :label-col="{ span: 4 }">
+          <a-form-item label="简历来源" required>
+            <a-select
+              v-model:value="batchUploadModal.source"
+              :options="RESUME_SOURCE_OPTIONS"
+              placeholder="请选择来源"
+              allow-clear
+            />
+          </a-form-item>
+          <a-form-item label="加入人才库">
+            <a-switch v-model:checked="batchUploadModal.addToTalentPool" />
+          </a-form-item>
+          <a-form-item label="选择文件">
+            <a-upload
+              :before-upload="handleBatchFileSelect"
+              :show-upload-list="false"
+              accept=".pdf"
+              multiple
+            >
+              <a-button>选择 PDF 文件</a-button>
+            </a-upload>
+            <span class="ml-2 text-gray-400 text-xs">仅支持 PDF 格式</span>
+          </a-form-item>
+        </a-form>
+
+        <!-- 文件列表 -->
+        <div v-if="batchUploadModal.fileList.length > 0" class="mb-4">
+          <div class="text-sm text-gray-500 mb-2">
+            已选择 {{ batchUploadModal.fileList.length }} 个文件：
+          </div>
+          <div
+            v-for="item in batchUploadModal.fileList"
+            :key="item.uid"
+            class="flex items-center justify-between py-1 px-2 bg-gray-50 rounded mb-1"
+          >
+            <span class="text-sm truncate flex-1">{{ item.fileName }}</span>
+            <span class="text-red-400 text-xs cursor-pointer ml-2 shrink-0" @click="removeBatchFile(item.uid)">
+              移除
+            </span>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <a-button @click="closeBatchUploadModal">取消</a-button>
+          <a-button
+            type="primary"
+            :disabled="batchUploadModal.fileList.length === 0"
+            @click="startBatchUpload"
+          >
+            开始上传
+          </a-button>
+        </div>
+      </div>
+
+      <!-- 进度区域 -->
+      <div v-else>
+        <div class="mb-3 text-sm text-gray-500">
+          上传进度：{{ batchUploadModal.fileList.filter(f => f.status === 'success').length }} / {{ batchUploadModal.fileList.length }}
+        </div>
+        <div
+          v-for="item in batchUploadModal.fileList"
+          :key="item.uid"
+          class="flex items-center gap-2 py-2 px-3 border-b last:border-b-0"
+        >
+          <span class="text-sm truncate flex-1" :title="item.fileName">{{ item.fileName }}</span>
+          <a-tag v-if="item.status === 'waiting'" color="default">等待中</a-tag>
+          <a-tag v-else-if="item.status === 'uploading'" color="processing">上传中</a-tag>
+          <a-tag v-else-if="item.status === 'parsing'" color="blue">
+            <span class="animate-pulse">解析中</span>
+          </a-tag>
+          <a-tag v-else-if="item.status === 'success'" color="success">成功</a-tag>
+          <a-tag v-else-if="item.status === 'failed'" color="error">失败</a-tag>
+          <span v-if="item.errorMsg" class="text-xs text-red-400 truncate max-w-[200px]" :title="item.errorMsg">
+            {{ item.errorMsg }}
+          </span>
+        </div>
+      </div>
     </a-modal>
   </div>
 </template>
