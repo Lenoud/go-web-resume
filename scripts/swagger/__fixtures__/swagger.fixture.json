@@ -54,6 +54,34 @@
           }
         }
       }
+    },
+    "/api/post/listUserInterviewApi": {
+      "get": {
+        "operationId": "postPostUserInterviewList",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": { "type": "integer" },
+                "msg": { "type": "string" },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "postId": { "type": "string" }
+                    },
+                    "required": ["id", "postId"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

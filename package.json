@@ -11,13 +11,15 @@
     "lint:fix": "eslint src --fix",
     "typecheck": "vue-tsc --noEmit",
     "test:scripts": "node --test scripts/swagger/__tests__/*.test.mjs",
-    "generate:client": "openapi-ts"
+    "generate:swagger:named": "node scripts/swagger/postprocess-swagger.mjs",
+    "generate:client": "pnpm generate:swagger:named && openapi-ts"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7",
     "@tanstack/vue-query": "^5",
     "@vueuse/core": "^12",
     "ant-design-vue": "^4",
+    "axios": "^1.13.4",
     "dayjs": "^1.11.20",
     "marked": "^18.0.2",
     "pinia": "^3",

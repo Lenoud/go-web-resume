@@ -111,6 +111,9 @@ pnpm dev
 
 # 从 Swagger 重新生成 API 客户端
 pnpm generate:client
+
+# 仅生成命名后的 Swagger（写入 ../api/doc/swagger/swagger.named.json）
+pnpm generate:swagger:named
 ```
 
 ## 可用脚本
@@ -123,15 +126,28 @@ pnpm generate:client
 | `pnpm typecheck` | 仅类型检查 |
 | `pnpm lint` | ESLint 检查 |
 | `pnpm lint:fix` | ESLint 自动修复 |
+| `pnpm generate:swagger:named` | 用 `job.api` 为 Swagger 成功响应补齐命名 schema，并写出 `swagger.named.json` |
 | `pnpm generate:client` | 从 Swagger 生成类型化 API 客户端 |
 
 ## API 客户端生成
 
-后端 Swagger 文档位于 `../api/doc/swagger/swagger.json`。类型化客户端通过 `@hey-api/openapi-ts` 生成：
+客户端生成现在分两步执行：
+
+1. `pnpm generate:swagger:named`
+   - 读取 `../api/job.api` 作为命名来源
+   - 读取 `../api/doc/swagger/swagger.json`
+   - 生成 `../api/doc/swagger/swagger.named.json`
+   - 写出前会先做一次结构校验，确保命名后的响应 schema 在解引用后与原始 Swagger 保持一致
+2. `pnpm generate:client`
+   - 先自动执行上面的 postprocess 步骤
+   - 再让 `@hey-api/openapi-ts` 基于 `swagger.named.json` 生成 axios 客户端
 
 ```bash
+pnpm generate:swagger:named
 pnpm generate:client
 ```
+
+`swagger.named.json` 位于后端目录下，不属于 `web/` 仓库提交内容。脚本会自动兼容 `web/.worktrees/*` 形式的隔离工作区，始终定位到真实的兄弟 `api/` 目录。
 
 生成后 `src/client/` 目录包含：
 - `client/client.gen.ts` — 客户端实例配置
@@ -139,7 +155,9 @@ pnpm generate:client
 - `client/utils.gen.ts` — 工具函数
 - `core/` — 认证、序列化等核心逻辑
 
-**注意**：`src/client/` 目录由工具自动生成，禁止手动修改。ESLint 已配置忽略此目录。
+**注意**：
+- `src/client/` 目录由工具自动生成，禁止手动修改。ESLint 已配置忽略此目录。
+- 修改后端 `.api` 文件后，先重新产出最新 `swagger.json`，再运行 `pnpm generate:client`。
 
 ## 代理配置
 
