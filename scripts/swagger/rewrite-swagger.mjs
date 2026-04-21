@@ -227,12 +227,16 @@ function dereferenceRef({ root, ref, seen }) {
   })
 
   Object.assign(placeholder, resolved)
-  return resolved
+  return placeholder
 }
 
 export function dereferenceSchema({ root, schema, seen = new Map() }) {
   if (Array.isArray(schema)) {
-    return schema.map((item) => dereferenceSchema({ root, schema: item, seen }))
+    const resolved = []
+    for (const item of schema) {
+      resolved.push(dereferenceSchema({ root, schema: item, seen }))
+    }
+    return resolved
   }
 
   if (!isPlainObject(schema)) {

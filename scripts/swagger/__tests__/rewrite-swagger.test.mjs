@@ -15,7 +15,6 @@ test('rewriteSwaggerDoc hoists response schemas bottom-up and preserves structur
   ])
 
   const parsed = parseJobApi(apiSource)
-  parsed.routes = parsed.routes.filter((route) => route.path !== '/api/post/listUserInterviewApi')
   const original = JSON.parse(swaggerSource)
   const before = structuredClone(original.paths['/api/company/list'].get.responses['200'].schema)
   const rewritten = rewriteSwaggerDoc({
@@ -37,6 +36,35 @@ test('rewriteSwaggerDoc hoists response schemas bottom-up and preserves structur
   })
 
   assert.deepEqual(after, before)
+})
+
+test('dereferenceSchema preserves shared and recursive reference identity', () => {
+  const root = {
+    definitions: {
+      Node: {
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          next: { $ref: '#/definitions/Node' },
+        },
+      },
+      Pair: {
+        type: 'object',
+        properties: {
+          left: { $ref: '#/definitions/Node' },
+          right: { $ref: '#/definitions/Node' },
+        },
+      },
+    },
+  }
+
+  const pair = dereferenceSchema({
+    root,
+    schema: { $ref: '#/definitions/Pair' },
+  })
+
+  assert.equal(pair.properties.left, pair.properties.right)
+  assert.equal(pair.properties.left.properties.next, pair.properties.left)
 })
 
 test('rewriteSwaggerDoc hoists base-only responses and matches operationId before method+path fallback', () => {
