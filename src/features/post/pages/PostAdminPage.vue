@@ -41,7 +41,7 @@ function handleDelete(id: string) {
 const processModal = reactive({
   visible: false,
   submitting: false,
-  item: null as Record<string, any> | null,
+  item: null as PostInfo | null,
   form: { id: '', status: 'applied', feedback: '', remark: '' },
 })
 
@@ -69,7 +69,7 @@ const isOfferStatus = (status: string) => status === 'offer_sent'
 const offerVisibleStatuses = ['offer_sent', 'salary_negotiation', 'offer_accepted', 'hired']
 const isOfferVisible = (status: string) => offerVisibleStatuses.includes(status)
 
-function openProcessModal(item: Record<string, any>) {
+function openProcessModal(item: PostInfo) {
   processModal.visible = true
   processModal.submitting = false
   processModal.item = item
@@ -159,7 +159,7 @@ const offerModal = reactive({
   form: { salary: '', level: '', joinDate: null as any, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' },
 })
 
-async function openOfferModal(item: Record<string, any>) {
+async function openOfferModal(item: PostInfo) {
   offerModal.visible = true
   offerModal.noData = false
   offerModal.submitting = false
@@ -234,7 +234,7 @@ async function openSnapshotDetail(snapshotId: string) {
 }
 
 // ── 加入人才库 ──
-async function handleAddToPool(item: Record<string, any>) {
+async function handleAddToPool(item: PostInfo) {
   if (!item.resumeSnapshotId) { message.warn('该投递暂无简历快照'); return }
   try {
     await talentpoolTalentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } as any })
@@ -351,16 +351,16 @@ const columns = [
           <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="openSnapshotDetail(record.resumeSnapshotId)">
             详情
           </a-button>
-          <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="handleAddToPool(record)">
+          <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="handleAddToPool(record as PostInfo)">
             人才库
           </a-button>
           <a-button v-if="record.raw" type="link" size="small" @click="openResumePreview(record.raw)">
             简历
           </a-button>
-          <a-button v-if="isOfferVisible(record.status)" type="link" size="small" @click="openOfferModal(record)">
+          <a-button v-if="isOfferVisible(record.status)" type="link" size="small" @click="openOfferModal(record as PostInfo)">
             Offer
           </a-button>
-          <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="openProcessModal(record)">
+          <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="openProcessModal(record as PostInfo)">
             处理
           </a-button>
           <a-popconfirm title="确认删除该投递记录？" @confirm="handleDelete(record.id)">

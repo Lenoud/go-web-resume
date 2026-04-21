@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useResumeSnapshotTable } from '../composables/useResumeSnapshot.js'
+import { useResumeSnapshotTable, type ResumeSnapshotInfo } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { postPostCreateFromSnapshot, jobJobList, resumeResumeParseResult } from '@/client'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
@@ -21,7 +21,7 @@ const {
 // 弹窗状态
 const modalVisible = ref(false)
 const modalTitle = ref('编辑快照')
-const editingItem = ref<Record<string, any> | null>(null)
+const editingItem = ref<ResumeSnapshotInfo | null>(null)
 
 // 表单 - 覆盖后端 UpdateResumeSnapshotReq 所有字段
 const formState = ref<{
@@ -49,7 +49,7 @@ const formState = ref<{
   expectedSalary: '', jobIntention: '', rating: undefined, tags: '', remark: '', source: '',
 })
 
-function openEdit(record: Record<string, any>) {
+function openEdit(record: ResumeSnapshotInfo) {
   modalTitle.value = '编辑快照'
   editingItem.value = record
   formState.value = {
@@ -100,7 +100,7 @@ function openResumePreview(raw: string) {
 const recommendModal = reactive({ visible: false, submitting: false, snapshotId: '', selectedJobId: '' })
 const jobOptions = ref<Array<{ id: string; title: string }>>([])
 
-async function openRecommend(record: Record<string, any>) {
+async function openRecommend(record: ResumeSnapshotInfo) {
   recommendModal.snapshotId = record.id ?? ''
   recommendModal.selectedJobId = ''
   recommendModal.submitting = false
@@ -352,10 +352,10 @@ const columns = [
           <a-button v-if="record.raw" type="link" size="small" @click="openResumePreview(record.raw)">
             查看简历
           </a-button>
-          <a-button type="link" size="small" @click="openRecommend(record)">
+          <a-button type="link" size="small" @click="openRecommend(record as ResumeSnapshotInfo)">
             推荐到岗位
           </a-button>
-          <a-button v-permission="PermissionCode.RESUME_UPDATE" type="link" size="small" @click="openEdit(record)">
+          <a-button v-permission="PermissionCode.RESUME_UPDATE" type="link" size="small" @click="openEdit(record as ResumeSnapshotInfo)">
             编辑
           </a-button>
           <a-popconfirm title="确认删除该快照？" @confirm="handleDelete(record.id)">

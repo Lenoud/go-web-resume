@@ -101,7 +101,7 @@ function handleDelete(id: string) {
 }
 
 // ── 行内状态切换 ──
-function handleStatusChange(record: Record<string, any>, newStatus: number) {
+function handleStatusChange(record: JobInfo, newStatus: number) {
   if (record.status === newStatus) return
   updateMutation?.mutate({ id: record.id, status: newStatus } as any)
 }
@@ -182,7 +182,7 @@ const columns = [
               {{ statusLabelMap[record.status] ?? '状态' }} ▾
             </a-button>
             <template #overlay>
-              <a-menu @click="(e: any) => handleStatusChange(record, Number(e.key))">
+              <a-menu @click="(e: any) => handleStatusChange(record as JobInfo, Number(e.key))">
                 <a-menu-item key="1" :disabled="record.status === 1">招聘中</a-menu-item>
                 <a-menu-item key="2" :disabled="record.status === 2">已关闭</a-menu-item>
                 <a-menu-item key="4" :disabled="record.status === 4">已招满</a-menu-item>
