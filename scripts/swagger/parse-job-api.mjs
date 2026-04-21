@@ -25,13 +25,48 @@ function normalizeSource(source) {
   return source.replace(/\r\n?/g, '\n')
 }
 
-function stripLineComment(line) {
-  const commentIndex = line.indexOf('//')
-  return commentIndex === -1 ? line : line.slice(0, commentIndex)
+function stripComments(source) {
+  let result = ''
+  let inBlockComment = false
+
+  for (let i = 0; i < source.length; i += 1) {
+    const char = source[i]
+    const next = source[i + 1]
+
+    if (inBlockComment) {
+      if (char === '*' && next === '/') {
+        inBlockComment = false
+        i += 1
+      } else if (char === '\n') {
+        result += char
+      }
+      continue
+    }
+
+    if (char === '/' && next === '/') {
+      while (i < source.length && source[i] !== '\n') {
+        i += 1
+      }
+      if (source[i] === '\n') {
+        result += '\n'
+      }
+      continue
+    }
+
+    if (char === '/' && next === '*') {
+      inBlockComment = true
+      i += 1
+      continue
+    }
+
+    result += char
+  }
+
+  return result
 }
 
 function parseFieldType(rawType) {
-  const typeName = rawType.trim()
+  const typeName = rawType.trim().split(/\s+/, 1)[0]
 
   if (typeName.startsWith('[]')) {
     return {
@@ -66,17 +101,11 @@ function parseFieldLine(line) {
     return null
   }
 
-  const tagMatch = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\s+(.+?)(?:\s+`json:"([^"]+)"`)?$/)
-  if (!tagMatch) {
-    const embeddedType = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)$/)
-    if (!embeddedType) {
-      return null
-    }
-
+  const embeddedType = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)$/)
+  if (embeddedType) {
     return {
       name: embeddedType[1],
       jsonName: null,
-      embeddedTypeName: embeddedType[1],
       type: {
         kind: 'embedded',
         typeName: embeddedType[1],
@@ -84,13 +113,30 @@ function parseFieldLine(line) {
     }
   }
 
-  const [, name, rawType, rawJsonTag] = tagMatch
-  const jsonName = rawJsonTag ? rawJsonTag.split(',')[0].trim() : name
+  const nameMatch = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\s+(.+)$/)
+  if (!nameMatch) {
+    const embeddedType = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)$/)
+    return embeddedType
+      ? {
+          name: embeddedType[1],
+          jsonName: null,
+          type: {
+            kind: 'embedded',
+            typeName: embeddedType[1],
+          },
+        }
+      : null
+  }
+
+  const [, name, remainder] = nameMatch
+  const jsonTagMatch = remainder.match(/`json:"([^"]+)"/)
+  const typeSegment = jsonTagMatch ? remainder.slice(0, jsonTagMatch.index).trim() : remainder.trim()
+  const jsonName = jsonTagMatch ? jsonTagMatch[1].split(',')[0].trim() : name
 
   return {
     name,
     jsonName,
-    type: parseFieldType(rawType),
+    type: parseFieldType(typeSegment),
   }
 }
 
@@ -130,7 +176,7 @@ function parseTypeDeclarations(lines) {
   }
 
   for (const rawLine of lines) {
-    const line = stripLineComment(rawLine).trim()
+    const line = rawLine.trim()
     if (!line) {
       continue
     }
@@ -181,10 +227,9 @@ function parseTypeDeclarations(lines) {
 function parseRoutes(lines) {
   const routes = []
   let inServiceBlock = false
-  let pendingHandler = null
 
   for (const rawLine of lines) {
-    const line = stripLineComment(rawLine).trim()
+    const line = rawLine.trim()
     if (!line) {
       continue
     }
@@ -198,29 +243,25 @@ function parseRoutes(lines) {
 
     if (line === '}') {
       inServiceBlock = false
-      pendingHandler = null
       continue
     }
 
-    const handlerMatch = line.match(/^@handler\s+([A-Za-z_][A-Za-z0-9_]*)$/)
-    if (handlerMatch) {
-      pendingHandler = handlerMatch[1]
-      continue
-    }
-
-    const routeMatch = line.match(/^(get|post|put|delete|patch|head|options)\s+(\S+)\s+\(([^)]+)\)\s+returns\s+\(([^)]+)\)$/i)
+    const routeMatch = line.match(/^([a-z]+)\s+(\S+)\s+\(([^)]+)\)\s+returns\s+\(([^)]+)\)$/i)
     if (!routeMatch) {
       continue
     }
 
     const [, method, path, requestType, responseType] = routeMatch
+    if (!ROUTE_METHODS.has(method.toLowerCase())) {
+      continue
+    }
+
     routes.push({
       method: method.toUpperCase(),
       path,
       requestType,
       responseType,
     })
-    pendingHandler = null
   }
 
   return routes
@@ -228,7 +269,8 @@ function parseRoutes(lines) {
 
 export function parseJobApi(source) {
   const normalized = normalizeSource(source)
-  const lines = normalized.split('\n')
+  const stripped = stripComments(normalized)
+  const lines = stripped.split('\n')
 
   return {
     typesByName: parseTypeDeclarations(lines),
