@@ -10,6 +10,7 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "typecheck": "vue-tsc --noEmit",
+    "test:scripts": "node --test scripts/swagger/__tests__/*.test.mjs",
     "generate:client": "openapi-ts"
   },
   "dependencies": {
