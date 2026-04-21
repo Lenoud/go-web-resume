@@ -1,18 +1,12 @@
+import type { CompanyInfo } from '@/client'
 import { useCrudTable } from '@/shared/composables/useCrudTable'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { companyCompanyList, companyCompanyCreate, companyCompanyUpdate, companyCompanyDelete } from '@/client'
 
-export interface CompanyItem {
-  id?: string
-  title: string
-  guimo?: string
-  hangye?: string
-  description?: string
-  location?: string
-}
+export type { CompanyInfo }
 
 export function useCompanyTable() {
-  return useCrudTable<CompanyItem>({
+  return useCrudTable<CompanyInfo>({
     queryKey: queryKeys.companies.all,
     listFn: (params) => companyCompanyList({ query: params as { page?: number; pageSize?: number } }),
     createFn: (body) => companyCompanyCreate({ body: body as Parameters<typeof companyCompanyCreate>[0]['body'] }),

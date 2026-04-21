@@ -1,23 +1,11 @@
+import type { OpLogInfo } from '@/client'
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { oplogOpLogList, oplogLoginLogList } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 
-export interface OpLogItem {
-  id?: string
-  accessTime?: string
-  bizCode?: number
-  bizMsg?: string
-  reUrl?: string
-  reMethod?: string
-  reIp?: string
-  reTime?: string
-  reUa?: string
-  reContent?: string
-  requestId?: string
-  success?: string
-}
+export type { OpLogInfo }
 
 export function useOpLogTable() {
   const page = ref(1)
@@ -27,11 +15,7 @@ export function useOpLogTable() {
     queryKey: computed(() => [...queryKeys.opLogs.list({}), { page: page.value, pageSize: pageSize.value }]),
     queryFn: async () => {
       const result = await oplogOpLogList({ query: { page: page.value, pageSize: pageSize.value } })
-      const resp = result.data
-      if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-        throw new Error(resp?.msg ?? '查询失败')
-      }
-      return normalizePaginated<OpLogItem>(resp.data)
+      return normalizePaginated<OpLogInfo>(result.data?.data)
     },
   })
 
@@ -57,11 +41,7 @@ export function useLoginLogTable() {
     queryKey: computed(() => [...queryKeys.opLogs.loginLogs({}), { page: page.value, pageSize: pageSize.value }]),
     queryFn: async () => {
       const result = await oplogLoginLogList({ query: { page: page.value, pageSize: pageSize.value } })
-      const resp = result.data
-      if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-        throw new Error(resp?.msg ?? '查询失败')
-      }
-      return normalizePaginated<OpLogItem>(resp.data)
+      return normalizePaginated<OpLogInfo>(result.data?.data)
     },
   })
 

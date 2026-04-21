@@ -1,17 +1,12 @@
+import type { DepartmentInfo } from '@/client'
 import { useCrudTable } from '@/shared/composables/useCrudTable'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { departmentDepartmentList, departmentDepartmentCreate, departmentDepartmentUpdate, departmentDepartmentDelete } from '@/client'
 
-export interface DepartmentItem {
-  id?: string
-  title: string
-  parentId?: string
-  description?: string
-  createTime?: string
-}
+export type { DepartmentInfo }
 
 export function useDepartmentTable() {
-  return useCrudTable<DepartmentItem>({
+  return useCrudTable<DepartmentInfo>({
     queryKey: queryKeys.departments.all,
     listFn: (params) => departmentDepartmentList({ query: params as { page?: number; pageSize?: number } }),
     createFn: (body) => departmentDepartmentCreate({ body: body as Parameters<typeof departmentDepartmentCreate>[0]['body'] }),
