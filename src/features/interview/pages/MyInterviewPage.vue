@@ -1,21 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { postPostUserInterviewList } from '@/client'
+import { postPostUserInterviewList, type InterviewWithJobInfo } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 
 const auth = useAuthStore()
 const page = ref(1)
 const pageSize = ref(10)
-
-interface InterviewItem {
-  id: string; postId: string; jobId: string
-  jobTitle: string; companyTitle: string; jobLocation: string
-  location: string; categoryTitle: string; departmentTitle: string
-  round: string; type: string; scheduledAt: string
-  interviewerName: string; score: string; result: string; evaluation: string
-  postStatus: string; createTime: string
-}
 
 const listQuery = useQuery({
   queryKey: ['userInterviews', { page, pageSize }],
@@ -23,11 +14,7 @@ const listQuery = useQuery({
     const result = await postPostUserInterviewList({
       query: { page: page.value, pageSize: pageSize.value },
     })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return (resp.data ?? []) as InterviewItem[]
+    return (result.data?.data ?? []) as InterviewWithJobInfo[]
   },
   enabled: !!auth.userId,
 })

@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { postPostUserList } from '@/client'
+import { postPostUserList, type UserPostItemInfo } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
@@ -20,23 +20,13 @@ const statusFilterOptions = [
   ...ALL_STATUSES.map((s) => ({ label: STATUS_LABEL[s], value: s })),
 ]
 
-interface PostItem {
-  id: string; jobId: string; title: string; companyTitle: string
-  location: string; categoryTitle: string; departmentTitle: string
-  status: string; feedback: string; source: string
-}
-
 const listQuery = useQuery({
   queryKey: ['userPosts', { page, pageSize, userId: auth.userId }],
   queryFn: async () => {
     const result = await postPostUserList({
       query: { userId: auth.userId, page: page.value, pageSize: pageSize.value },
     })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return normalizePaginated<PostItem>(resp.data)
+    return normalizePaginated<UserPostItemInfo>(result.data?.data)
   },
   enabled: !!auth.userId,
 })
@@ -44,11 +34,11 @@ const listQuery = useQuery({
 const list = computed(() => {
   let all = listQuery.data?.value?.list ?? []
   if (statusFilter.value) {
-    all = all.filter((i: PostItem) => i.status === statusFilter.value)
+    all = all.filter((i: UserPostItemInfo) => i.status === statusFilter.value)
   }
   if (keyword.value) {
     const kw = keyword.value.toLowerCase()
-    all = all.filter((i: PostItem) =>
+    all = all.filter((i: UserPostItemInfo) =>
       (i.title ?? '').toLowerCase().includes(kw) ||
       (i.companyTitle ?? '').toLowerCase().includes(kw) ||
       (i.location ?? '').toLowerCase().includes(kw),

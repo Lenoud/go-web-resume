@@ -8,6 +8,7 @@ import {
   offerOfferDetail, offerOfferCreate, offerOfferUpdate,
   resumesnapshotResumeSnapshotDetail,
   talentpoolTalentPoolAdd,
+  type PostInfo,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
@@ -30,12 +31,6 @@ const colorMap: Record<string, string> = {
   geekblue: '#2f54eb', error: '#ff4d4f', warning: '#faad14',
 }
 
-interface PostItem {
-  id: string; jobId: string; title: string; companyTitle: string
-  name: string; status: string; feedback: string; remark: string; source: string
-  userId: string; createTime: string; resumeSnapshotId: string; raw: string
-}
-
 // ── 投递列表查询（后端自动取 companyId） ──
 const listQuery = useQuery({
   queryKey: computed(() => ['companyPosts', { page: page.value, pageSize: pageSize.value }]),
@@ -43,11 +38,7 @@ const listQuery = useQuery({
     const result = await postPostCompanyList({
       query: { page: page.value, pageSize: pageSize.value } as any,
     })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return normalizePaginated<PostItem>(resp.data)
+    return normalizePaginated<PostInfo>(result.data?.data)
   },
 })
 
@@ -57,7 +48,7 @@ const loading = computed(() => listQuery.isLoading.value)
 
 // ── Unique jobs for filter ──
 const uniqueJobs = computed(() => {
-  const jobs = new Set(allData.value.map((p: PostItem) => p.title).filter(Boolean))
+  const jobs = new Set(allData.value.map((p: PostInfo) => p.title).filter(Boolean))
   return [...jobs]
 })
 
@@ -82,14 +73,14 @@ const pipelineStages = ALL_STATUSES.map((s) => ({
 const displayData = computed(() => {
   let list = [...allData.value]
   if (activeStatus.value && activeStatus.value !== 'all') {
-    list = list.filter((p: PostItem) => p.status === activeStatus.value)
+    list = list.filter((p: PostInfo) => p.status === activeStatus.value)
   }
   if (activeJob.value) {
-    list = list.filter((p: PostItem) => p.title === activeJob.value)
+    list = list.filter((p: PostInfo) => p.title === activeJob.value)
   }
   if (keyword.value) {
     const kw = keyword.value.toLowerCase()
-    list = list.filter((p: PostItem) =>
+    list = list.filter((p: PostInfo) =>
       (p.name ?? '').toLowerCase().includes(kw) ||
       (p.title ?? '').toLowerCase().includes(kw),
     )
@@ -98,7 +89,7 @@ const displayData = computed(() => {
     const now = Date.now()
     const dayMs = 24 * 60 * 60 * 1000
     const threshold = activeTimeRange.value === 'week' ? now - 7 * dayMs : now - 30 * dayMs
-    list = list.filter((p: PostItem) => Number(p.createTime) >= threshold)
+    list = list.filter((p: PostInfo) => Number(p.createTime) >= threshold)
   }
   return list
 })
@@ -110,7 +101,7 @@ function statusBg(s: string) { return statusColor(s) + '14' }
 // ── Status log loading ──
 const statusLogsMap = ref<Record<string, any[]>>({})
 
-async function loadStatusLogs(items: PostItem[]) {
+async function loadStatusLogs(items: PostInfo[]) {
   const map: Record<string, any[]> = {}
   await Promise.all(
     items.map(async (item) => {
@@ -174,7 +165,7 @@ function getRemarkPlaceholder(status: string) {
   return '请填写内部流转备注'
 }
 
-function openProcessModal(item: PostItem) {
+function openProcessModal(item: PostInfo) {
   processModal.visible = true
   processModal.submitting = false
   processModal.form = {
@@ -277,7 +268,7 @@ const offerModal = reactive({
   form: { salary: '', level: '', joinDate: null as any, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' },
 })
 
-async function openOfferModal(item: PostItem) {
+async function openOfferModal(item: PostInfo) {
   offerModal.visible = true
   offerModal.noData = false
   offerModal.submitting = false
@@ -355,7 +346,7 @@ async function openSnapshotDetail(snapshotId: string) {
 }
 
 // ── 加入人才库 ──
-async function handleAddToPool(item: PostItem) {
+async function handleAddToPool(item: PostInfo) {
   if (!item.resumeSnapshotId) { message.warn('该投递暂无简历快照'); return }
   try {
     await talentpoolTalentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } as any })
