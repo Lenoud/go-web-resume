@@ -2,6 +2,12 @@
 
 Vue 3 + TypeScript + Ant Design Vue + Vite 构建的招聘管理系统前端。
 
+### 核心成果
+
+- **零手写接口**：所有 API 类型由 `@hey-api/openapi-ts` 从 Swagger 自动生成，composable 直接引用生成的 `XxxInfo` / `XxxListData` 类型
+- **零页面 code 校验**：拦截器统一处理业务错误码，composable / page 层不检查 `resp.code`
+- **零 `any`**：ESLint 严格禁止显式 `any`，全链路类型由生成器保证（`XxxListResp.data` → `XxxListData` → `XxxInfo`）
+
 ## 技术栈
 
 | 类别 | 技术 | 说明 |
@@ -195,8 +201,103 @@ Vite 配置了手动分包策略：
 - **Composable 层**（`features/xxx/composables/`）：封装业务逻辑、TanStack Query 缓存策略
 - **Page 层**（`features/xxx/pages/`）：纯展示，调用 composable 获取数据
 
-### 数据规范化
+### 请求全链路运行机制
 
-后端统一响应信封 `{ code, msg, data, timestamp, trace }`。拦截器校验 `code`，非 0/200 直接 throw。Composable 层通过 `result.data?.data` 一行提取业务数据，类型由生成器全链路贯通（`CompanyListResp.data` → `CompanyListData` → `CompanyInfo`）。
+一个前端请求的完整生命周期：
 
-`shared/composables/useCrudTable` 提供通用 CRUD 表格逻辑，管理后台页面统一使用。
+```
+Page 调用 composable
+  → composable 调用 SDK 函数（client/ 自动生成）
+    → 请求拦截器注入 Token（按 /admin 路径选择 admin_token 或 user_token）
+      → axios 发送请求 → Vite proxy 转发到后端 :9100
+        → 后端返回信封 { code, msg, data, timestamp, trace }
+      → 响应拦截器校验 code（非 0/200 直接 throw Error）
+    → SDK throwOnError: true → 错误走 TanStack Query 的 onError，成功走 data
+  → composable 通过 result.data?.data 提取业务数据
+→ Page 渲染
+```
+
+关键设计决策：
+- **错误处理归拦截器**：composable / page 不写 `if (resp.code !== 0)` 或 `if (result.error)`
+- **Token 自动注入**：请求拦截器根据 `window.location.pathname` 自动选择 admin / user token
+- **401/403 闭环**：错误拦截器自动清除 token 并跳转登录页，URL 携带 `redirect` 参数
+
+### 信封响应处理规范
+
+后端统一响应格式 `{ code, msg, data, timestamp, trace }`，前端处理分层：
+
+| 层 | 职责 | 示例 |
+|----|------|------|
+| 拦截器 | 校验 `code`，非 0/200 throw；注入 token；401/403 清 token 跳登录 | `interceptors.ts` |
+| SDK | `throwOnError: true`，错误走 `onError`，成功返回 `AxiosResponse<T>` | `client.gen.ts` |
+| Composable | `result.data?.data` 一行提取业务数据 | `const result = await companyList(...)` |
+| useCrudTable | 通用 CRUD 表格逻辑，mutation 成功自动 invalidate + message 提示 | `useCrudTable.ts` |
+
+**禁止事项**：
+- 禁止在 composable 中检查 `resp.code` 或 `result.error`
+- 禁止手写 interface 替代生成类型
+- 禁止使用 `any`（ESLint 已强制）
+
+### AntDV 表格类型断言约定
+
+Vue 模板中的表格回调（`customRender`、`bodyCell` slot）无法携带泛型，`record` 类型为 `unknown`。约定：
+
+- **模板回调中**：`record as XxxInfo` 断言是必要的，这是 Vue 模板的已知限制
+- **composable / script 中**：禁止 `as` 断言，数据类型由 SDK 返回值和 `useCrudTable<T>` 泛型保证
+- **columns 定义**：`dataIndex` 必须与生成类型的字段名一致，否则运行时取不到值
+
+### 双 Token 认证
+
+两套独立 token 共存于 localStorage，由请求拦截器根据路径自动选择：
+
+| 场景 | Token Key | 路由前缀 | 角色 |
+|------|-----------|----------|------|
+| 管理后台 | `admin_token` | `/admin/*` | 管理员(3) |
+| 前台页面 | `user_token` | `/index/*` | 求职者(1) / HR(2) |
+
+**注意**：判断依据是 `window.location.pathname.startsWith('/admin')`，同一浏览器不同标签页同时使用 admin 和 user 登录时，请求拦截器依据各自标签页路径独立工作，不会错乱。
+
+## 风险边界与已知限制
+
+当前架构在 TS 严格模式 + 代码生成 + AntDV + TanStack Query 组合下的合理边界，非 bug：
+
+| 风险点 | 说明 | 影响程度 |
+|--------|------|----------|
+| `result.data?.data` 可选链静默空值 | 后端正常返回时必有 `data`，空值仅在网络异常时出现（此时走 `onError`） | 低 |
+| 模板 `record as XxxInfo` 断言 | Vue 模板无法携带泛型，断言后无运行时校验，字段不匹配会显示空白而非报错 | 低 |
+| 生成类型与实际接口漂移 | 后端改了 `.api` 未重新生成前端 client 时发生，`pnpm generate:client` 一条命令解决 | 需流程保证 |
+| 部门下拉 `pageSize=100` 假设全量 | 当前部门数远小于 100，超量时需改为滚动加载或专用接口 | 低 |
+
+## 日常维护指南
+
+### 后端接口变更同步流程
+
+后端修改 `job.api` 后，前端必须重新生成客户端：
+
+```bash
+# 1. 后端生成 swagger
+cd api && goctl api swagger --api job.api --dir doc/swagger --filename swagger
+
+# 2. 前端生成客户端（内部先 postprocess 再生成）
+cd web && pnpm generate:client
+```
+
+**如果生成类型影响了 composable 层**（如字段重命名、新增必填字段），需同步更新对应 composable。
+
+### 新增管理后台页面的标准流程
+
+1. 后端在 `job.api` 定义类型和路由 → `goctl` 生成 → `goctl api swagger` 生成 Swagger
+2. 前端 `pnpm generate:client` 生成 SDK 类型
+3. 创建 `features/xxx/composables/useXxx.ts`，使用 `useCrudTable<XxxInfo>` 封装 CRUD
+4. 创建 `features/xxx/pages/XxxAdminPage.vue`，调用 composable 渲染表格 + 弹窗
+5. 在 `infrastructure/router/admin.ts` 注册路由
+6. 在 `layouts/AdminLayout.vue` 添加侧边栏菜单项
+
+### 文件上传模块特殊处理
+
+简历等文件上传模块使用 `multipart/form-data`，需显式设置 `useFormData: true`：
+
+```ts
+// resume composable 中
+createFn: (body) => resumeCreate(body, { useFormData: true })
+```
