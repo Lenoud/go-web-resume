@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
-import { useResumeTable, type ResumeItem } from '../composables/useResume.js'
+import { useResumeTable, type ResumeInfo } from '../composables/useResume.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
 import { useAuthStore } from '@/infrastructure/store/auth'
@@ -17,10 +17,10 @@ const {
 // 弹窗状态
 const modalVisible = ref(false)
 const modalTitle = ref('新增简历')
-const editingItem = ref<ResumeItem | null>(null)
+const editingItem = ref<ResumeInfo | null>(null)
 
 // 基本信息表单
-const formState = ref<ResumeItem>({ name: '' })
+const formState = ref<Partial<ResumeInfo>>({ name: '' })
 
 // 头像上传
 const coverPreview = ref('')
@@ -110,7 +110,7 @@ function parseEdu(jsonStr: string | undefined) {
 }
 
 function resetForm() {
-  formState.value = { name: '' }
+  formState.value = { name: '' } as Partial<ResumeInfo>
   coverPreview.value = ''
   coverFile.value = null
   rawFile.value = null
@@ -128,7 +128,7 @@ function openCreate() {
 }
 
 function openEdit(record: unknown) {
-  const item = record as ResumeItem
+  const item = record as ResumeInfo
   modalTitle.value = '编辑简历'
   editingItem.value = item
   formState.value = { ...item }
@@ -161,7 +161,7 @@ async function handleSubmit() {
 
   // 基本信息
   if (editingItem.value?.id) fd.append('id', editingItem.value.id)
-  fd.append('name', formState.value.name)
+  fd.append('name', formState.value.name ?? '')
   if (formState.value.sex) fd.append('sex', formState.value.sex)
   if (formState.value.birthday) fd.append('birthday', formState.value.birthday)
   if (formState.value.email) fd.append('email', formState.value.email)

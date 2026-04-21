@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import { usePostTable, type PostItem } from '../composables/usePost.js'
+import { usePostTable, type PostInfo } from '../composables/usePost.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
 import RecruitmentPipeline from '../components/RecruitmentPipeline.vue'
@@ -41,7 +41,7 @@ function handleDelete(id: string) {
 const processModal = reactive({
   visible: false,
   submitting: false,
-  item: null as PostItem | null,
+  item: null as Record<string, any> | null,
   form: { id: '', status: 'applied', feedback: '', remark: '' },
 })
 
@@ -69,7 +69,7 @@ const isOfferStatus = (status: string) => status === 'offer_sent'
 const offerVisibleStatuses = ['offer_sent', 'salary_negotiation', 'offer_accepted', 'hired']
 const isOfferVisible = (status: string) => offerVisibleStatuses.includes(status)
 
-function openProcessModal(item: PostItem) {
+function openProcessModal(item: Record<string, any>) {
   processModal.visible = true
   processModal.submitting = false
   processModal.item = item
@@ -159,7 +159,7 @@ const offerModal = reactive({
   form: { salary: '', level: '', joinDate: null as any, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' },
 })
 
-async function openOfferModal(item: PostItem) {
+async function openOfferModal(item: Record<string, any>) {
   offerModal.visible = true
   offerModal.noData = false
   offerModal.submitting = false
@@ -234,7 +234,7 @@ async function openSnapshotDetail(snapshotId: string) {
 }
 
 // ── 加入人才库 ──
-async function handleAddToPool(item: PostItem) {
+async function handleAddToPool(item: Record<string, any>) {
   if (!item.resumeSnapshotId) { message.warn('该投递暂无简历快照'); return }
   try {
     await talentpoolTalentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } as any })
@@ -254,7 +254,7 @@ function openResumePreview(raw: string) {
 // ── 状态流转记录 ──
 const statusLogsMap = ref<Record<string, any[]>>({})
 
-async function loadStatusLogs(items: PostItem[]) {
+async function loadStatusLogs(items: PostInfo[]) {
   const map: Record<string, any[]> = {}
   await Promise.all(
     items.map(async (item) => {
@@ -275,7 +275,7 @@ watch(list, (val) => { if (val?.length) loadStatusLogs(val) }, { immediate: true
 // ── 状态日志展开行 ──
 const expandedRowKeys = ref<string[]>([])
 
-function onExpand(expanded: boolean, record: PostItem) {
+function onExpand(expanded: boolean, record: PostInfo) {
   if (expanded) {
     expandedRowKeys.value = [...expandedRowKeys.value, record.id!]
   } else {

@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { message } from 'ant-design-vue'
 import { companyCompanyList, companyCompanyCreate, companyCompanyUpdate } from '@/client'
-import type { CompanyItem } from '../composables/useCompany'
+import type { CompanyInfo } from '../composables/useCompany'
 
 import { queryKeys } from '@/infrastructure/query/query-keys'
 
@@ -23,14 +23,14 @@ const { data: listData, isLoading: loading } = useQuery({
 })
 
 const company = computed(() => {
-  const items = (listData.value as { list?: CompanyItem[] })?.list ?? []
+  const items = (listData.value as { list?: CompanyInfo[] })?.list ?? []
   return items.length > 0 ? items[0] : null
 })
 const hasCompany = computed(() => !!company.value)
 
 // ── 创建 / 更新 mutation ──
 const saveMutation = useMutation({
-  mutationFn: async (body: Partial<CompanyItem> & { id?: string }) => {
+  mutationFn: async (body: Partial<CompanyInfo> & { id?: string }) => {
     if (body.id) {
       return companyCompanyUpdate({ body: body as Parameters<typeof companyCompanyUpdate>[0]['body'] })
     }
@@ -52,7 +52,7 @@ const saveMutation = useMutation({
 // ── 弹窗状态 ──
 const modalVisible = ref(false)
 const editingId = ref<string | null>(null)
-const formState = ref<Partial<CompanyItem>>({ title: '' })
+const formState = ref<Partial<CompanyInfo>>({ title: '' })
 
 const modalTitle = computed(() => (editingId.value ? '编辑公司信息' : '初始化公司资料'))
 

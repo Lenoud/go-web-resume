@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useResumeSnapshotTable, type ResumeSnapshotItem } from '../composables/useResumeSnapshot.js'
+import { useResumeSnapshotTable } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { postPostCreateFromSnapshot, jobJobList, resumeResumeParseResult } from '@/client'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
@@ -21,7 +21,7 @@ const {
 // 弹窗状态
 const modalVisible = ref(false)
 const modalTitle = ref('编辑快照')
-const editingItem = ref<ResumeSnapshotItem | null>(null)
+const editingItem = ref<Record<string, any> | null>(null)
 
 // 表单 - 覆盖后端 UpdateResumeSnapshotReq 所有字段
 const formState = ref<{
@@ -49,7 +49,7 @@ const formState = ref<{
   expectedSalary: '', jobIntention: '', rating: undefined, tags: '', remark: '', source: '',
 })
 
-function openEdit(record: ResumeSnapshotItem) {
+function openEdit(record: Record<string, any>) {
   modalTitle.value = '编辑快照'
   editingItem.value = record
   formState.value = {
@@ -100,7 +100,7 @@ function openResumePreview(raw: string) {
 const recommendModal = reactive({ visible: false, submitting: false, snapshotId: '', selectedJobId: '' })
 const jobOptions = ref<Array<{ id: string; title: string }>>([])
 
-async function openRecommend(record: ResumeSnapshotItem) {
+async function openRecommend(record: Record<string, any>) {
   recommendModal.snapshotId = record.id ?? ''
   recommendModal.selectedJobId = ''
   recommendModal.submitting = false

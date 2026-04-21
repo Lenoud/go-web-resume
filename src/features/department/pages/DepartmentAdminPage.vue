@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useDepartmentTable, type DepartmentItem } from '../composables/useDepartment.js'
+import { useDepartmentTable, type DepartmentInfo } from '../composables/useDepartment.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {
@@ -15,11 +15,11 @@ const modalTitle = ref('新增部门')
 const editingId = ref<string | null>(null)
 
 // 表单默认值
-const formState = ref<Partial<DepartmentItem>>({ title: '' })
+const formState = ref<Partial<DepartmentInfo>>({ title: '' })
 
 /** 将扁平部门列表构建为树形结构，编辑时排除自身及子部门 */
 const treeData = computed(() => {
-  const departments = list.value as DepartmentItem[]
+  const departments = list.value as DepartmentInfo[]
   const excludeId = editingId.value ? Number(editingId.value) : null
 
   // 收集需要排除的 id（自身 + 所有后代）
@@ -27,7 +27,7 @@ const treeData = computed(() => {
   if (excludeId) {
     excludeIds.add(excludeId)
     const collect = (pid: number) => {
-      departments.forEach((d: DepartmentItem) => {
+      departments.forEach((d: DepartmentInfo) => {
         if (Number(d.parentId) === pid) {
           excludeIds.add(Number(d.id))
           collect(Number(d.id))
@@ -37,14 +37,14 @@ const treeData = computed(() => {
     collect(excludeId)
   }
 
-  const filtered = departments.filter((d: DepartmentItem) => !excludeIds.has(Number(d.id)))
-  const map = new Map<number, DepartmentItem & { children: DepartmentItem[] }>()
-  const roots: (DepartmentItem & { children: DepartmentItem[] })[] = []
+  const filtered = departments.filter((d: DepartmentInfo) => !excludeIds.has(Number(d.id)))
+  const map = new Map<number, DepartmentInfo & { children: DepartmentInfo[] }>()
+  const roots: (DepartmentInfo & { children: DepartmentInfo[] })[] = []
 
-  filtered.forEach((d: DepartmentItem) => {
+  filtered.forEach((d: DepartmentInfo) => {
     map.set(Number(d.id), { ...d, children: [] })
   })
-  filtered.forEach((d: DepartmentItem) => {
+  filtered.forEach((d: DepartmentInfo) => {
     const node = map.get(Number(d.id))!
     const pid = Number(d.parentId)
     if (!pid || !map.has(pid)) {
@@ -55,7 +55,7 @@ const treeData = computed(() => {
   })
 
   // 清理空 children 数组
-  const clean = (nodes: (DepartmentItem & { children?: DepartmentItem[] })[]) => {
+  const clean = (nodes: (DepartmentInfo & { children?: DepartmentInfo[] })[]) => {
     nodes.forEach((n) => {
       if (n.children && n.children.length === 0) delete n.children
       else if (n.children) clean(n.children)
@@ -70,7 +70,7 @@ const treeData = computed(() => {
 function getParentName(parentId: string | number | undefined) {
   const pid = Number(parentId)
   if (!pid) return '—'
-  const parent = (list.value as DepartmentItem[]).find((d: DepartmentItem) => Number(d.id) === pid)
+  const parent = (list.value as DepartmentInfo[]).find((d: DepartmentInfo) => Number(d.id) === pid)
   return parent?.title || '—'
 }
 
@@ -82,7 +82,7 @@ function openCreate() {
 }
 
 function openEdit(record: unknown) {
-  const item = record as DepartmentItem
+  const item = record as DepartmentInfo
   modalTitle.value = '编辑部门'
   editingId.value = item.id ?? null
   formState.value = { ...item }

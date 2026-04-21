@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useOfferTable, type OfferItem } from '../composables/useOffer.js'
+import { useOfferTable, type OfferInfo } from '../composables/useOffer.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {
@@ -12,10 +12,10 @@ const {
 // 弹窗状态
 const modalVisible = ref(false)
 const modalTitle = ref('新增Offer')
-const editingItem = ref<OfferItem | null>(null)
+const editingItem = ref<OfferInfo | null>(null)
 
 // 表单默认值
-const formState = ref<Partial<OfferItem>>({ postId: '' })
+const formState = ref<Partial<OfferInfo>>({ postId: '' })
 
 // 状态选项
 const statusOptions = [
@@ -47,7 +47,7 @@ function openCreate() {
 }
 
 function openEdit(record: unknown) {
-  const item = record as OfferItem
+  const item = record as OfferInfo
   modalTitle.value = '编辑Offer'
   editingItem.value = item
   formState.value = { ...item }

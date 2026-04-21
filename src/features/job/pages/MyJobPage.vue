@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useMyJobTable, type JobItem } from '../composables/useJob.js'
+import { useMyJobTable, type JobInfo } from '../composables/useJob.js'
 import { departmentDepartmentList } from '@/client'
 import { EDUCATION_OPTIONS, RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP, WORK_EXPERIENCE_OPTIONS, JOB_CATEGORY_OPTIONS } from '@/shared/utils/constants'
 
@@ -14,7 +14,7 @@ const {
 const modalVisible = ref(false)
 const modalTitle = ref('新增职位')
 const editingId = ref<string | null>(null)
-const formState = ref<Partial<JobItem>>({ title: '' })
+const formState = ref<Partial<JobInfo>>({ title: '' })
 
 // ── 联动选项 ──
 
@@ -58,7 +58,7 @@ function openCreate() {
 }
 
 function openEdit(record: unknown) {
-  const item = record as JobItem
+  const item = record as JobInfo
   modalTitle.value = '编辑职位'
   editingId.value = item.id ?? null
   // 薪资转换

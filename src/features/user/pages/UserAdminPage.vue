@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useUserTable, type UserItem } from '../composables/useUser.js'
+import { useUserTable, type UserInfo } from '../composables/useUser.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 
 const {
@@ -12,10 +12,10 @@ const {
 // 弹窗状态
 const modalVisible = ref(false)
 const modalTitle = ref('新增用户')
-const editingItem = ref<UserItem | null>(null)
+const editingItem = ref<UserInfo | null>(null)
 
 // 表单默认值
-const formState = ref<UserItem>({ username: '', password: '' })
+const formState = ref<Partial<UserInfo>>({ username: '', password: '' })
 
 // 角色选项
 const roleOptions = [
@@ -46,12 +46,12 @@ const roleLabelMap: Record<string, string> = {
 function openCreate() {
   modalTitle.value = '新增用户'
   editingItem.value = null
-  formState.value = { username: '', password: '', role: '1', status: '0' }
+  formState.value = { username: '', password: '', role: '1', status: '0' } as Partial<UserInfo>
   modalVisible.value = true
 }
 
 function openEdit(record: unknown) {
-  const item = record as UserItem
+  const item = record as UserInfo
   modalTitle.value = '编辑用户'
   editingItem.value = item
   formState.value = { ...item, password: '' }
@@ -60,7 +60,7 @@ function openEdit(record: unknown) {
 
 function handleSubmit() {
   if (editingItem.value?.id) {
-    const payload: Record<string, unknown> = { id: editingItem.value.id, ...formState.value }
+    const payload: Record<string, unknown> = { id: editingItem.value.id, ...formState.value } as Record<string, unknown>
     // 编辑时如果密码为空则不传
     if (!formState.value.password) {
       delete payload.password

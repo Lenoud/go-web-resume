@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { postPostUserOfferList } from '@/client'
+import { postPostUserOfferList, type OfferWithJobInfo } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { STATUS_LABEL, STATUS_COLOR, type RecruitmentStatus } from '@/shared/types'
 
@@ -9,26 +9,13 @@ const auth = useAuthStore()
 const page = ref(1)
 const pageSize = ref(10)
 
-interface OfferItem {
-  id: string; postId: string; jobId: string
-  jobTitle: string; companyTitle: string; jobLocation: string
-  salary: string; level: string; contractPeriod: string
-  probationPeriod: string; joinDate: string; workLocation: string
-  status: string; postStatus: string; createTime: string
-  categoryTitle: string; departmentTitle: string
-}
-
 const listQuery = useQuery({
   queryKey: ['userOffers', { page, pageSize }],
   queryFn: async () => {
     const result = await postPostUserOfferList({
       query: { page: page.value, pageSize: pageSize.value },
     })
-    const resp = result.data
-    if (!resp || (resp.code !== undefined && resp.code !== 0 && resp.code !== 200)) {
-      throw new Error(resp?.msg ?? '查询失败')
-    }
-    return (resp.data ?? []) as OfferItem[]
+    return (result.data?.data ?? []) as OfferWithJobInfo[]
   },
   enabled: !!auth.userId,
 })
