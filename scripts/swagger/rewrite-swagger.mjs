@@ -92,6 +92,38 @@ function findRoute({ method, path, operation, routeRegistry }) {
   return routeRegistry.byMethodPath.get(`${method.toUpperCase()} ${path}`) ?? null
 }
 
+function routeKey(route) {
+  return route.operationId ?? `${route.method.toUpperCase()} ${route.path}`
+}
+
+function assertCompatibleDataShape({ responseTypeName, dataType, schema }) {
+  if (dataType.kind === 'none' || dataType.kind === 'primitive' || dataType.kind === 'embedded') {
+    return
+  }
+
+  const dataSchema = schema?.properties?.data
+  if (!isPlainObject(dataSchema)) {
+    throw new Error(`Response "${responseTypeName}" has data incompatible with swagger data shape`)
+  }
+
+  if (dataType.kind === 'ref') {
+    if (dataSchema.$ref || dataSchema.type === 'object') {
+      return
+    }
+
+    throw new Error(`Response "${responseTypeName}" has data incompatible with swagger data shape`)
+  }
+
+  if (dataType.kind === 'array') {
+    const itemSchema = dataSchema.items
+    if (dataSchema.type === 'array' && itemSchema && (itemSchema.$ref || itemSchema.type === 'object')) {
+      return
+    }
+
+    throw new Error(`Response "${responseTypeName}" has data incompatible with swagger data shape`)
+  }
+}
+
 function rewriteFieldSchema({ schema, fieldType, context }) {
   if (!fieldType || !isPlainObject(schema)) {
     return schema
@@ -129,6 +161,12 @@ function rewriteSchemaShape({ schema, typeName, context }) {
   if (!typeMeta || !isPlainObject(rewritten) || !isPlainObject(rewritten.properties)) {
     return rewritten
   }
+
+  assertCompatibleDataShape({
+    responseTypeName: typeName,
+    dataType: typeMeta.data,
+    schema: rewritten,
+  })
 
   for (const [propertyName, propertySchema] of Object.entries(rewritten.properties)) {
     const fieldType = typeMeta.fieldsByName[propertyName]
@@ -233,6 +271,8 @@ export function rewriteSwaggerDoc({ parsed, swaggerDoc }) {
     typesByName: parsed?.typesByName ?? {},
   }
 
+  const matchedRoutes = new Set()
+
   for (const [path, pathItem] of Object.entries(rewritten.paths ?? {})) {
     for (const [method, operation] of Object.entries(pathItem)) {
       if (!SWAGGER_METHODS.has(method) || !operation?.responses) {
@@ -249,18 +289,27 @@ export function rewriteSwaggerDoc({ parsed, swaggerDoc }) {
         continue
       }
 
-      for (const response of Object.values(operation.responses)) {
-        if (!response?.schema) {
-          continue
-        }
+      matchedRoutes.add(routeKey(route))
 
-        response.schema = hoistNamedSchema({
-          schema: response.schema,
-          typeName: route.responseType,
-          context,
-        })
+      const successResponse = operation.responses?.[200] ?? operation.responses?.['200']
+      if (!successResponse?.schema) {
+        throw new Error(`Parsed route "${routeKey(route)}" is missing responses.200.schema`)
       }
+
+      successResponse.schema = hoistNamedSchema({
+        schema: successResponse.schema,
+        typeName: route.responseType,
+        context,
+      })
     }
+  }
+
+  for (const route of parsed?.routes ?? []) {
+    if (!route?.responseType || matchedRoutes.has(routeKey(route))) {
+      continue
+    }
+
+    throw new Error(`Parsed route "${routeKey(route)}" was not matched`)
   }
 
   return rewritten

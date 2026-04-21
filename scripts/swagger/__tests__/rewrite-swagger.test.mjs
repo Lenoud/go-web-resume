@@ -15,6 +15,7 @@ test('rewriteSwaggerDoc hoists response schemas bottom-up and preserves structur
   ])
 
   const parsed = parseJobApi(apiSource)
+  parsed.routes = parsed.routes.filter((route) => route.path !== '/api/post/listUserInterviewApi')
   const original = JSON.parse(swaggerSource)
   const before = structuredClone(original.paths['/api/company/list'].get.responses['200'].schema)
   const rewritten = rewriteSwaggerDoc({
@@ -93,12 +94,6 @@ test('rewriteSwaggerDoc hoists base-only responses and matches operationId befor
         fieldsByName: {},
         data: { kind: 'none' },
       },
-      WrongFallbackResp: {
-        name: 'WrongFallbackResp',
-        fields: [],
-        fieldsByName: {},
-        data: { kind: 'none' },
-      },
     },
     routes: [
       {
@@ -106,11 +101,6 @@ test('rewriteSwaggerDoc hoists base-only responses and matches operationId befor
         method: 'POST',
         path: '/api/other-path',
         responseType: 'OperationMatchedResp',
-      },
-      {
-        method: 'POST',
-        path: '/api/match-precedence',
-        responseType: 'WrongFallbackResp',
       },
       {
         method: 'GET',
@@ -132,7 +122,6 @@ test('rewriteSwaggerDoc hoists base-only responses and matches operationId befor
     rewritten.paths['/api/match-fallback'].get.responses[200].schema.$ref,
     '#/definitions/FallbackMatchedResp',
   )
-  assert.equal(rewritten.definitions.WrongFallbackResp, undefined)
   assert.deepEqual(
     dereferenceSchema({
       root: rewritten,
@@ -218,5 +207,227 @@ test('rewriteSwaggerDoc throws when the same definition name resolves to differe
   assert.throws(
     () => rewriteSwaggerDoc({ parsed, swaggerDoc }),
     /SharedResp.*different schema/i,
+  )
+})
+
+test('rewriteSwaggerDoc only rewrites responses.200.schema', () => {
+  const parsed = {
+    typesByName: {
+      OnlySuccessResp: {
+        name: 'OnlySuccessResp',
+        fields: [],
+        fieldsByName: {},
+        data: { kind: 'none' },
+      },
+    },
+    routes: [
+      {
+        operationId: 'only-success',
+        method: 'GET',
+        path: '/api/only-success',
+        responseType: 'OnlySuccessResp',
+      },
+    ],
+  }
+
+  const swaggerDoc = {
+    swagger: '2.0',
+    paths: {
+      '/api/only-success': {
+        get: {
+          operationId: 'only-success',
+          responses: {
+            200: {
+              description: '',
+              schema: {
+                type: 'object',
+                properties: {
+                  code: { type: 'integer' },
+                  msg: { type: 'string' },
+                },
+              },
+            },
+            400: {
+              description: '',
+              schema: {
+                type: 'object',
+                properties: {
+                  code: { type: 'integer' },
+                  msg: { type: 'string' },
+                  detail: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  const badRequestBefore = structuredClone(swaggerDoc.paths['/api/only-success'].get.responses[400].schema)
+  const rewritten = rewriteSwaggerDoc({ parsed, swaggerDoc })
+
+  assert.equal(
+    rewritten.paths['/api/only-success'].get.responses[200].schema.$ref,
+    '#/definitions/OnlySuccessResp',
+  )
+  assert.deepEqual(rewritten.paths['/api/only-success'].get.responses[400].schema, badRequestBefore)
+})
+
+test('rewriteSwaggerDoc throws when a parsed route cannot be matched to a swagger operation', () => {
+  const parsed = {
+    typesByName: {
+      UnmatchedResp: {
+        name: 'UnmatchedResp',
+        fields: [],
+        fieldsByName: {},
+        data: { kind: 'none' },
+      },
+    },
+    routes: [
+      {
+        operationId: 'missing-operation',
+        method: 'GET',
+        path: '/api/missing-operation',
+        responseType: 'UnmatchedResp',
+      },
+    ],
+  }
+
+  const swaggerDoc = {
+    swagger: '2.0',
+    paths: {
+      '/api/other-operation': {
+        get: {
+          operationId: 'other-operation',
+          responses: {
+            200: {
+              description: '',
+              schema: {
+                type: 'object',
+                properties: {
+                  code: { type: 'integer' },
+                  msg: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  assert.throws(
+    () => rewriteSwaggerDoc({ parsed, swaggerDoc }),
+    /missing-operation.*not matched/i,
+  )
+})
+
+test('rewriteSwaggerDoc throws when a matched operation has no responses.200.schema', () => {
+  const parsed = {
+    typesByName: {
+      MissingSuccessSchemaResp: {
+        name: 'MissingSuccessSchemaResp',
+        fields: [],
+        fieldsByName: {},
+        data: { kind: 'none' },
+      },
+    },
+    routes: [
+      {
+        operationId: 'missing-success-schema',
+        method: 'GET',
+        path: '/api/missing-success-schema',
+        responseType: 'MissingSuccessSchemaResp',
+      },
+    ],
+  }
+
+  const swaggerDoc = {
+    swagger: '2.0',
+    paths: {
+      '/api/missing-success-schema': {
+        get: {
+          operationId: 'missing-success-schema',
+          responses: {
+            200: {
+              description: '',
+            },
+            400: {
+              description: '',
+              schema: {
+                type: 'object',
+                properties: {
+                  code: { type: 'integer' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  assert.throws(
+    () => rewriteSwaggerDoc({ parsed, swaggerDoc }),
+    /missing-success-schema.*responses\.200\.schema/i,
+  )
+})
+
+test('rewriteSwaggerDoc throws when parsed response data shape is incompatible with swagger data', () => {
+  const parsed = {
+    typesByName: {
+      IncompatibleDataResp: {
+        name: 'IncompatibleDataResp',
+        fields: [],
+        fieldsByName: {
+          data: { kind: 'ref', typeName: 'Payload' },
+        },
+        data: { kind: 'ref', typeName: 'Payload' },
+      },
+      Payload: {
+        name: 'Payload',
+        fields: [],
+        fieldsByName: {},
+        data: { kind: 'none' },
+      },
+    },
+    routes: [
+      {
+        operationId: 'incompatible-data',
+        method: 'GET',
+        path: '/api/incompatible-data',
+        responseType: 'IncompatibleDataResp',
+      },
+    ],
+  }
+
+  const swaggerDoc = {
+    swagger: '2.0',
+    paths: {
+      '/api/incompatible-data': {
+        get: {
+          operationId: 'incompatible-data',
+          responses: {
+            200: {
+              description: '',
+              schema: {
+                type: 'object',
+                properties: {
+                  code: { type: 'integer' },
+                  msg: { type: 'string' },
+                  data: { type: 'array', items: { type: 'object' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  assert.throws(
+    () => rewriteSwaggerDoc({ parsed, swaggerDoc }),
+    /IncompatibleDataResp.*data.*incompatible/i,
   )
 })
