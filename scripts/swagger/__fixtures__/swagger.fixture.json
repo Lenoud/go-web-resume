@@ -1,0 +1,59 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/api/company/list": {
+      "get": {
+        "operationId": "companyCompanyList",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": { "type": "integer" },
+                "msg": { "type": "string" },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "title": { "type": "string" }
+                        },
+                        "required": ["id", "title"]
+                      }
+                    },
+                    "total": { "type": "integer" },
+                    "page": { "type": "integer" },
+                    "pageSize": { "type": "integer" }
+                  },
+                  "required": ["list", "total", "page", "pageSize"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/company/delete": {
+      "post": {
+        "operationId": "companyCompanyDelete",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": { "type": "integer" },
+                "msg": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
