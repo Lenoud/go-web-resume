@@ -132,21 +132,20 @@ pnpm generate:swagger:named
 | `pnpm typecheck` | 仅类型检查 |
 | `pnpm lint` | ESLint 检查 |
 | `pnpm lint:fix` | ESLint 自动修复 |
-| `pnpm generate:swagger:named` | 用 `job.api` 为 Swagger 成功响应补齐命名 schema，并写出 `swagger.named.json` |
-| `pnpm generate:client` | 先 postprocess 再从 `swagger.named.json` 生成类型化 API 客户端 |
-| `pnpm test:scripts` | 运行 swagger 后处理脚本的单元测试 |
+| `pnpm generate:swagger:named` | 调用 `goctl-swagger` 插件，从 `../api/desc/main.api` 生成具名 `swagger.named.json` |
+| `pnpm generate:client` | 先生成 `swagger.named.json`，再生成类型化 API 客户端 |
+| `pnpm test:scripts` | 运行历史 Swagger 后处理脚本的单元测试 |
 
 ## API 客户端生成
 
 客户端生成分两步执行：
 
 1. `pnpm generate:swagger:named`
-   - 读取 `../api/job.api` 作为命名来源
-   - 读取 `../api/doc/swagger/swagger.json`
-   - 生成 `../api/doc/swagger/swagger.named.json`
-   - 写出前会先做一次结构校验，确保命名后的响应 schema 在解引用后与原始 Swagger 保持一致
+   - 调用 `goctl api plugin --plugin "goctl-swagger swagger ..."`
+   - 读取 `../api/desc/main.api` 及其 import 的模块定义
+   - 直接生成带具名 `definitions` 的 `../api/doc/swagger/swagger.named.json`
 2. `pnpm generate:client`
-   - 先自动执行上面的 postprocess 步骤
+   - 先自动执行上面的插件生成步骤
    - 再让 `@hey-api/openapi-ts` 基于 `swagger.named.json` 生成 axios 客户端
 
 ```bash
@@ -154,7 +153,7 @@ pnpm generate:swagger:named
 pnpm generate:client
 ```
 
-`swagger.named.json` 位于后端目录下，不属于 `web/` 仓库提交内容。脚本会自动兼容 `web/.worktrees/*` 形式的隔离工作区，始终定位到真实的兄弟 `api/` 目录。
+`swagger.named.json` 位于后端目录下，不属于 `web/` 仓库提交内容。旧的 `scripts/swagger/postprocess-swagger.mjs` 仅作为历史备用，不再作为默认生成链路。
 
 生成后 `src/client/` 目录包含：
 - `client/client.gen.ts` — 客户端实例配置
@@ -272,13 +271,10 @@ Vue 模板中的表格回调（`customRender`、`bodyCell` slot）无法携带�
 
 ### 后端接口变更同步流程
 
-后端修改 `job.api` 后，前端必须重新生成客户端：
+后端修改 `desc/*.api` 或 `desc/main.api` 后，前端必须重新生成客户端：
 
 ```bash
-# 1. 后端生成 swagger
-cd api && goctl api swagger --api job.api --dir doc/swagger --filename swagger
-
-# 2. 前端生成客户端（内部先 postprocess 再生成）
+# 内部先用 goctl-swagger 生成 swagger.named.json，再生成客户端
 cd web && pnpm generate:client
 ```
 
@@ -286,7 +282,7 @@ cd web && pnpm generate:client
 
 ### 新增管理后台页面的标准流程
 
-1. 后端在 `job.api` 定义类型和路由 → `goctl` 生成 → `goctl api swagger` 生成 Swagger
+1. 后端在 `desc/*.api` 定义类型、在 `desc/main.api` 定义路由 → `goctl` 生成 → `goctl-swagger` 生成具名 Swagger
 2. 前端 `pnpm generate:client` 生成 SDK 类型
 3. 创建 `features/xxx/composables/useXxx.ts`，使用 `useCrudTable<XxxInfo>` 封装 CRUD
 4. 创建 `features/xxx/pages/XxxAdminPage.vue`，调用 composable 渲染表格 + 弹窗

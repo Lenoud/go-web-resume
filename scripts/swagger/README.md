@@ -1,5 +1,7 @@
 # Swagger Postprocess
 
+> 已废弃：旧版 `goctl-swagger` 插件已验证可以直接生成具名 `definitions`，后续默认链路改为 `pnpm generate:swagger:named` 调用 `goctl-swagger`，不再使用本目录的自定义后处理脚本。本目录保留为历史备用和参考。
+
 后处理 `goctl api swagger` 的输出，将匿名内联响应 schema 提升为具名 `definitions`，让前端代码生成器（`@hey-api/openapi-ts`）产出可复用的 TypeScript 类型。
 
 ## 问题

@@ -11,7 +11,7 @@
     "lint:fix": "eslint src --fix",
     "typecheck": "vue-tsc --noEmit",
     "test:scripts": "node --test scripts/swagger/__tests__/*.test.mjs",
-    "generate:swagger:named": "node scripts/swagger/postprocess-swagger.mjs",
+    "generate:swagger:named": "cd ../api && goctl api plugin --plugin \"goctl-swagger swagger --filename swagger.named.json --host 127.0.0.1:9100 --basepath /\" --api desc/main.api --dir doc/swagger",
     "generate:client": "pnpm generate:swagger:named && openapi-ts"
   },
   "dependencies": {

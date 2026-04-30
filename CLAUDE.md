@@ -11,8 +11,8 @@ pnpm build                # 类型检查 + 生产构建
 pnpm typecheck            # 仅类型检查（vue-tsc）
 pnpm lint                 # ESLint 检查
 pnpm lint:fix             # ESLint 自动修复
-pnpm generate:swagger:named  # 用 job.api 命名元数据后处理 swagger.json → swagger.named.json
-pnpm generate:client         # 先 postprocess 再基于 swagger.named.json 生成 axios 客户端
+pnpm generate:swagger:named  # 调用 goctl-swagger 生成具名 swagger.named.json
+pnpm generate:client         # 先生成 swagger.named.json，再基于它生成 axios 客户端
 ```
 
 后端必须先启动（`cd ../api && scripts/dev.sh`），前端 dev server 通过 Vite proxy 将 `/api/*` 转发到 `127.0.0.1:9100`。
@@ -100,11 +100,10 @@ Query keys 集中管理在 `infrastructure/query/query-keys.ts`，层级结构 `
 pnpm generate:client
 ```
 生成链路：
-1. `goctl api swagger`（后端）→ `swagger.json`
-2. `pnpm generate:swagger:named` → 用 `job.api` 命名元数据后处理 `swagger.json`，写出 `swagger.named.json`
-3. `@hey-api/openapi-ts` → 基于 `swagger.named.json` 生成 `src/client/`
+1. `pnpm generate:swagger:named` → 调用 `goctl-swagger` 读取 `../api/desc/main.api`，写出 `swagger.named.json`
+2. `@hey-api/openapi-ts` → 基于 `swagger.named.json` 生成 `src/client/`
 
-后处理脚本见 `scripts/swagger/`，详细说明见 `scripts/swagger/README.md`。
+`scripts/swagger/` 下的自定义后处理脚本已作为历史备用，不再作为默认生成链路。
 
 生成后类型全链路贯通：`CompanyListResp.data` → `CompanyListData` → `CompanyInfo`，无需手写任何 interface。
 
