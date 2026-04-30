@@ -1152,17 +1152,6 @@ export type ResumeSnapshotListResp = {
 };
 
 /**
- * ResumeSnapshotStatusLogListResp
- */
-export type ResumeSnapshotStatusLogListResp = {
-    code?: number;
-    msg?: string;
-    trace?: string;
-    timestamp?: number;
-    data?: Array<StatusLogInfo>;
-};
-
-/**
  * ResumeSnapshotUpdateResp
  */
 export type ResumeSnapshotUpdateResp = {
@@ -2511,25 +2500,6 @@ export type ResumeSnapshotListResponses = {
 };
 
 export type ResumeSnapshotListResponse = ResumeSnapshotListResponses[keyof ResumeSnapshotListResponses];
-
-export type ResumeSnapshotStatusLogListData = {
-    body?: never;
-    path?: never;
-    query: {
-        targetType: string;
-        targetId: string;
-    };
-    url: '/api/resumeSnapshot/statusLogList';
-};
-
-export type ResumeSnapshotStatusLogListResponses = {
-    /**
-     * A successful response.
-     */
-    200: ResumeSnapshotStatusLogListResp;
-};
-
-export type ResumeSnapshotStatusLogListResponse = ResumeSnapshotStatusLogListResponses[keyof ResumeSnapshotStatusLogListResponses];
 
 export type ResumeSnapshotUpdateData = {
     body: UpdateResumeSnapshotReq;

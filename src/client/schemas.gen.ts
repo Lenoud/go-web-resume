@@ -2726,31 +2726,6 @@ export const ResumeSnapshotListRespSchema = {
     title: 'ResumeSnapshotListResp'
 } as const;
 
-export const ResumeSnapshotStatusLogListRespSchema = {
-    type: 'object',
-    properties: {
-        code: {
-            type: 'integer'
-        },
-        msg: {
-            type: 'string'
-        },
-        trace: {
-            type: 'string'
-        },
-        timestamp: {
-            type: 'integer'
-        },
-        data: {
-            type: 'array',
-            items: {
-                $ref: '#/definitions/StatusLogInfo'
-            }
-        }
-    },
-    title: 'ResumeSnapshotStatusLogListResp'
-} as const;
-
 export const ResumeSnapshotUpdateRespSchema = {
     type: 'object',
     properties: {
