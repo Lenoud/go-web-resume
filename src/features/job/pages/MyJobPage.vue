@@ -3,6 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useMyJobTable, type JobInfo } from '../composables/useJob.js'
 import { departmentList } from '@/client'
 import { EDUCATION_OPTIONS, RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP, WORK_EXPERIENCE_OPTIONS, JOB_CATEGORY_OPTIONS } from '@/shared/utils/constants'
+import type { DepartmentInfo } from '@/client'
+
+type MenuClickEvent = { key: string | number }
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -44,8 +47,8 @@ onMounted(async () => {
   try {
     const result = await departmentList({ query: { page: 1, pageSize: 100 } })
     const resp = result.data
-    const d = (resp?.data as any)?.list ?? []
-    deptData.value = d.map((x: any) => ({ id: String(x.id), title: x.title }))
+    const d: DepartmentInfo[] = resp?.data?.list ?? []
+    deptData.value = d.map(x => ({ id: String(x.id), title: x.title }))
   } catch { /* ignore */ }
 })
 
@@ -103,7 +106,7 @@ function handleDelete(id: string) {
 // ── 行内状态切换 ──
 function handleStatusChange(record: JobInfo, newStatus: number) {
   if (record.status === newStatus) return
-  updateMutation?.mutate({ id: record.id, status: newStatus } as any)
+  updateMutation?.mutate({ id: record.id, status: newStatus })
 }
 
 // ── 表格列 ──
@@ -182,7 +185,7 @@ const columns = [
               {{ statusLabelMap[record.status] ?? '状态' }} ▾
             </a-button>
             <template #overlay>
-              <a-menu @click="(e: any) => handleStatusChange(record as JobInfo, Number(e.key))">
+              <a-menu @click="(e: MenuClickEvent) => handleStatusChange(record as JobInfo, Number(e.key))">
                 <a-menu-item key="1" :disabled="record.status === 1">招聘中</a-menu-item>
                 <a-menu-item key="2" :disabled="record.status === 2">已关闭</a-menu-item>
                 <a-menu-item key="4" :disabled="record.status === 4">已招满</a-menu-item>

@@ -10,7 +10,7 @@ import {
   postCreateFromSnapshot,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
-import type { TalentPoolInfo } from '@/client'
+import type { JobInfo, ResumeSnapshotInfo, TalentPoolAddReq, TalentPoolInfo, TalentPoolUpdateReq } from '@/client'
 
 const queryClient = useQueryClient()
 const page = ref(1)
@@ -18,6 +18,11 @@ const pageSize = ref(10)
 const keyword = ref('')
 
 type TalentItem = TalentPoolInfo
+type ResumeDetail = TalentPoolInfo | ResumeSnapshotInfo
+type SelectOption = { title?: string }
+type EduDetailItem = { school?: string; degree?: string; major?: string; duration?: string }
+type WorkExperienceItem = { company?: string; position?: string; duration?: string }
+type ProjectItem = { name?: string; role?: string; description?: string }
 
 const listQuery = useQuery({
   queryKey: ['talentPool', { page, pageSize }],
@@ -45,18 +50,34 @@ const loading = computed(() => listQuery.isLoading.value)
 // ── Utils ──
 function parseSkills(skills: unknown): string[] {
   if (!skills) return []
-  try { const arr = JSON.parse(String(skills)); return Array.isArray(arr) ? arr : [] }
+  try {
+    const arr: unknown = JSON.parse(String(skills))
+    return Array.isArray(arr) ? arr.filter((item): item is string => typeof item === 'string') : []
+  }
   catch { return [] }
 }
 
-function parseJSON(str: unknown): any[] {
+function parseJSON<T extends object>(str: unknown): T[] {
   if (!str) return []
-  try { const arr = JSON.parse(String(str)); return Array.isArray(arr) ? arr : [] }
+  try {
+    const arr: unknown = JSON.parse(String(str))
+    return Array.isArray(arr)
+      ? arr.filter((item): item is T => typeof item === 'object' && item !== null)
+      : []
+  }
   catch { return [] }
 }
 
-function getEduItems(item: TalentItem) {
-  const items = parseJSON(item.eduDetail)
+function parseWorkExperience(str: unknown) {
+  return parseJSON<WorkExperienceItem>(str)
+}
+
+function parseProjects(str: unknown) {
+  return parseJSON<ProjectItem>(str)
+}
+
+function getEduItems(item: Pick<ResumeDetail, 'eduDetail' | 'school' | 'education'>) {
+  const items = parseJSON<EduDetailItem>(item.eduDetail)
   if (items.length) return items
   if (item.school || item.education) return [{ school: item.school || '', degree: item.education || '', major: '', duration: '' }]
   return []
@@ -65,7 +86,9 @@ function getEduItems(item: TalentItem) {
 function formatEduSummary(item: TalentItem) {
   const items = getEduItems(item)
   if (!items.length) return item.education || ''
-  const first = [items[0].school, items[0].degree, items[0].major].filter(Boolean).join(' / ')
+  const firstItem = items[0]
+  if (!firstItem) return item.education || ''
+  const first = [firstItem.school, firstItem.degree, firstItem.major].filter(Boolean).join(' / ')
   return items.length === 1 ? (first || '1段教育经历') : `${first || '教育经历'} 等${items.length}段`
 }
 
@@ -84,7 +107,11 @@ function handleRemove(item: TalentItem) {
 }
 
 // ── Detail Modal ──
-const detailModal = reactive({ visible: false, data: null as any, loading: false })
+const detailModal = reactive<{ visible: boolean; data: ResumeDetail | null; loading: boolean }>({
+  visible: false,
+  data: null,
+  loading: false,
+})
 
 async function openDetail(item: TalentItem) {
   detailModal.visible = true
@@ -105,7 +132,7 @@ async function openDetail(item: TalentItem) {
 const editModal = reactive({
   visible: false,
   submitting: false,
-  form: { resumeSnapshotId: '', tags: '', remark: '' },
+  form: { resumeSnapshotId: '', tags: '', remark: '' } as TalentPoolUpdateReq,
 })
 
 function openEditModal(item: TalentItem) {
@@ -122,13 +149,13 @@ async function submitEdit() {
   editModal.submitting = true
   try {
     await talentPoolUpdate({
-      body: editModal.form as Parameters<typeof talentPoolUpdate>[0]['body'],
+      body: editModal.form,
     })
     message.success('更新成功')
     editModal.visible = false
     queryClient.invalidateQueries({ queryKey: ['talentPool'] })
-  } catch (err: any) {
-    message.warn(err?.message || '更新失败')
+  } catch (err: unknown) {
+    message.warn(errorMessage(err, '更新失败'))
   } finally {
     editModal.submitting = false
   }
@@ -137,19 +164,19 @@ async function submitEdit() {
 // ── Add Modal ──
 const addModal = reactive({
   visible: false,
-  form: { resumeSnapshotId: '', tags: '', remark: '' },
+  form: { resumeSnapshotId: '', tags: '', remark: '' } as TalentPoolAddReq,
 })
 
 async function submitAdd() {
   try {
     await talentPoolAdd({
-      body: addModal.form as Parameters<typeof talentPoolAdd>[0]['body'],
+      body: addModal.form,
     })
     message.success('添加成功')
     addModal.visible = false
     queryClient.invalidateQueries({ queryKey: ['talentPool'] })
-  } catch (err: any) {
-    message.warn(err?.message || '添加失败')
+  } catch (err: unknown) {
+    message.warn(errorMessage(err, '添加失败'))
   }
 }
 
@@ -172,9 +199,8 @@ async function openRecommend(item: TalentItem) {
   try {
     const result = await jobUserList({ query: { page: 1, pageSize: 200 } })
     const resp = result.data
-    const data = (resp?.data as any)
-    const rawList = data?.list ?? data ?? []
-    jobOptions.value = rawList.map((j: any) => ({ id: String(j.id), title: j.title || '未命名' }))
+    const rawList: JobInfo[] = resp?.data?.list ?? []
+    jobOptions.value = rawList.map(j => ({ id: String(j.id), title: j.title || '未命名' }))
   } catch { /* ignore */ }
 }
 
@@ -188,13 +214,17 @@ async function submitRecommend() {
       body: {
         resumeSnapshotId: recommendModal.snapshotId,
         jobId: recommendModal.selectedJobId,
-      } as any,
+      },
     })
     message.success('推荐成功，已创建投递记录')
     recommendModal.visible = false
-  } catch (err: any) {
-    message.warn(err?.message || '推荐失败')
+  } catch (err: unknown) {
+    message.warn(errorMessage(err, '推荐失败'))
   }
+}
+
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof Error && err.message ? err.message : fallback
 }
 </script>
 
@@ -359,17 +389,17 @@ async function submitRecommend() {
             <a-tag v-for="s in parseSkills(detailModal.data.skills)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
           </div>
         </div>
-        <div v-if="parseJSON(detailModal.data.experience).length" class="mb-4">
+        <div v-if="parseWorkExperience(detailModal.data.experience).length" class="mb-4">
           <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">工作经历</h4>
-          <div v-for="(e, i) in parseJSON(detailModal.data.experience)" :key="i" class="text-sm mb-1">
+          <div v-for="(e, i) in parseWorkExperience(detailModal.data.experience)" :key="i" class="text-sm mb-1">
             <span class="font-semibold text-text-primary">{{ e.company }}</span>
             <span class="text-text-secondary ml-2">{{ e.position }}</span>
             <span class="text-text-muted ml-2">{{ e.duration }}</span>
           </div>
         </div>
-        <div v-if="parseJSON(detailModal.data.projects).length" class="mb-4">
+        <div v-if="parseProjects(detailModal.data.projects).length" class="mb-4">
           <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">项目经历</h4>
-          <div v-for="(p, i) in parseJSON(detailModal.data.projects)" :key="i" class="mb-2">
+          <div v-for="(p, i) in parseProjects(detailModal.data.projects)" :key="i" class="mb-2">
             <span class="font-semibold text-text-primary text-sm">{{ p.name }}</span>
             <span class="text-text-secondary ml-2 text-sm">{{ p.role }}</span>
             <p v-if="p.description" class="text-sm text-text-secondary m-0.5 leading-relaxed">{{ p.description }}</p>
@@ -400,7 +430,7 @@ async function submitRecommend() {
             v-model:value="recommendModal.selectedJobId"
             placeholder="请选择岗位"
             show-search
-            :filter-option="(input: string, option: any) => option.title?.toLowerCase().includes(input.toLowerCase())"
+            :filter-option="(input: string, option?: SelectOption) => option?.title?.toLowerCase().includes(input.toLowerCase()) ?? false"
           >
             <a-select-option v-for="j in jobOptions" :key="j.id" :value="j.id" :title="j.title">{{ j.title }}</a-select-option>
           </a-select>

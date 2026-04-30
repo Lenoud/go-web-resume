@@ -10,7 +10,7 @@ const auth = useAuthStore()
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
-  updateMutation, deleteMutation,
+  listQuery, deleteMutation,
   selectedRowKeys, batchDelete,
 } = useResumeTable()
 
@@ -193,7 +193,7 @@ async function handleSubmit() {
     message.success(editingItem.value?.id ? '更新成功' : '创建成功')
     modalVisible.value = false
     // 刷新列表
-    updateMutation?.mutate({} as any)
+    await listQuery.refetch()
   } catch (err) {
     message.error((err as Error).message || '操作失败')
   }

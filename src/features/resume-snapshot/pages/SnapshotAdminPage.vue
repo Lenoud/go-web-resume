@@ -5,12 +5,15 @@ import { useQueryClient } from '@tanstack/vue-query'
 import { useResumeSnapshotTable, type ResumeSnapshotInfo } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { postCreateFromSnapshot, jobList, resumeParseResult } from '@/client'
+import type { JobInfo } from '@/client'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { useAuthStore } from '@/infrastructure/store/auth'
 
 const auth = useAuthStore()
 const queryClient = useQueryClient()
+type SelectOption = { title?: string }
+type UploadResponse = { data?: { taskId?: string } }
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -78,7 +81,7 @@ function openEdit(record: ResumeSnapshotInfo) {
 function handleSubmit() {
   if (editingItem.value?.id) {
     const payload = { ...formState.value }
-    updateMutation?.mutate(payload as any)
+    updateMutation?.mutate(payload)
   }
   modalVisible.value = false
 }
@@ -108,9 +111,8 @@ async function openRecommend(record: ResumeSnapshotInfo) {
   try {
     const result = await jobList({ query: { page: 1, pageSize: 200 } })
     const resp = result.data
-    const data = (resp?.data as any)
-    const rawList = data?.list ?? data ?? []
-    jobOptions.value = rawList.map((j: any) => ({ id: String(j.id), title: j.title || '未命名' }))
+    const rawList: JobInfo[] = resp?.data?.list ?? []
+    jobOptions.value = rawList.map(j => ({ id: String(j.id), title: j.title || '未命名' }))
   } catch { /* ignore */ }
 }
 
@@ -125,12 +127,12 @@ async function submitRecommend() {
       body: {
         resumeSnapshotId: recommendModal.snapshotId,
         jobId: recommendModal.selectedJobId,
-      } as any,
+      },
     })
     message.success('推荐成功，已创建投递记录')
     recommendModal.visible = false
-  } catch (err: any) {
-    message.warn(err?.message || '推荐失败')
+  } catch (err: unknown) {
+    message.warn(errorMessage(err, '推荐失败'))
   } finally {
     recommendModal.submitting = false
   }
@@ -222,9 +224,9 @@ async function startBatchUpload() {
         headers: { 'Authorization': `Bearer ${token}` },
         body: fd,
       })
-      const result = await resp.json()
+      const result = await resp.json() as UploadResponse
 
-      const taskId: string = result.data?.taskId
+      const taskId = result.data?.taskId
       if (!taskId) throw new Error('服务端未返回 taskId')
 
       item.taskId = taskId
@@ -234,9 +236,9 @@ async function startBatchUpload() {
       await pollTaskResult(item)
 
       if ((item.status as string) === 'success') successCount++
-    } catch (err: any) {
+    } catch (err: unknown) {
       item.status = 'failed'
-      item.errorMsg = err?.message || '上传失败'
+      item.errorMsg = errorMessage(err, '上传失败')
     }
   }
 
@@ -257,8 +259,8 @@ function pollTaskResult(item: BatchUploadItem): Promise<void> {
         const result = await resumeParseResult({
           query: { taskId: item.taskId! },
         })
-        const resp = result.data as any
-        const status: string = resp?.data?.status ?? ''
+        const task = result.data?.data
+        const status: string = task?.status ?? ''
 
         if (status === 'done') {
           clearInterval(interval)
@@ -267,7 +269,7 @@ function pollTaskResult(item: BatchUploadItem): Promise<void> {
         } else if (status === 'failed') {
           clearInterval(interval)
           item.status = 'failed'
-          item.errorMsg = resp?.data?.msg || '解析失败'
+          item.errorMsg = task?.msg || '解析失败'
           resolve()
         }
       } catch {
@@ -293,6 +295,10 @@ function closeBatchUploadModal() {
     return
   }
   batchUploadModal.visible = false
+}
+
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof Error && err.message ? err.message : fallback
 }
 
 // 表格列定义
@@ -460,7 +466,7 @@ const columns = [
             v-model:value="recommendModal.selectedJobId"
             placeholder="请选择岗位"
             show-search
-            :filter-option="(input: string, option: any) => option.title?.toLowerCase().includes(input.toLowerCase())"
+            :filter-option="(input: string, option?: SelectOption) => option?.title?.toLowerCase().includes(input.toLowerCase()) ?? false"
           >
             <a-select-option v-for="j in jobOptions" :key="j.id" :value="j.id" :title="j.title">{{ j.title }}</a-select-option>
           </a-select>

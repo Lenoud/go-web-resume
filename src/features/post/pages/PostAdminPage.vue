@@ -12,6 +12,16 @@ import {
   resumeSnapshotDetail,
   talentPoolAdd,
 } from '@/client'
+import type { CreateInterviewReq, CreateOfferReq, InterviewInfo, OfferInfo, ResumeSnapshotInfo, StatusLogInfo, UpdateOfferReq } from '@/client'
+import type { Dayjs } from 'dayjs'
+
+type DatePickerValue = Dayjs | string | undefined
+type InterviewFormState = { interviewerName: string; scheduledAt: DatePickerValue; location: string; type: string }
+type OfferFormState = { salary: string; level: string; joinDate: DatePickerValue; contractPeriod: string; probationPeriod: string; workLocation: string }
+type OfferModalFormState = OfferFormState & { status: string }
+type EduDetailItem = { school?: string; degree?: string; major?: string; duration?: string }
+type WorkExperienceItem = { company?: string; position?: string; duration?: string }
+type ProjectItem = { name?: string; role?: string; description?: string }
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -45,24 +55,24 @@ const processModal = reactive({
   form: { id: '', status: 'applied', feedback: '', remark: '' },
 })
 
-const interviewForm = reactive({
+const interviewForm = reactive<InterviewFormState>({
   interviewerName: '',
-  scheduledAt: null as any,
+  scheduledAt: undefined,
   location: '',
   type: 'onsite',
 })
 
-const offerForm = reactive({
+const offerForm = reactive<OfferFormState>({
   salary: '',
   level: '',
-  joinDate: null as any,
+  joinDate: undefined,
   contractPeriod: '',
   probationPeriod: '',
   workLocation: '',
 })
 
-const interviewList = ref<any[]>([])
-const offerData = ref<any>(null)
+const interviewList = ref<InterviewInfo[]>([])
+const offerData = ref<OfferInfo | null>(null)
 
 const isInterviewStatus = (status: string) => ['interview_1', 'interview_2', 'interview_3', 'interview_final'].includes(status)
 const isOfferStatus = (status: string) => status === 'offer_sent'
@@ -80,12 +90,12 @@ function openProcessModal(item: PostInfo) {
     remark: item.remark || '',
   }
   interviewForm.interviewerName = ''
-  interviewForm.scheduledAt = null
+  interviewForm.scheduledAt = undefined
   interviewForm.location = ''
   interviewForm.type = 'onsite'
   offerForm.salary = ''
   offerForm.level = ''
-  offerForm.joinDate = null
+  offerForm.joinDate = undefined
   offerForm.contractPeriod = ''
   offerForm.probationPeriod = ''
   offerForm.workLocation = ''
@@ -96,7 +106,7 @@ async function loadInterviewAndOffer(postId: string) {
   try {
     const iRes = await interviewListApi({ query: { postId } })
     const resp = iRes.data
-    interviewList.value = (resp?.data as any)?.list ?? (resp?.data as any[]) ?? []
+    interviewList.value = resp?.data ?? []
   } catch { interviewList.value = [] }
   try {
     const oRes = await offerDetail({ query: { postId } })
@@ -120,23 +130,25 @@ async function submitProcess() {
           message.success('处理成功')
           // Create interview if status is interview stage
           if (isInterviewStatus(status)) {
-            const data: Record<string, unknown> = { postId: id, round: status }
+            const data: CreateInterviewReq = { postId: id, round: status }
             if (interviewForm.interviewerName) data.interviewerName = interviewForm.interviewerName
-            if (interviewForm.scheduledAt) data.scheduledAt = interviewForm.scheduledAt?.format?.('YYYY-MM-DD HH:mm:ss') ?? interviewForm.scheduledAt
+            const scheduledAt = formatDate(interviewForm.scheduledAt, 'YYYY-MM-DD HH:mm:ss')
+            if (scheduledAt) data.scheduledAt = scheduledAt
             if (interviewForm.location) data.location = interviewForm.location
             if (interviewForm.type) data.type = interviewForm.type
-            await interviewCreate({ body: data as any }).catch(() => {})
+            await interviewCreate({ body: data }).catch(() => {})
           }
           // Create offer if status is offer_sent
           if (isOfferStatus(status)) {
-            const data: Record<string, unknown> = { postId: id }
+            const data: CreateOfferReq = { postId: id }
             if (offerForm.salary) data.salary = offerForm.salary
             if (offerForm.level) data.level = offerForm.level
-            if (offerForm.joinDate) data.joinDate = offerForm.joinDate?.format?.('YYYY-MM-DD') ?? offerForm.joinDate
+            const joinDate = formatDate(offerForm.joinDate, 'YYYY-MM-DD')
+            if (joinDate) data.joinDate = joinDate
             if (offerForm.contractPeriod) data.contractPeriod = offerForm.contractPeriod
             if (offerForm.probationPeriod) data.probationPeriod = offerForm.probationPeriod
             if (offerForm.workLocation) data.workLocation = offerForm.workLocation
-            await offerCreate({ body: data as any }).catch(() => {})
+            await offerCreate({ body: data }).catch(() => {})
           }
           processModal.visible = false
         },
@@ -156,7 +168,7 @@ const offerModal = reactive({
   id: '',
   postId: '',
   name: '',
-  form: { salary: '', level: '', joinDate: null as any, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' },
+  form: { salary: '', level: '', joinDate: undefined, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' } as OfferModalFormState,
 })
 
 async function openOfferModal(item: PostInfo) {
@@ -166,15 +178,15 @@ async function openOfferModal(item: PostInfo) {
   offerModal.id = ''
   offerModal.postId = item.id ?? ''
   offerModal.name = item.name || '未知候选人'
-  offerModal.form = { salary: '', level: '', joinDate: null, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' }
+  offerModal.form = { salary: '', level: '', joinDate: undefined, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' }
   try {
     const res = await offerDetail({ query: { postId: item.id! } })
-    const offer = (res.data?.data as any)
+    const offer = res.data?.data
     if (offer?.id) {
       offerModal.id = offer.id
       offerModal.form.salary = offer.salary || ''
       offerModal.form.level = offer.level || ''
-      offerModal.form.joinDate = offer.joinDate || null
+      offerModal.form.joinDate = offer.joinDate || undefined
       offerModal.form.contractPeriod = offer.contractPeriod || ''
       offerModal.form.probationPeriod = offer.probationPeriod || ''
       offerModal.form.workLocation = offer.workLocation || ''
@@ -191,34 +203,56 @@ function submitOffer() {
     return
   }
   offerModal.submitting = true
-  const data: Record<string, unknown> = { id: offerModal.id }
+  const data: UpdateOfferReq = { id: offerModal.id }
   if (offerModal.form.salary) data.salary = offerModal.form.salary
   if (offerModal.form.level) data.level = offerModal.form.level
-  if (offerModal.form.joinDate) data.joinDate = offerModal.form.joinDate?.format?.('YYYY-MM-DD') ?? offerModal.form.joinDate
+  const joinDate = formatDate(offerModal.form.joinDate, 'YYYY-MM-DD')
+  if (joinDate) data.joinDate = joinDate
   if (offerModal.form.contractPeriod) data.contractPeriod = offerModal.form.contractPeriod
   if (offerModal.form.probationPeriod) data.probationPeriod = offerModal.form.probationPeriod
   if (offerModal.form.workLocation) data.workLocation = offerModal.form.workLocation
   if (offerModal.form.status) data.status = offerModal.form.status
-  offerUpdate({ body: data as any })
+  offerUpdate({ body: data })
     .then(() => {
       message.success('Offer 更新成功')
       offerModal.visible = false
     })
-    .catch((err: any) => message.warn(err?.message || '更新失败'))
+    .catch((err: unknown) => message.warn(errorMessage(err, '更新失败')))
     .finally(() => { offerModal.submitting = false })
 }
 
 // ── 候选人详情弹窗 ──
-const snapshotDetail = reactive({ visible: false, data: null as any })
+const snapshotDetail = reactive<{ visible: boolean; data: ResumeSnapshotInfo | null }>({ visible: false, data: null })
 
-function parseJSON(str: any) {
+function parseJSON<T extends object>(str: unknown): T[] {
   if (!str) return []
-  try { const arr = JSON.parse(str); return Array.isArray(arr) ? arr : [] }
+  try {
+    const arr: unknown = JSON.parse(String(str))
+    return Array.isArray(arr)
+      ? arr.filter((item): item is T => typeof item === 'object' && item !== null)
+      : []
+  }
   catch { return [] }
 }
 
-function getEduItems(item: any) {
-  const items = parseJSON(item.eduDetail)
+function parseSkills(str: unknown): string[] {
+  if (!str) return []
+  try {
+    const arr: unknown = JSON.parse(String(str))
+    return Array.isArray(arr) ? arr.filter((item): item is string => typeof item === 'string') : []
+  } catch { return [] }
+}
+
+function parseWorkExperience(str: unknown) {
+  return parseJSON<WorkExperienceItem>(str)
+}
+
+function parseProjects(str: unknown) {
+  return parseJSON<ProjectItem>(str)
+}
+
+function getEduItems(item: Pick<ResumeSnapshotInfo, 'eduDetail' | 'school' | 'education'>) {
+  const items = parseJSON<EduDetailItem>(item.eduDetail)
   if (items.length) return items
   if (item.school || item.education) return [{ school: item.school || '', degree: item.education || '', major: '', duration: '' }]
   return []
@@ -237,9 +271,9 @@ async function openSnapshotDetail(snapshotId: string) {
 async function handleAddToPool(item: PostInfo) {
   if (!item.resumeSnapshotId) { message.warn('该投递暂无简历快照'); return }
   try {
-    await talentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } as any })
+    await talentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } })
     message.success('已加入人才库')
-  } catch (err: any) { message.warn(err?.message || '加入人才库失败') }
+  } catch (err: unknown) { message.warn(errorMessage(err, '加入人才库失败')) }
 }
 
 // ── 简历预览 Drawer ──
@@ -252,16 +286,16 @@ function openResumePreview(raw: string) {
 }
 
 // ── 状态流转记录 ──
-const statusLogsMap = ref<Record<string, any[]>>({})
+const statusLogsMap = ref<Record<string, StatusLogInfo[]>>({})
 
 async function loadStatusLogs(items: PostInfo[]) {
-  const map: Record<string, any[]> = {}
+  const map: Record<string, StatusLogInfo[]> = {}
   await Promise.all(
     items.map(async (item) => {
       try {
         const res = await postStatusLogList({ query: { targetType: 'post', targetId: item.id! } })
         const resp = res.data
-        map[item.id!] = (resp?.data as any[]) ?? []
+        map[item.id!] = resp?.data ?? []
       } catch { map[item.id!] = [] }
     }),
   )
@@ -281,6 +315,15 @@ function onExpand(expanded: boolean, record: PostInfo) {
   } else {
     expandedRowKeys.value = expandedRowKeys.value.filter(k => k !== record.id)
   }
+}
+
+function formatDate(value: DatePickerValue, format: string) {
+  if (!value) return undefined
+  return typeof value === 'string' ? value : value.format(format)
+}
+
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof Error && err.message ? err.message : fallback
 }
 
 // 表格列定义
@@ -553,23 +596,23 @@ const columns = [
             <span class="text-gray-400 ml-2">{{ e.duration || '-' }}</span>
           </div>
         </div>
-        <div v-if="parseJSON(snapshotDetail.data.skills).length" class="mb-4">
+        <div v-if="parseSkills(snapshotDetail.data.skills).length" class="mb-4">
           <h4 class="text-sm font-semibold border-b pb-1.5 mb-2 m-0">技能</h4>
           <div>
-            <a-tag v-for="s in parseJSON(snapshotDetail.data.skills)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
+            <a-tag v-for="s in parseSkills(snapshotDetail.data.skills)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
           </div>
         </div>
-        <div v-if="parseJSON(snapshotDetail.data.experience).length" class="mb-4">
+        <div v-if="parseWorkExperience(snapshotDetail.data.experience).length" class="mb-4">
           <h4 class="text-sm font-semibold border-b pb-1.5 mb-2 m-0">工作经历</h4>
-          <div v-for="(e, i) in parseJSON(snapshotDetail.data.experience)" :key="i" class="text-sm mb-1">
+          <div v-for="(e, i) in parseWorkExperience(snapshotDetail.data.experience)" :key="i" class="text-sm mb-1">
             <span class="font-semibold">{{ e.company }}</span>
             <span class="text-gray-500 ml-2">{{ e.position }}</span>
             <span class="text-gray-400 ml-2">{{ e.duration }}</span>
           </div>
         </div>
-        <div v-if="parseJSON(snapshotDetail.data.projects).length" class="mb-4">
+        <div v-if="parseProjects(snapshotDetail.data.projects).length" class="mb-4">
           <h4 class="text-sm font-semibold border-b pb-1.5 mb-2 m-0">项目经历</h4>
-          <div v-for="(p, i) in parseJSON(snapshotDetail.data.projects)" :key="i" class="mb-2">
+          <div v-for="(p, i) in parseProjects(snapshotDetail.data.projects)" :key="i" class="mb-2">
             <span class="font-semibold text-sm">{{ p.name }}</span>
             <span class="text-gray-500 ml-2 text-sm">{{ p.role }}</span>
             <p v-if="p.description" class="text-sm text-gray-600 m-0.5 leading-relaxed">{{ p.description }}</p>
