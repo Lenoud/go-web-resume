@@ -61,7 +61,7 @@ function handlePreview() {
 </script>
 
 <template>
-  <a-layout class="min-h-screen">
+  <a-layout class="admin-shell">
     <!-- 暗色侧边栏 — 不用 theme="dark"，完全自控样式避免 AntDV 覆盖背景色 -->
     <a-layout-sider
       v-model:collapsed="app.sidebarCollapsed"
@@ -84,9 +84,9 @@ function handlePreview() {
       />
     </a-layout-sider>
 
-    <a-layout>
+    <a-layout class="admin-main">
       <!-- 顶栏 -->
-      <a-layout-header class="bg-white px-6 flex items-center justify-between shadow-sm h-14 leading-14">
+      <a-layout-header class="admin-header">
         <div class="flex items-center gap-4">
           <component
             :is="app.sidebarCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined"
@@ -105,7 +105,7 @@ function handlePreview() {
       </a-layout-header>
 
       <!-- 内容区 -->
-      <a-layout-content class="m-4 p-6 bg-white rounded-lg min-h-0 overflow-auto">
+      <a-layout-content class="admin-content">
         <router-view />
       </a-layout-content>
     </a-layout>
@@ -113,14 +113,59 @@ function handlePreview() {
 </template>
 
 <style scoped>
+/* 固定后台整体视口，避免右侧内容高度把左侧背景层带着重排。 */
+.admin-shell {
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg-page);
+}
+
 /* ===== 侧边栏整体 ===== */
 .admin-sider {
   background: var(--color-sidebar-bg) !important;
+  height: 100vh;
+  overflow: hidden;
+  flex: 0 0 auto;
 }
 
 /* 覆盖 AntDV sider-children 的内联背景 */
 .admin-sider :deep(.ant-layout-sider-children) {
   background: transparent !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-main {
+  height: 100vh;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--color-bg-page);
+}
+
+.admin-header {
+  height: 56px;
+  line-height: 56px;
+  padding: 0 24px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 56px;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+}
+
+.admin-content {
+  margin: 16px;
+  padding: 24px;
+  min-height: 0;
+  height: calc(100vh - 56px - 32px);
+  overflow: auto;
+  background: #fff;
+  border-radius: var(--radius-md);
 }
 
 /* ===== 菜单项 ===== */
@@ -128,6 +173,9 @@ function handlePreview() {
   background: transparent !important;
   border-right: none !important;
   padding-top: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .admin-sidebar-menu :deep(.ant-menu-item),
