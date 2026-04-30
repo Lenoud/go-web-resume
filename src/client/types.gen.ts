@@ -741,13 +741,23 @@ export type ParseResumeReq = {
 };
 
 /**
+ * ParseResumeResult
+ */
+export type ParseResumeResult = {
+    name: string;
+    email: string;
+    mobile: string;
+    skills: Array<string>;
+    info: string;
+    rawText: string;
+};
+
+/**
  * ParseTaskInfo
  */
 export type ParseTaskInfo = {
     status: string;
-    result?: {
-        [key: string]: unknown;
-    };
+    result?: ParseResumeResult;
     msg?: string;
     meta?: ParseTaskMeta;
 };
@@ -1222,9 +1232,20 @@ export type TalentPoolInfo = {
     id: string;
     resumeSnapshotId: string;
     name: string;
+    sex: string;
     email: string;
     mobile: string;
     education: string;
+    school: string;
+    skills: string;
+    experience: string;
+    projects: string;
+    summary: string;
+    eduDetail: string;
+    expectedSalary: string;
+    jobIntention: string;
+    raw: string;
+    source: string;
     rating: number;
     tags: string;
     remark: string;

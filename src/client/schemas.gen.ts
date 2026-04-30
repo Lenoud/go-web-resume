@@ -1748,6 +1748,42 @@ export const ParseResumeReqSchema = {
     title: 'ParseResumeReq'
 } as const;
 
+export const ParseResumeResultSchema = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        email: {
+            type: 'string'
+        },
+        mobile: {
+            type: 'string'
+        },
+        skills: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        info: {
+            type: 'string'
+        },
+        rawText: {
+            type: 'string'
+        }
+    },
+    title: 'ParseResumeResult',
+    required: [
+        'name',
+        'email',
+        'mobile',
+        'skills',
+        'info',
+        'rawText'
+    ]
+} as const;
+
 export const ParseTaskInfoSchema = {
     type: 'object',
     properties: {
@@ -1755,7 +1791,7 @@ export const ParseTaskInfoSchema = {
             type: 'string'
         },
         result: {
-            type: 'object'
+            $ref: '#/definitions/ParseResumeResult'
         },
         msg: {
             type: 'string'
@@ -2869,6 +2905,9 @@ export const TalentPoolInfoSchema = {
         name: {
             type: 'string'
         },
+        sex: {
+            type: 'string'
+        },
         email: {
             type: 'string'
         },
@@ -2876,6 +2915,36 @@ export const TalentPoolInfoSchema = {
             type: 'string'
         },
         education: {
+            type: 'string'
+        },
+        school: {
+            type: 'string'
+        },
+        skills: {
+            type: 'string'
+        },
+        experience: {
+            type: 'string'
+        },
+        projects: {
+            type: 'string'
+        },
+        summary: {
+            type: 'string'
+        },
+        eduDetail: {
+            type: 'string'
+        },
+        expectedSalary: {
+            type: 'string'
+        },
+        jobIntention: {
+            type: 'string'
+        },
+        raw: {
+            type: 'string'
+        },
+        source: {
             type: 'string'
         },
         rating: {
@@ -2897,9 +2966,20 @@ export const TalentPoolInfoSchema = {
         'id',
         'resumeSnapshotId',
         'name',
+        'sex',
         'email',
         'mobile',
         'education',
+        'school',
+        'skills',
+        'experience',
+        'projects',
+        'summary',
+        'eduDetail',
+        'expectedSalary',
+        'jobIntention',
+        'raw',
+        'source',
         'rating',
         'tags',
         'remark',

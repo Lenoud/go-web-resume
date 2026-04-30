@@ -17,20 +17,7 @@ const page = ref(1)
 const pageSize = ref(10)
 const keyword = ref('')
 
-// TalentPoolInfo from generated types + extra fields returned by backend (joined from snapshot)
-interface TalentItem extends TalentPoolInfo {
-  sex?: string
-  school?: string
-  skills?: string
-  experience?: string
-  projects?: string
-  eduDetail?: string
-  expectedSalary?: string
-  jobIntention?: string
-  source?: string
-  summary?: string
-  raw?: string
-}
+type TalentItem = TalentPoolInfo
 
 const listQuery = useQuery({
   queryKey: ['talentPool', { page, pageSize }],
