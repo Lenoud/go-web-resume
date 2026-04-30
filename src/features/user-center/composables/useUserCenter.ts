@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { message } from 'ant-design-vue'
-import { userUserUpdateUserInfo, userUserUpdatePwd, userUserDetail } from '@/client'
+import { userUpdateUserInfo, userUpdatePwd, userDetail } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { useQuery } from '@tanstack/vue-query'
@@ -12,7 +12,7 @@ export function useUserInfo() {
   const query = useQuery({
     queryKey: queryKeys.users.detail(auth.userId),
     queryFn: async () => {
-      const result = await userUserDetail({ query: { userId: auth.userId } })
+      const result = await userDetail({ query: { userId: auth.userId } })
       return result.data?.data
     },
     enabled: !!auth.userId,
@@ -31,7 +31,7 @@ export function useUpdateUserInfo() {
 
   return useMutation({
     mutationFn: (body: { id: string; nickname?: string; email?: string; mobile?: string; pushEmail?: string; pushSwitch?: string }) =>
-      userUserUpdateUserInfo({ body }),
+      userUpdateUserInfo({ body }),
     onSuccess: () => {
       message.success('更新成功')
       queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(auth.userId) })
@@ -43,7 +43,7 @@ export function useUpdateUserInfo() {
 export function useUpdatePwd() {
   return useMutation({
     mutationFn: (body: { userId: string; oldPassword: string; newPassword: string }) =>
-      userUserUpdatePwd({ body }),
+      userUpdatePwd({ body }),
     onSuccess: () => {
       message.success('密码修改成功')
     },

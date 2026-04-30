@@ -1,12 +1,11 @@
-import path from 'node:path'
-
 import { defineConfig } from '@hey-api/openapi-ts'
+import { readSwaggerForClient } from './scripts/swagger/openapi-input.mjs'
 import { resolveSwaggerProjectPaths } from './scripts/swagger/project-paths.mjs'
 
 const { outputPath: namedSwaggerPath } = resolveSwaggerProjectPaths(import.meta.url)
 
 export default defineConfig({
-  input: namedSwaggerPath,
+  input: readSwaggerForClient(namedSwaggerPath),
   output: 'src/client',
   plugins: [
     {

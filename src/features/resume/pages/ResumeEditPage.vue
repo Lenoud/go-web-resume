@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { resumeResumeDetail } from '@/client'
+import { resumeDetail } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
 import { queryKeys } from '@/infrastructure/query/query-keys'
@@ -13,7 +13,7 @@ const queryClient = useQueryClient()
 const detailQuery = useQuery({
   queryKey: queryKeys.resumes.detail(auth.userId),
   queryFn: async () => {
-    const result = await resumeResumeDetail({ query: { userId: auth.userId } })
+    const result = await resumeDetail({ query: { userId: auth.userId } })
     return result.data?.data
   },
   enabled: !!auth.userId,

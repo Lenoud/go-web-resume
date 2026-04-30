@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { message } from 'ant-design-vue'
-import { companyCompanyList, companyCompanyCreate, companyCompanyUpdate } from '@/client'
+import { companyList, companyCreate, companyUpdate } from '@/client'
 import type { CompanyInfo } from '../composables/useCompany'
 
 import { queryKeys } from '@/infrastructure/query/query-keys'
@@ -13,7 +13,7 @@ const queryClient = useQueryClient()
 const { data: listData, isLoading: loading } = useQuery({
   queryKey: queryKeys.companies.all,
   queryFn: async () => {
-    const result = await companyCompanyList({ query: { page: 1, pageSize: 1 } })
+    const result = await companyList({ query: { page: 1, pageSize: 1 } })
     return result.data?.data
   },
 })
@@ -28,9 +28,9 @@ const hasCompany = computed(() => !!company.value)
 const saveMutation = useMutation({
   mutationFn: async (body: Partial<CompanyInfo> & { id?: string }) => {
     if (body.id) {
-      return companyCompanyUpdate({ body: body as Parameters<typeof companyCompanyUpdate>[0]['body'] })
+      return companyUpdate({ body: body as Parameters<typeof companyUpdate>[0]['body'] })
     }
-    return companyCompanyCreate({ body: body as Parameters<typeof companyCompanyCreate>[0]['body'] })
+    return companyCreate({ body: body as Parameters<typeof companyCreate>[0]['body'] })
   },
   onSuccess: () => {
     message.success('保存成功')

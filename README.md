@@ -134,7 +134,7 @@ pnpm generate:swagger:named
 | `pnpm lint:fix` | ESLint 自动修复 |
 | `pnpm generate:swagger:named` | 调用 `goctl-swagger` 插件，从 `../api/desc/main.api` 生成具名 `swagger.named.json` |
 | `pnpm generate:client` | 先生成 `swagger.named.json`，再生成类型化 API 客户端 |
-| `pnpm test:scripts` | 运行历史 Swagger 后处理脚本的单元测试 |
+| `pnpm test:scripts` | 运行 Swagger 生成辅助脚本的单元测试 |
 
 ## API 客户端生成
 
@@ -146,7 +146,8 @@ pnpm generate:swagger:named
    - 直接生成带具名 `definitions` 的 `../api/doc/swagger/swagger.named.json`
 2. `pnpm generate:client`
    - 先自动执行上面的插件生成步骤
-   - 再让 `@hey-api/openapi-ts` 基于 `swagger.named.json` 生成 axios 客户端
+   - 读取 `swagger.named.json`，在输入层去掉 `integer/int64` 的 `format`，保持前端数值字段生成成 `number`
+   - 再让 `@hey-api/openapi-ts` 基于归一化后的 Swagger 生成 axios 客户端
 
 ```bash
 pnpm generate:swagger:named
@@ -158,13 +159,13 @@ pnpm generate:client
 生成后 `src/client/` 目录包含：
 - `client/client.gen.ts` — 客户端实例配置
 - `client/types.gen.ts` — 所有请求/响应的 TypeScript 接口（含命名类型：`CompanyInfo`、`JobInfo` 等）
-- `client/utils.gen.ts` — 工具函数
+- `client/sdk.gen.ts` — 所有接口函数
 - `core/` — 认证、序列化等核心逻辑
 - `schemas.gen.ts` — JSON Schema 定义
 
 **注意**：
 - `src/client/` 目录由工具自动生成，禁止手动修改。ESLint 已配置忽略此目录。
-- 修改后端 `.api` 文件后，先重新产出最新 `swagger.json`，再运行 `pnpm generate:client`。
+- 修改后端 `desc/*.api` 或 `desc/main.api` 后，直接运行 `pnpm generate:client`，该命令会先重新生成 `swagger.named.json`。
 
 后处理脚本的详细说明见 `scripts/swagger/README.md`。
 

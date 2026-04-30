@@ -6,11 +6,11 @@ import { PermissionCode } from '@/infrastructure/permission/types'
 import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
 import RecruitmentPipeline from '../components/RecruitmentPipeline.vue'
 import {
-  postPostStatusLogList,
-  interviewInterviewList, interviewInterviewCreate,
-  offerOfferDetail, offerOfferCreate, offerOfferUpdate,
-  resumesnapshotResumeSnapshotDetail,
-  talentpoolTalentPoolAdd,
+  postStatusLogList,
+  interviewList as interviewListApi, interviewCreate,
+  offerDetail, offerCreate, offerUpdate,
+  resumeSnapshotDetail,
+  talentPoolAdd,
 } from '@/client'
 
 const {
@@ -94,12 +94,12 @@ function openProcessModal(item: PostInfo) {
 
 async function loadInterviewAndOffer(postId: string) {
   try {
-    const iRes = await interviewInterviewList({ query: { postId } })
+    const iRes = await interviewListApi({ query: { postId } })
     const resp = iRes.data
     interviewList.value = (resp?.data as any)?.list ?? (resp?.data as any[]) ?? []
   } catch { interviewList.value = [] }
   try {
-    const oRes = await offerOfferDetail({ query: { postId } })
+    const oRes = await offerDetail({ query: { postId } })
     offerData.value = oRes.data?.data ?? null
   } catch { offerData.value = null }
 }
@@ -125,7 +125,7 @@ async function submitProcess() {
             if (interviewForm.scheduledAt) data.scheduledAt = interviewForm.scheduledAt?.format?.('YYYY-MM-DD HH:mm:ss') ?? interviewForm.scheduledAt
             if (interviewForm.location) data.location = interviewForm.location
             if (interviewForm.type) data.type = interviewForm.type
-            await interviewInterviewCreate({ body: data as any }).catch(() => {})
+            await interviewCreate({ body: data as any }).catch(() => {})
           }
           // Create offer if status is offer_sent
           if (isOfferStatus(status)) {
@@ -136,7 +136,7 @@ async function submitProcess() {
             if (offerForm.contractPeriod) data.contractPeriod = offerForm.contractPeriod
             if (offerForm.probationPeriod) data.probationPeriod = offerForm.probationPeriod
             if (offerForm.workLocation) data.workLocation = offerForm.workLocation
-            await offerOfferCreate({ body: data as any }).catch(() => {})
+            await offerCreate({ body: data as any }).catch(() => {})
           }
           processModal.visible = false
         },
@@ -168,7 +168,7 @@ async function openOfferModal(item: PostInfo) {
   offerModal.name = item.name || '未知候选人'
   offerModal.form = { salary: '', level: '', joinDate: null, contractPeriod: '', probationPeriod: '', workLocation: '', status: 'pending' }
   try {
-    const res = await offerOfferDetail({ query: { postId: item.id! } })
+    const res = await offerDetail({ query: { postId: item.id! } })
     const offer = (res.data?.data as any)
     if (offer?.id) {
       offerModal.id = offer.id
@@ -199,7 +199,7 @@ function submitOffer() {
   if (offerModal.form.probationPeriod) data.probationPeriod = offerModal.form.probationPeriod
   if (offerModal.form.workLocation) data.workLocation = offerModal.form.workLocation
   if (offerModal.form.status) data.status = offerModal.form.status
-  offerOfferUpdate({ body: data as any })
+  offerUpdate({ body: data as any })
     .then(() => {
       message.success('Offer 更新成功')
       offerModal.visible = false
@@ -227,7 +227,7 @@ function getEduItems(item: any) {
 async function openSnapshotDetail(snapshotId: string) {
   if (!snapshotId) { message.warn('暂无简历快照'); return }
   try {
-    const res = await resumesnapshotResumeSnapshotDetail({ query: { id: snapshotId } })
+    const res = await resumeSnapshotDetail({ query: { id: snapshotId } })
     snapshotDetail.data = res.data?.data ?? null
     snapshotDetail.visible = true
   } catch { message.warn('获取简历快照失败') }
@@ -237,7 +237,7 @@ async function openSnapshotDetail(snapshotId: string) {
 async function handleAddToPool(item: PostInfo) {
   if (!item.resumeSnapshotId) { message.warn('该投递暂无简历快照'); return }
   try {
-    await talentpoolTalentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } as any })
+    await talentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } as any })
     message.success('已加入人才库')
   } catch (err: any) { message.warn(err?.message || '加入人才库失败') }
 }
@@ -259,7 +259,7 @@ async function loadStatusLogs(items: PostInfo[]) {
   await Promise.all(
     items.map(async (item) => {
       try {
-        const res = await postPostStatusLogList({ query: { targetType: 'post', targetId: item.id! } })
+        const res = await postStatusLogList({ query: { targetType: 'post', targetId: item.id! } })
         const resp = res.data
         map[item.id!] = (resp?.data as any[]) ?? []
       } catch { map[item.id!] = [] }

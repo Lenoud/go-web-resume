@@ -4,7 +4,7 @@ import { message } from 'ant-design-vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useResumeSnapshotTable, type ResumeSnapshotInfo } from '../composables/useResumeSnapshot.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
-import { postPostCreateFromSnapshot, jobJobList, resumeResumeParseResult } from '@/client'
+import { postCreateFromSnapshot, jobList, resumeParseResult } from '@/client'
 import { EDUCATION_OPTIONS, SEX_OPTIONS, RESUME_SOURCE_OPTIONS } from '@/shared/utils/constants'
 import { queryKeys } from '@/infrastructure/query/query-keys'
 import { useAuthStore } from '@/infrastructure/store/auth'
@@ -106,7 +106,7 @@ async function openRecommend(record: ResumeSnapshotInfo) {
   recommendModal.submitting = false
   recommendModal.visible = true
   try {
-    const result = await jobJobList({ query: { page: 1, pageSize: 200 } })
+    const result = await jobList({ query: { page: 1, pageSize: 200 } })
     const resp = result.data
     const data = (resp?.data as any)
     const rawList = data?.list ?? data ?? []
@@ -121,7 +121,7 @@ async function submitRecommend() {
   }
   recommendModal.submitting = true
   try {
-    await postPostCreateFromSnapshot({
+    await postCreateFromSnapshot({
       body: {
         resumeSnapshotId: recommendModal.snapshotId,
         jobId: recommendModal.selectedJobId,
@@ -254,7 +254,7 @@ function pollTaskResult(item: BatchUploadItem): Promise<void> {
   return new Promise((resolve) => {
     const interval = setInterval(async () => {
       try {
-        const result = await resumeResumeParseResult({
+        const result = await resumeParseResult({
           query: { taskId: item.taskId! },
         })
         const resp = result.data as any

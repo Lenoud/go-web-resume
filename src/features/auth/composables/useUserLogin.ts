@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/vue-query'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { userUserUserLogin } from '@/client'
+import { userUserLogin } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 
 export function useUserLogin() {
@@ -10,7 +10,7 @@ export function useUserLogin() {
 
   return useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const result = await userUserUserLogin({ body: credentials })
+      const result = await userUserLogin({ body: credentials })
       return result.data
     },
     onSuccess: (data) => {

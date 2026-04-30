@@ -2,7 +2,7 @@ import type { OpLogInfo } from '@/client'
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { queryKeys } from '@/infrastructure/query/query-keys'
-import { oplogOpLogList, oplogLoginLogList } from '@/client'
+import { opLogList, loginLogList } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 
 export type { OpLogInfo }
@@ -14,7 +14,7 @@ export function useOpLogTable() {
   const listQuery = useQuery({
     queryKey: computed(() => [...queryKeys.opLogs.list({}), { page: page.value, pageSize: pageSize.value }]),
     queryFn: async () => {
-      const result = await oplogOpLogList({ query: { page: page.value, pageSize: pageSize.value } })
+      const result = await opLogList({ query: { page: page.value, pageSize: pageSize.value } })
       return normalizePaginated<OpLogInfo>(result.data?.data)
     },
   })
@@ -40,7 +40,7 @@ export function useLoginLogTable() {
   const listQuery = useQuery({
     queryKey: computed(() => [...queryKeys.opLogs.loginLogs({}), { page: page.value, pageSize: pageSize.value }]),
     queryFn: async () => {
-      const result = await oplogLoginLogList({ query: { page: page.value, pageSize: pageSize.value } })
+      const result = await loginLogList({ query: { page: page.value, pageSize: pageSize.value } })
       return normalizePaginated<OpLogInfo>(result.data?.data)
     },
   })

@@ -1,8 +1,16 @@
-# Swagger Postprocess
+# Swagger Generation Helpers
 
 > 已废弃：旧版 `goctl-swagger` 插件已验证可以直接生成具名 `definitions`，后续默认链路改为 `pnpm generate:swagger:named` 调用 `goctl-swagger`，不再使用本目录的自定义后处理脚本。本目录保留为历史备用和参考。
 
-后处理 `goctl api swagger` 的输出，将匿名内联响应 schema 提升为具名 `definitions`，让前端代码生成器（`@hey-api/openapi-ts`）产出可复用的 TypeScript 类型。
+当前默认链路是：
+
+```
+api/desc/main.api ──goctl-swagger──→ api/doc/swagger/swagger.named.json ──openapi-input──→ @hey-api/openapi-ts ──→ src/client/
+```
+
+其中 `openapi-input.mjs` 会在传给 `@hey-api/openapi-ts` 前归一化 Swagger 输入，去掉 `integer/int64` 的 `format`，避免前端数值字段被生成成 `bigint`。
+
+以下旧后处理说明仅用于维护历史备用脚本：`postprocess-swagger.mjs` 可以后处理 `goctl api swagger` 的输出，将匿名内联响应 schema 提升为具名 `definitions`。
 
 ## 问题
 
@@ -28,12 +36,15 @@ scripts/swagger/
 ├── postprocess-swagger.mjs   # CLI 入口：读文件 → 调用解析/重写/校验 → 写出
 ├── parse-job-api.mjs         # job.api 行式状态机解析器
 ├── rewrite-swagger.mjs       # Swagger schema 重写引擎
+├── openapi-input.mjs         # 前端 client 生成前的 Swagger 输入归一化
 ├── project-paths.mjs         # 跨 worktree 的路径解析
 ├── __fixtures__/              # 测试固件
 │   ├── job.api.fixture        # 模拟 job.api 片段
 │   └── swagger.fixture.json   # 模拟 swagger.json 片段
 └── __tests__/                 # 测试
+    ├── openapi-input.test.mjs
     ├── parse-job-api.test.mjs
+    ├── project-paths.test.mjs
     └── rewrite-swagger.test.mjs
 ```
 
@@ -41,7 +52,7 @@ scripts/swagger/
 
 ### `postprocess-swagger.mjs`
 
-CLI 入口，被 `pnpm generate:swagger:named` 调用。流程：
+历史备用 CLI 入口，不再被 `pnpm generate:swagger:named` 默认调用。流程：
 
 1. 通过 `project-paths.mjs` 定位三个文件
 2. 解析 `job.api` → 重写 Swagger → 结构校验
@@ -74,7 +85,11 @@ Swagger 2 schema 重写引擎。核心逻辑：
 
 ### `project-paths.mjs`
 
-路径解析工具，向上遍历找到 `web/` 目录（`basename === 'web'` 且兄弟 `../api/job.api` 存在），返回三个文件路径。兼容 `web/.worktrees/*` 工作区。
+路径解析工具，向上遍历找到 `web/` 目录（`basename === 'web'` 且兄弟 `../api/desc/main.api` 存在），返回 API、Swagger 和 web 路径。兼容 `web/.worktrees/*` 工作区。
+
+### `openapi-input.mjs`
+
+前端 client 生成前的输入归一化工具。当前处理 `integer/int64`，因为浏览器侧接口字段按现有业务模型使用 `number`，不使用 `bigint`。
 
 ## 使用
 
@@ -88,8 +103,11 @@ pnpm generate:client
 
 完整生成链路：
 ```bash
-cd ../api && goctl api swagger --api job.api --dir doc/swagger --filename swagger
-cd ../web  && pnpm generate:client
+cd ../api && goctl api plugin \
+  --plugin "goctl-swagger swagger --filename swagger.named.json --host 127.0.0.1:9100 --basepath /" \
+  --api desc/main.api \
+  --dir doc/swagger
+cd ../web && pnpm generate:client
 ```
 
 ## 测试
@@ -104,6 +122,8 @@ pnpm test:scripts
 ```
 
 测试覆盖：
+- 输入归一化（`integer/int64` 不生成 `bigint`）
+- 路径解析（`api/desc/main.api`）
 - 类型解析（单声明、分组声明、注释剥离、`Data` 字段推断）
 - 路由解析（`@server` prefix/group、operationId 推导）
 - Schema 重写（bottom-up 提升、去重、结构一致性校验）

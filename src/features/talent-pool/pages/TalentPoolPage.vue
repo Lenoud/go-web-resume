@@ -3,11 +3,11 @@ import { ref, computed, reactive } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { message } from 'ant-design-vue'
 import {
-  talentpoolTalentPoolList, talentpoolTalentPoolAdd,
-  talentpoolTalentPoolUpdate, talentpoolTalentPoolRemove,
-  jobJobUserList,
-  resumesnapshotResumeSnapshotDetail,
-  postPostCreateFromSnapshot,
+  talentPoolList, talentPoolAdd,
+  talentPoolUpdate, talentPoolRemove,
+  jobUserList,
+  resumeSnapshotDetail,
+  postCreateFromSnapshot,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import type { TalentPoolInfo } from '@/client'
@@ -35,7 +35,7 @@ interface TalentItem extends TalentPoolInfo {
 const listQuery = useQuery({
   queryKey: ['talentPool', { page, pageSize }],
   queryFn: async () => {
-    const result = await talentpoolTalentPoolList({
+    const result = await talentPoolList({
       query: { page: page.value, pageSize: pageSize.value },
     })
     return normalizePaginated<TalentItem>(result.data?.data)
@@ -84,7 +84,7 @@ function formatEduSummary(item: TalentItem) {
 
 // ── Remove ──
 const removeMutation = useMutation({
-  mutationFn: (resumeSnapshotId: string) => talentpoolTalentPoolRemove({ body: { resumeSnapshotId } }),
+  mutationFn: (resumeSnapshotId: string) => talentPoolRemove({ body: { resumeSnapshotId } }),
   onSuccess: () => {
     message.success('已移出人才库')
     queryClient.invalidateQueries({ queryKey: ['talentPool'] })
@@ -106,7 +106,7 @@ async function openDetail(item: TalentItem) {
   // 尝试从快照 API 加载完整数据
   if (item.resumeSnapshotId) {
     try {
-      const res = await resumesnapshotResumeSnapshotDetail({ query: { id: item.resumeSnapshotId } })
+      const res = await resumeSnapshotDetail({ query: { id: item.resumeSnapshotId } })
       const snapshot = res.data?.data
       if (snapshot) detailModal.data = snapshot
     } catch { /* fallback to list data */ }
@@ -134,8 +134,8 @@ function openEditModal(item: TalentItem) {
 async function submitEdit() {
   editModal.submitting = true
   try {
-    await talentpoolTalentPoolUpdate({
-      body: editModal.form as Parameters<typeof talentpoolTalentPoolUpdate>[0]['body'],
+    await talentPoolUpdate({
+      body: editModal.form as Parameters<typeof talentPoolUpdate>[0]['body'],
     })
     message.success('更新成功')
     editModal.visible = false
@@ -155,8 +155,8 @@ const addModal = reactive({
 
 async function submitAdd() {
   try {
-    await talentpoolTalentPoolAdd({
-      body: addModal.form as Parameters<typeof talentpoolTalentPoolAdd>[0]['body'],
+    await talentPoolAdd({
+      body: addModal.form as Parameters<typeof talentPoolAdd>[0]['body'],
     })
     message.success('添加成功')
     addModal.visible = false
@@ -183,7 +183,7 @@ async function openRecommend(item: TalentItem) {
   recommendModal.selectedJobId = ''
   recommendModal.visible = true
   try {
-    const result = await jobJobUserList({ query: { page: 1, pageSize: 200 } })
+    const result = await jobUserList({ query: { page: 1, pageSize: 200 } })
     const resp = result.data
     const data = (resp?.data as any)
     const rawList = data?.list ?? data ?? []
@@ -197,7 +197,7 @@ async function submitRecommend() {
     return
   }
   try {
-    await postPostCreateFromSnapshot({
+    await postCreateFromSnapshot({
       body: {
         resumeSnapshotId: recommendModal.snapshotId,
         jobId: recommendModal.selectedJobId,

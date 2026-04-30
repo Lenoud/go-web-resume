@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { jobJobList, jobJobCategoryList } from '@/client'
+import { jobList, jobCategoryList } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { JOB_NATURE_MAP } from '@/shared/utils/constants'
 import JobCard from '../components/JobCard.vue'
@@ -33,7 +33,7 @@ const sortTabs = ['最新发布', '最热岗位', '推荐岗位']
 const categoryQuery = useQuery({
   queryKey: ['jobCategories'],
   queryFn: async () => {
-    const result = await jobJobCategoryList()
+    const result = await jobCategoryList()
     return result.data?.data?.categories ?? []
   },
 })
@@ -50,7 +50,7 @@ const listQuery = useQuery({
       jobNature: jobNature.value || undefined,
     }
     if (recruitType.value) params.recruitType = recruitType.value
-    const result = await jobJobList({
+    const result = await jobList({
       query: params,
     })
     return normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; createTime: string; status: number }>(result.data?.data)

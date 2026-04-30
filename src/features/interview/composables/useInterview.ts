@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { message } from 'ant-design-vue'
 import { queryKeys } from '@/infrastructure/query/query-keys'
-import { interviewInterviewList, interviewInterviewCreate, interviewInterviewUpdate } from '@/client'
+import { interviewList, interviewCreate, interviewUpdate } from '@/client'
 
 export type { InterviewInfo }
 
@@ -13,7 +13,7 @@ export function useInterviewList(postId: string) {
   const listQuery = useQuery({
     queryKey: queryKeys.interviews.list(postId),
     queryFn: async () => {
-      const result = await interviewInterviewList({ query: { postId } })
+      const result = await interviewList({ query: { postId } })
       return (result.data?.data ?? []) as InterviewInfo[]
     },
     enabled: !!postId,
@@ -21,7 +21,7 @@ export function useInterviewList(postId: string) {
 
   const createMutation = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
-      interviewInterviewCreate({ body: body as Parameters<typeof interviewInterviewCreate>[0]['body'] }),
+      interviewCreate({ body: body as Parameters<typeof interviewCreate>[0]['body'] }),
     onSuccess: () => {
       message.success('创建成功')
       queryClient.invalidateQueries({ queryKey: queryKeys.interviews.list(postId) })
@@ -31,7 +31,7 @@ export function useInterviewList(postId: string) {
 
   const updateMutation = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
-      interviewInterviewUpdate({ body: body as Parameters<typeof interviewInterviewUpdate>[0]['body'] }),
+      interviewUpdate({ body: body as Parameters<typeof interviewUpdate>[0]['body'] }),
     onSuccess: () => {
       message.success('更新成功')
       queryClient.invalidateQueries({ queryKey: queryKeys.interviews.list(postId) })

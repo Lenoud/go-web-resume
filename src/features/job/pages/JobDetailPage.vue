@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { marked } from 'marked'
-import { jobJobDetail, jobJobList, resumeResumeDetail, postPostCreate } from '@/client'
+import { jobDetail, jobList, resumeDetail, postCreate } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { message } from 'ant-design-vue'
@@ -18,7 +18,7 @@ const jobId = computed(() => (route.query.id as string) ?? '')
 const detailQuery = useQuery({
   queryKey: ['jobDetail', jobId],
   queryFn: async () => {
-    const result = await jobJobDetail({ query: { id: jobId.value } })
+    const result = await jobDetail({ query: { id: jobId.value } })
     return result.data?.data
   },
   enabled: !!jobId.value,
@@ -28,7 +28,7 @@ const detailQuery = useQuery({
 const recommendQuery = useQuery({
   queryKey: ['jobRecommend'],
   queryFn: async () => {
-    const result = await jobJobList({ query: { page: 1, pageSize: 10 } as Record<string, unknown> })
+    const result = await jobList({ query: { page: 1, pageSize: 10 } as Record<string, unknown> })
     const paginated = normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; status: number }>(result.data?.data)
     return paginated.list.filter(j => String(j.id) !== jobId.value).slice(0, 6)
   },
@@ -59,7 +59,7 @@ async function handleApply() {
   applying.value = true
   try {
     // 获取简历
-    const resumeResult = await resumeResumeDetail({ query: { userId: auth.userId } })
+    const resumeResult = await resumeDetail({ query: { userId: auth.userId } })
     const resumeData = resumeResult.data?.data
     if (!resumeData?.id) {
       message.warning('请先完善简历')
@@ -67,7 +67,7 @@ async function handleApply() {
       return
     }
     // 提交投递
-    await postPostCreate({
+    await postCreate({
       body: {
         userId: auth.userId,
         jobId: jobId.value,

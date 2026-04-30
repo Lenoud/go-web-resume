@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { postPostUserList, type UserPostItemInfo } from '@/client'
+import { postUserList, type UserPostItemInfo } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
 import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
@@ -23,7 +23,7 @@ const statusFilterOptions = [
 const listQuery = useQuery({
   queryKey: ['userPosts', { page, pageSize, userId: auth.userId }],
   queryFn: async () => {
-    const result = await postPostUserList({
+    const result = await postUserList({
       query: { userId: auth.userId, page: page.value, pageSize: pageSize.value },
     })
     return normalizePaginated<UserPostItemInfo>(result.data?.data)

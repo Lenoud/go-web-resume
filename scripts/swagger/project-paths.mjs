@@ -6,7 +6,7 @@ export function findCanonicalWebDir(startDir) {
   let currentDir = startDir
 
   while (true) {
-    const candidateApiPath = path.resolve(currentDir, '../api/job.api')
+    const candidateApiPath = path.resolve(currentDir, '../api/desc/main.api')
     if (path.basename(currentDir) === 'web' && existsSync(candidateApiPath)) {
       return currentDir
     }
@@ -27,7 +27,7 @@ export function resolveSwaggerProjectPaths(fromUrl) {
 
   return {
     apiDir,
-    jobApiPath: path.resolve(apiDir, 'job.api'),
+    jobApiPath: path.resolve(apiDir, 'desc/main.api'),
     swaggerPath: path.resolve(apiDir, 'doc/swagger/swagger.json'),
     outputPath: path.resolve(apiDir, 'doc/swagger/swagger.named.json'),
     webDir,

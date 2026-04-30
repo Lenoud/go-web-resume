@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { postPostUserOfferList, type OfferWithJobInfo } from '@/client'
+import { postUserOfferList, type OfferWithJobInfo } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { STATUS_LABEL, STATUS_COLOR, type RecruitmentStatus } from '@/shared/types'
 
@@ -12,7 +12,7 @@ const pageSize = ref(10)
 const listQuery = useQuery({
   queryKey: ['userOffers', { page, pageSize }],
   queryFn: async () => {
-    const result = await postPostUserOfferList({
+    const result = await postUserOfferList({
       query: { page: page.value, pageSize: pageSize.value },
     })
     return (result.data?.data ?? []) as OfferWithJobInfo[]

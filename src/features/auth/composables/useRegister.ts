@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/vue-query'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { userUserRegister } from '@/client'
+import { userRegister } from '@/client'
 
 export function useRegister() {
   const router = useRouter()
@@ -15,7 +15,7 @@ export function useRegister() {
       mobile?: string
       nickname?: string
     }) => {
-      const result = await userUserRegister({ body: payload })
+      const result = await userRegister({ body: payload })
       return result.data
     },
     onSuccess: () => {

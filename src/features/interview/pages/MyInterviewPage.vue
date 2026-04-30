@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { postPostUserInterviewList, type InterviewWithJobInfo } from '@/client'
+import { postUserInterviewList, type InterviewWithJobInfo } from '@/client'
 import { useAuthStore } from '@/infrastructure/store/auth'
 
 const auth = useAuthStore()
@@ -11,7 +11,7 @@ const pageSize = ref(10)
 const listQuery = useQuery({
   queryKey: ['userInterviews', { page, pageSize }],
   queryFn: async () => {
-    const result = await postPostUserInterviewList({
+    const result = await postUserInterviewList({
       query: { page: page.value, pageSize: pageSize.value },
     })
     return (result.data?.data ?? []) as InterviewWithJobInfo[]

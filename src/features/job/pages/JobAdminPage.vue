@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useJobTable, type JobInfo } from '../composables/useJob.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
 import { RECRUIT_TYPE_OPTIONS, JOB_NATURE_MAP, EDUCATION_OPTIONS, WORK_EXPERIENCE_OPTIONS, JOB_CATEGORY_OPTIONS } from '@/shared/utils/constants'
-import { departmentDepartmentList } from '@/client'
+import { departmentList } from '@/client'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -32,7 +32,7 @@ function onRecruitTypeChange() {
 const deptData = ref<Array<{ id: string; title: string }>>([])
 onMounted(async () => {
   try {
-    const result = await departmentDepartmentList({ query: { page: 1, pageSize: 100 } })
+    const result = await departmentList({ query: { page: 1, pageSize: 100 } })
     const resp = result.data
     const d = (resp?.data as any)?.list ?? []
     deptData.value = d.map((x: any) => ({ id: String(x.id), title: x.title }))
