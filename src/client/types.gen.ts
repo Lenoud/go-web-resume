@@ -1483,8 +1483,6 @@ export type UpdateUserInfoReq = {
     nickname?: string;
     mobile?: string;
     email?: string;
-    pushEmail?: string;
-    pushSwitch?: string;
 };
 
 /**
@@ -1499,8 +1497,6 @@ export type UpdateUserReq = {
     email?: string;
     role?: string;
     status?: string;
-    pushEmail?: string;
-    pushSwitch?: string;
 };
 
 /**
@@ -1555,8 +1551,6 @@ export type UserInfo = {
     status: string;
     token: string;
     createTime: string;
-    pushEmail: string;
-    pushSwitch: string;
     avatar?: string;
 };
 

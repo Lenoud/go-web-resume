@@ -30,7 +30,7 @@ export function useUpdateUserInfo() {
   const auth = useAuthStore()
 
   return useMutation({
-    mutationFn: (body: { id: string; nickname?: string; email?: string; mobile?: string; pushEmail?: string; pushSwitch?: string }) =>
+    mutationFn: (body: { id: string; nickname?: string; email?: string; mobile?: string }) =>
       userUpdateUserInfo({ body }),
     onSuccess: () => {
       message.success('更新成功')

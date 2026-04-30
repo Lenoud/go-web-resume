@@ -12,8 +12,6 @@ const formState = reactive({
   nickname: '',
   email: '',
   mobile: '',
-  pushEmail: '',
-  pushSwitch: '',
 })
 
 watch(userInfo, (info) => {
@@ -22,8 +20,6 @@ watch(userInfo, (info) => {
     formState.nickname = info.nickname ?? ''
     formState.email = info.email ?? ''
     formState.mobile = info.mobile ?? ''
-    formState.pushEmail = info.pushEmail ?? ''
-    formState.pushSwitch = info.pushSwitch ?? ''
   }
 }, { immediate: true })
 
@@ -48,15 +44,6 @@ function handleSubmit() {
         </a-form-item>
         <a-form-item label="手机">
           <a-input v-model:value="formState.mobile" />
-        </a-form-item>
-        <a-form-item label="推送邮箱">
-          <a-input v-model:value="formState.pushEmail" />
-        </a-form-item>
-        <a-form-item label="推送开关">
-          <a-select v-model:value="formState.pushSwitch">
-            <a-select-option value="1">开启</a-select-option>
-            <a-select-option value="0">关闭</a-select-option>
-          </a-select>
         </a-form-item>
         <a-form-item :wrapper-col="{ offset: 4 }">
           <a-button type="primary" :loading="updateMutation.isPending.value" @click="handleSubmit">

@@ -3533,12 +3533,6 @@ export const UpdateUserInfoReqSchema = {
         },
         email: {
             type: 'string'
-        },
-        pushEmail: {
-            type: 'string'
-        },
-        pushSwitch: {
-            type: 'string'
         }
     },
     title: 'UpdateUserInfoReq',
@@ -3572,12 +3566,6 @@ export const UpdateUserReqSchema = {
             type: 'string'
         },
         status: {
-            type: 'string'
-        },
-        pushEmail: {
-            type: 'string'
-        },
-        pushSwitch: {
             type: 'string'
         }
     },
@@ -3693,12 +3681,6 @@ export const UserInfoSchema = {
         createTime: {
             type: 'string'
         },
-        pushEmail: {
-            type: 'string'
-        },
-        pushSwitch: {
-            type: 'string'
-        },
         avatar: {
             type: 'string'
         }
@@ -3714,9 +3696,7 @@ export const UserInfoSchema = {
         'role',
         'status',
         'token',
-        'createTime',
-        'pushEmail',
-        'pushSwitch'
+        'createTime'
     ]
 } as const;
 
