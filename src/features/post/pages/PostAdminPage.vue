@@ -106,7 +106,7 @@ async function loadInterviewAndOffer(postId: string) {
   try {
     const iRes = await interviewListApi({ query: { postId } })
     const resp = iRes.data
-    interviewList.value = resp?.data ?? []
+    interviewList.value = resp?.data?.list ?? []
   } catch { interviewList.value = [] }
   try {
     const oRes = await offerDetail({ query: { postId } })
@@ -295,7 +295,7 @@ async function loadStatusLogs(items: PostInfo[]) {
       try {
         const res = await postStatusLogList({ query: { targetType: 'post', targetId: item.id! } })
         const resp = res.data
-        map[item.id!] = resp?.data ?? []
+        map[item.id!] = resp?.data?.list ?? []
       } catch { map[item.id!] = [] }
     }),
   )

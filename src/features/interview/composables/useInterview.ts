@@ -14,7 +14,7 @@ export function useInterviewList(postId: string) {
     queryKey: queryKeys.interviews.list(postId),
     queryFn: async () => {
       const result = await interviewList({ query: { postId } })
-      return (result.data?.data ?? []) as InterviewInfo[]
+      return (result.data?.data?.list ?? []) as InterviewInfo[]
     },
     enabled: !!postId,
   })

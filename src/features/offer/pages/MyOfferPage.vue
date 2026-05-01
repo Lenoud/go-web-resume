@@ -15,7 +15,7 @@ const listQuery = useQuery({
     const result = await postUserOfferList({
       query: { page: page.value, pageSize: pageSize.value },
     })
-    return (result.data?.data ?? []) as OfferWithJobInfo[]
+    return (result.data?.data?.list ?? []) as OfferWithJobInfo[]
   },
   enabled: !!auth.userId,
 })

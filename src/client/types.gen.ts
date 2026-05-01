@@ -353,7 +353,14 @@ export type InterviewListResp = {
     msg?: string;
     trace?: string;
     timestamp?: number;
-    data?: Array<InterviewInfo>;
+    data?: InterviewSimpleListData;
+};
+
+/**
+ * InterviewSimpleListData
+ */
+export type InterviewSimpleListData = {
+    list: Array<InterviewInfo>;
 };
 
 /**
@@ -389,6 +396,13 @@ export type InterviewWithJobInfo = {
     categoryTitle: string;
     departmentTitle: string;
     postStatus: string;
+};
+
+/**
+ * InterviewWithJobSimpleListData
+ */
+export type InterviewWithJobSimpleListData = {
+    list: Array<InterviewWithJobInfo>;
 };
 
 /**
@@ -680,11 +694,19 @@ export type OfferWithJobInfo = {
 };
 
 /**
+ * OfferWithJobSimpleListData
+ */
+export type OfferWithJobSimpleListData = {
+    list: Array<OfferWithJobInfo>;
+};
+
+/**
  * OpLogInfo
  */
 export type OpLogInfo = {
     id: string;
     requestId: string;
+    userId: string;
     reIp: string;
     reTime: string;
     reUa: string;
@@ -694,7 +716,8 @@ export type OpLogInfo = {
     success: string;
     bizCode: number;
     bizMsg: string;
-    accessTime: string;
+    reResponseTime: string;
+    reUserAgent: string;
 };
 
 /**
@@ -883,7 +906,7 @@ export type PostStatusLogListResp = {
     msg?: string;
     trace?: string;
     timestamp?: number;
-    data?: Array<StatusLogInfo>;
+    data?: StatusLogSimpleListData;
 };
 
 /**
@@ -904,7 +927,7 @@ export type PostUserInterviewListResp = {
     msg?: string;
     trace?: string;
     timestamp?: number;
-    data?: Array<InterviewWithJobInfo>;
+    data?: InterviewWithJobSimpleListData;
 };
 
 /**
@@ -935,7 +958,7 @@ export type PostUserOfferListResp = {
     msg?: string;
     trace?: string;
     timestamp?: number;
-    data?: Array<OfferWithJobInfo>;
+    data?: OfferWithJobSimpleListData;
 };
 
 /**
@@ -1193,6 +1216,13 @@ export type StatusLogInfo = {
 export type StatusLogListReq = {
     targetType: string;
     targetId: string;
+};
+
+/**
+ * StatusLogSimpleListData
+ */
+export type StatusLogSimpleListData = {
+    list: Array<StatusLogInfo>;
 };
 
 /**

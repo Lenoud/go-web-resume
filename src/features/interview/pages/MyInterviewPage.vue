@@ -14,7 +14,7 @@ const listQuery = useQuery({
     const result = await postUserInterviewList({
       query: { page: page.value, pageSize: pageSize.value },
     })
-    return (result.data?.data ?? []) as InterviewWithJobInfo[]
+    return (result.data?.data?.list ?? []) as InterviewWithJobInfo[]
   },
   enabled: !!auth.userId,
 })

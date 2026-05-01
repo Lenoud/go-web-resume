@@ -808,13 +808,26 @@ export const InterviewListRespSchema = {
             type: 'integer'
         },
         data: {
+            $ref: '#/definitions/InterviewSimpleListData'
+        }
+    },
+    title: 'InterviewListResp'
+} as const;
+
+export const InterviewSimpleListDataSchema = {
+    type: 'object',
+    properties: {
+        list: {
             type: 'array',
             items: {
                 $ref: '#/definitions/InterviewInfo'
             }
         }
     },
-    title: 'InterviewListResp'
+    title: 'InterviewSimpleListData',
+    required: [
+        'list'
+    ]
 } as const;
 
 export const InterviewUpdateRespSchema = {
@@ -918,6 +931,22 @@ export const InterviewWithJobInfoSchema = {
         'categoryTitle',
         'departmentTitle',
         'postStatus'
+    ]
+} as const;
+
+export const InterviewWithJobSimpleListDataSchema = {
+    type: 'object',
+    properties: {
+        list: {
+            type: 'array',
+            items: {
+                $ref: '#/definitions/InterviewWithJobInfo'
+            }
+        }
+    },
+    title: 'InterviewWithJobSimpleListData',
+    required: [
+        'list'
     ]
 } as const;
 
@@ -1603,6 +1632,22 @@ export const OfferWithJobInfoSchema = {
     ]
 } as const;
 
+export const OfferWithJobSimpleListDataSchema = {
+    type: 'object',
+    properties: {
+        list: {
+            type: 'array',
+            items: {
+                $ref: '#/definitions/OfferWithJobInfo'
+            }
+        }
+    },
+    title: 'OfferWithJobSimpleListData',
+    required: [
+        'list'
+    ]
+} as const;
+
 export const OpLogInfoSchema = {
     type: 'object',
     properties: {
@@ -1610,6 +1655,9 @@ export const OpLogInfoSchema = {
             type: 'string'
         },
         requestId: {
+            type: 'string'
+        },
+        userId: {
             type: 'string'
         },
         reIp: {
@@ -1639,7 +1687,10 @@ export const OpLogInfoSchema = {
         bizMsg: {
             type: 'string'
         },
-        accessTime: {
+        reResponseTime: {
+            type: 'string'
+        },
+        reUserAgent: {
             type: 'string'
         }
     },
@@ -1647,6 +1698,7 @@ export const OpLogInfoSchema = {
     required: [
         'id',
         'requestId',
+        'userId',
         'reIp',
         'reTime',
         'reUa',
@@ -1656,7 +1708,8 @@ export const OpLogInfoSchema = {
         'success',
         'bizCode',
         'bizMsg',
-        'accessTime'
+        'reResponseTime',
+        'reUserAgent'
     ]
 } as const;
 
@@ -2087,10 +2140,7 @@ export const PostStatusLogListRespSchema = {
             type: 'integer'
         },
         data: {
-            type: 'array',
-            items: {
-                $ref: '#/definitions/StatusLogInfo'
-            }
+            $ref: '#/definitions/StatusLogSimpleListData'
         }
     },
     title: 'PostStatusLogListResp'
@@ -2131,10 +2181,7 @@ export const PostUserInterviewListRespSchema = {
             type: 'integer'
         },
         data: {
-            type: 'array',
-            items: {
-                $ref: '#/definitions/InterviewWithJobInfo'
-            }
+            $ref: '#/definitions/InterviewWithJobSimpleListData'
         }
     },
     title: 'PostUserInterviewListResp'
@@ -2199,10 +2246,7 @@ export const PostUserOfferListRespSchema = {
             type: 'integer'
         },
         data: {
-            type: 'array',
-            items: {
-                $ref: '#/definitions/OfferWithJobInfo'
-            }
+            $ref: '#/definitions/OfferWithJobSimpleListData'
         }
     },
     title: 'PostUserOfferListResp'
@@ -2827,6 +2871,22 @@ export const StatusLogListReqSchema = {
     required: [
         'targetType',
         'targetId'
+    ]
+} as const;
+
+export const StatusLogSimpleListDataSchema = {
+    type: 'object',
+    properties: {
+        list: {
+            type: 'array',
+            items: {
+                $ref: '#/definitions/StatusLogInfo'
+            }
+        }
+    },
+    title: 'StatusLogSimpleListData',
+    required: [
+        'list'
     ]
 } as const;
 
