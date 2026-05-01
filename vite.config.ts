@@ -5,6 +5,8 @@ import Components from 'unplugin-vue-components/vite'
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import { resolve } from 'path'
 
+const isMicro = process.env.VITE_MICRO === '1'
+
 export default defineConfig({
   resolve: {
     alias: { '@': resolve(__dirname, 'src') },
@@ -21,11 +23,18 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
-    proxy: {
-      // 顺序重要：/api/user 先匹配，走微服务网关
-      // '/api/user': { target: 'http://127.0.0.1:9000', changeOrigin: true },
-      '/api': { target: 'http://127.0.0.1:9100', changeOrigin: true },
-    },
+    proxy: isMicro
+      ? {
+          // 混合模式：微服务路由走网关 9000，其余走单体 9100
+          '/api/user': { target: 'http://127.0.0.1:9000', changeOrigin: true },
+          '/api/department': { target: 'http://127.0.0.1:9000', changeOrigin: true },
+          '/api/opLog': { target: 'http://127.0.0.1:9000', changeOrigin: true },
+          '/api': { target: 'http://127.0.0.1:9100', changeOrigin: true },
+        }
+      : {
+          // 单体模式：全走 9100
+          '/api': { target: 'http://127.0.0.1:9100', changeOrigin: true },
+        },
   },
   build: {
     rollupOptions: {
