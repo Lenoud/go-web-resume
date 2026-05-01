@@ -26,7 +26,7 @@ export function useInterviewList(postId: string) {
       message.success('创建成功')
       queryClient.invalidateQueries({ queryKey: queryKeys.interviews.list(postId) })
     },
-    onError: (err: Error) => message.error(err.message || '创建失败'),
+    onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '创建失败') },
   })
 
   const updateMutation = useMutation({
@@ -36,7 +36,7 @@ export function useInterviewList(postId: string) {
       message.success('更新成功')
       queryClient.invalidateQueries({ queryKey: queryKeys.interviews.list(postId) })
     },
-    onError: (err: Error) => message.error(err.message || '更新失败'),
+    onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '更新失败') },
   })
 
   return {

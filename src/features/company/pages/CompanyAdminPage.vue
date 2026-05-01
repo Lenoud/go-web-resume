@@ -37,7 +37,7 @@ const saveMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
     modalVisible.value = false
   },
-  onError: (err: Error) => message.error(err.message || '保存失败'),
+  onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '保存失败') },
 })
 
 // ── 弹窗状态 ──

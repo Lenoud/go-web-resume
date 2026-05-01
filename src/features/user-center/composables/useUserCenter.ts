@@ -36,7 +36,7 @@ export function useUpdateUserInfo() {
       message.success('更新成功')
       queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(auth.userId) })
     },
-    onError: (err: Error) => message.error(err.message || '更新失败'),
+    onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '更新失败') },
   })
 }
 
@@ -47,6 +47,6 @@ export function useUpdatePwd() {
     onSuccess: () => {
       message.success('密码修改成功')
     },
-    onError: (err: Error) => message.error(err.message || '修改失败'),
+    onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '修改失败') },
   })
 }

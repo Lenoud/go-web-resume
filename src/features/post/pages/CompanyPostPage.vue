@@ -224,7 +224,7 @@ const updateMutation = useMutation({
     queryClient.invalidateQueries({ queryKey: ['companyPosts'] })
     processModal.visible = false
   },
-  onError: (err: Error) => message.error(err.message || '更新失败'),
+  onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '更新失败') },
 })
 
 async function submitProcess() {

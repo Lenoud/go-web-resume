@@ -37,6 +37,7 @@ export function attachResponseInterceptor() {
       ;(error as Error & { code: number }).code = businessCode
       if (BIZ_WARN_CODES.has(businessCode)) {
         message.warning(error.message)
+        ;(error as Error & { handled?: boolean }).handled = true
       }
       throw error
     }

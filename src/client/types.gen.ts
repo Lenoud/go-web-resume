@@ -1488,7 +1488,7 @@ export type UpdateResumeSnapshotReq = {
     eduDetail?: string;
     expectedSalary?: string;
     jobIntention?: string;
-    rating?: string;
+    rating?: number;
     tags?: string;
     remark?: string;
     source?: string;

@@ -3536,7 +3536,8 @@ export const UpdateResumeSnapshotReqSchema = {
             type: 'string'
         },
         rating: {
-            type: 'string'
+            type: 'integer',
+            format: 'int32'
         },
         tags: {
             type: 'string'

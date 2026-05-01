@@ -54,7 +54,9 @@ export function useCrudTable<T extends { id?: string }>(options: {
           message.success('创建成功')
           queryClient.invalidateQueries({ queryKey: toValue(options.queryKey) })
         },
-        onError: (err: Error) => message.error(err.message || '创建失败'),
+        onError: (err: Error & { handled?: boolean }) => {
+          if (!err.handled) message.error(err.message || '创建失败')
+        },
       })
     : undefined
 
@@ -67,7 +69,9 @@ export function useCrudTable<T extends { id?: string }>(options: {
           message.success('更新成功')
           queryClient.invalidateQueries({ queryKey: toValue(options.queryKey) })
         },
-        onError: (err: Error) => message.error(err.message || '更新失败'),
+        onError: (err: Error & { handled?: boolean }) => {
+          if (!err.handled) message.error(err.message || '更新失败')
+        },
       })
     : undefined
 
@@ -80,7 +84,9 @@ export function useCrudTable<T extends { id?: string }>(options: {
           message.success('删除成功')
           queryClient.invalidateQueries({ queryKey: toValue(options.queryKey) })
         },
-        onError: (err: Error) => message.error(err.message || '删除失败'),
+        onError: (err: Error & { handled?: boolean }) => {
+          if (!err.handled) message.error(err.message || '删除失败')
+        },
       })
     : undefined
 

@@ -99,7 +99,7 @@ const removeMutation = useMutation({
     message.success('已移出人才库')
     queryClient.invalidateQueries({ queryKey: ['talentPool'] })
   },
-  onError: (err: Error) => message.error(err.message || '移出失败'),
+  onError: (err: Error & { handled?: boolean }) => { if (!err.handled) message.error(err.message || '移出失败') },
 })
 
 function handleRemove(item: TalentItem) {
