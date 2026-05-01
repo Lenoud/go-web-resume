@@ -26,7 +26,7 @@ const opLogColumns = [
   { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', ellipsis: true },
   { title: '耗时(ms)', dataIndex: 'reResponseTime', key: 'reResponseTime', width: 90 },
   { title: '请求内容', dataIndex: 'reContent', key: 'reContent', ellipsis: true, width: 200 },
-  { title: '访问时间', dataIndex: 'accessTime', key: 'accessTime', width: 180 },
+  { title: '访问时间', dataIndex: 'reTime', key: 'reTime', width: 180 },
 ]
 
 // 登录日志列定义
@@ -40,7 +40,7 @@ const loginLogColumns = [
   { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', ellipsis: true },
   { title: 'User-Agent', dataIndex: 'reUserAgent', key: 'reUserAgent', ellipsis: true, width: 200 },
   { title: '请求内容', dataIndex: 'reContent', key: 'reContent', ellipsis: true, width: 200 },
-  { title: '访问时间', dataIndex: 'accessTime', key: 'accessTime', width: 180 },
+  { title: '访问时间', dataIndex: 'reTime', key: 'reTime', width: 180 },
 ]
 </script>
 
