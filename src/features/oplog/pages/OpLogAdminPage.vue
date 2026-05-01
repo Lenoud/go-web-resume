@@ -17,29 +17,27 @@ const activeTab = ref('opLog')
 
 // 操作日志列定义
 const opLogColumns = [
-  { title: '请求ID', dataIndex: 'id', key: 'id', width: 80 },
+  { title: 'ID', dataIndex: 'id', key: 'id', width: 70, fixed: 'left' as const },
   { title: '用户ID', dataIndex: 'userId', key: 'userId', width: 80 },
-  { title: '请求方法', dataIndex: 'reMethod', key: 'reMethod', width: 100 },
-  { title: '请求路径', dataIndex: 'reUrl', key: 'reUrl', ellipsis: true },
-  { title: 'IP地址', dataIndex: 'reIp', key: 'reIp', width: 140 },
+  { title: '方法', dataIndex: 'reMethod', key: 'reMethod', width: 80 },
+  { title: '路径', dataIndex: 'reUrl', key: 'reUrl', width: 260 },
+  { title: 'IP', dataIndex: 'reIp', key: 'reIp', width: 140 },
   { title: '业务码', dataIndex: 'bizCode', key: 'bizCode', width: 80 },
-  { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', ellipsis: true },
+  { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', width: 160, ellipsis: true },
   { title: '耗时(ms)', dataIndex: 'reResponseTime', key: 'reResponseTime', width: 90 },
-  { title: '请求内容', dataIndex: 'reContent', key: 'reContent', ellipsis: true, width: 200 },
   { title: '访问时间', dataIndex: 'reTime', key: 'reTime', width: 180 },
 ]
 
 // 登录日志列定义
 const loginLogColumns = [
-  { title: '请求ID', dataIndex: 'id', key: 'id', width: 80 },
+  { title: 'ID', dataIndex: 'id', key: 'id', width: 70, fixed: 'left' as const },
   { title: '用户ID', dataIndex: 'userId', key: 'userId', width: 80 },
-  { title: '请求方法', dataIndex: 'reMethod', key: 'reMethod', width: 100 },
-  { title: '请求路径', dataIndex: 'reUrl', key: 'reUrl', ellipsis: true },
-  { title: 'IP地址', dataIndex: 'reIp', key: 'reIp', width: 140 },
+  { title: '方法', dataIndex: 'reMethod', key: 'reMethod', width: 80 },
+  { title: '路径', dataIndex: 'reUrl', key: 'reUrl', width: 260 },
+  { title: 'IP', dataIndex: 'reIp', key: 'reIp', width: 140 },
   { title: '业务码', dataIndex: 'bizCode', key: 'bizCode', width: 80 },
-  { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', ellipsis: true },
-  { title: 'User-Agent', dataIndex: 'reUserAgent', key: 'reUserAgent', ellipsis: true, width: 200 },
-  { title: '请求内容', dataIndex: 'reContent', key: 'reContent', ellipsis: true, width: 200 },
+  { title: '业务消息', dataIndex: 'bizMsg', key: 'bizMsg', width: 160, ellipsis: true },
+  { title: 'User-Agent', dataIndex: 'reUserAgent', key: 'reUserAgent', width: 320, ellipsis: true },
   { title: '访问时间', dataIndex: 'reTime', key: 'reTime', width: 180 },
 ]
 </script>
@@ -54,6 +52,7 @@ const loginLogColumns = [
           :data-source="opLogList"
           :loading="opLogLoading"
           row-key="id"
+          :scroll="{ x: 1200 }"
           :pagination="{ current: opLogPage, pageSize: opLogPageSize, total: opLogTotal, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
           @change="opLogPageChange"
         />
@@ -66,6 +65,7 @@ const loginLogColumns = [
           :data-source="loginLogList"
           :loading="loginLogLoading"
           row-key="id"
+          :scroll="{ x: 1400 }"
           :pagination="{ current: loginLogPage, pageSize: loginLogPageSize, total: loginLogTotal, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
           @change="loginLogPageChange"
         />
