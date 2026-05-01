@@ -1,4 +1,8 @@
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import { message } from 'ant-design-vue'
+
+/** 业务规则冲突码 — 前端弹 warning 而非 error */
+const BIZ_WARN_CODES = new Set([1001, 1002])
 
 import { client } from '@/client/client.gen'
 import { useAuthStore } from '@/infrastructure/store/auth'
@@ -28,8 +32,12 @@ export function attachResponseInterceptor() {
   client.instance.interceptors.response.use((response: AxiosResponse) => {
     const body = response.data as Record<string, unknown> | undefined
     if (body && typeof body.code === 'number' && body.code !== 0 && body.code !== 200) {
+      const businessCode = body.code as number
       const error = new Error((body.msg as string) ?? '请求失败')
-      ;(error as Error & { code: number }).code = body.code as number
+      ;(error as Error & { code: number }).code = businessCode
+      if (BIZ_WARN_CODES.has(businessCode)) {
+        message.warning(error.message)
+      }
       throw error
     }
     return response
