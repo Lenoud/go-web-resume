@@ -26,12 +26,12 @@ export function attachRequestInterceptor() {
 
 /**
  * 响应拦截：业务码校验
- * 后端 code 非 0/200 视为业务错误
+ * 0 → 成功，非0 → 失败（具体看 code）
  */
 export function attachResponseInterceptor() {
   client.instance.interceptors.response.use((response: AxiosResponse) => {
     const body = response.data as Record<string, unknown> | undefined
-    if (body && typeof body.code === 'number' && body.code !== 0 && body.code !== 200) {
+    if (body && typeof body.code === 'number' && body.code !== 0) {
       const businessCode = body.code as number
       const error = new Error((body.msg as string) ?? '请求失败')
       ;(error as Error & { code: number }).code = businessCode
