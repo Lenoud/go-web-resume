@@ -32,12 +32,6 @@ const adminRoutes: RouteRecordRaw[] = [
         meta: { title: '简历快照' },
       },
       {
-        path: 'talentPool',
-        name: 'adminTalentPool',
-        component: () => import('@/features/talent-pool/pages/TalentPoolPage.vue'),
-        meta: { title: '人才库' },
-      },
-      {
         path: 'company',
         name: 'adminCompany',
         component: () => import('@/features/company/pages/CompanyAdminPage.vue'),

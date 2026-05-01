@@ -10,7 +10,6 @@ import {
   interviewList as interviewListApi, interviewCreate,
   offerDetail, offerCreate, offerUpdate,
   resumeSnapshotDetail,
-  talentPoolAdd,
 } from '@/client'
 import type { CreateInterviewReq, CreateOfferReq, InterviewInfo, OfferInfo, ResumeSnapshotInfo, StatusLogInfo, UpdateOfferReq } from '@/client'
 import type { Dayjs } from 'dayjs'
@@ -267,15 +266,6 @@ async function openSnapshotDetail(snapshotId: string) {
   } catch { message.warn('获取简历快照失败') }
 }
 
-// ── 加入人才库 ──
-async function handleAddToPool(item: PostInfo) {
-  if (!item.resumeSnapshotId) { message.warn('该投递暂无简历快照'); return }
-  try {
-    await talentPoolAdd({ body: { resumeSnapshotId: item.resumeSnapshotId } })
-    message.success('已加入人才库')
-  } catch (err: unknown) { message.warn(errorMessage(err, '加入人才库失败')) }
-}
-
 // ── 简历预览 Drawer ──
 const resumeDrawer = reactive({ visible: false, url: '' })
 
@@ -393,9 +383,6 @@ const columns = [
         <template v-else-if="column.key === 'action'">
           <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="openSnapshotDetail(record.resumeSnapshotId)">
             详情
-          </a-button>
-          <a-button v-permission="PermissionCode.POST_UPDATE" type="link" size="small" @click="handleAddToPool(record as PostInfo)">
-            人才库
           </a-button>
           <a-button v-if="record.raw" type="link" size="small" @click="openResumePreview(record.raw)">
             简历

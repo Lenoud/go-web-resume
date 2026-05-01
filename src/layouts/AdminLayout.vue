@@ -30,7 +30,6 @@ const menuItems = [
   { key: 'job', icon: () => h(DatabaseOutlined), label: '岗位管理' },
   { key: 'resume', icon: () => h(DatabaseOutlined), label: '简历管理' },
   { key: 'resumeSnapshot', icon: () => h(DatabaseOutlined), label: '简历快照' },
-  { key: 'talentPool', icon: () => h(UserOutlined), label: '人才库' },
   { key: 'company', icon: () => h(DatabaseOutlined), label: '公司管理' },
   { key: 'user', icon: () => h(UserOutlined), label: '用户管理' },
   { key: 'department', icon: () => h(LayoutOutlined), label: '部门管理' },
