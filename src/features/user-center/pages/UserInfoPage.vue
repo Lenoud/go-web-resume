@@ -30,9 +30,14 @@ function handleSubmit() {
 
 <template>
   <div class="bg-white rounded-lg p-6">
-    <h2 class="text-lg font-medium mb-6">个人信息</h2>
+    <h2 class="text-lg font-medium mb-6">
+      个人信息
+    </h2>
     <a-spin :spinning="loading">
-      <a-form :label-col="{ span: 4 }" class="max-w-lg">
+      <a-form
+        :label-col="{ span: 4 }"
+        class="max-w-lg"
+      >
         <a-form-item label="用户名">
           <span class="text-text-secondary">{{ auth.username }}</span>
         </a-form-item>
@@ -46,7 +51,11 @@ function handleSubmit() {
           <a-input v-model:value="formState.mobile" />
         </a-form-item>
         <a-form-item :wrapper-col="{ offset: 4 }">
-          <a-button type="primary" :loading="updateMutation.isPending.value" @click="handleSubmit">
+          <a-button
+            type="primary"
+            :loading="updateMutation.isPending.value"
+            @click="handleSubmit"
+          >
             保存
           </a-button>
         </a-form-item>

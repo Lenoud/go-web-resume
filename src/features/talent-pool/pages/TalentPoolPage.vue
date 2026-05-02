@@ -233,18 +233,30 @@ function errorMessage(err: unknown, fallback: string) {
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索姓名/邮箱/意向" class="w-60" allow-clear />
-        <a-button type="primary" @click="addModal.visible = true; addModal.form = { resumeSnapshotId: '', tags: '', remark: '' }">
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索姓名/邮箱/意向"
+          class="w-60"
+          allow-clear
+        />
+        <a-button
+          type="primary"
+          @click="addModal.visible = true; addModal.form = { resumeSnapshotId: '', tags: '', remark: '' }"
+        >
           添加人才
         </a-button>
       </div>
     </div>
 
     <!-- 卡片列表 -->
-    <a-spin :spinning="loading" style="min-height: 200px">
+    <a-spin
+      :spinning="loading"
+      style="min-height: 200px"
+    >
       <div class="flex flex-col gap-3">
         <div
-          v-for="item in list" :key="item.id"
+          v-for="item in list"
+          :key="item.id"
           class="bg-white rounded-xl p-5 border border-border-light transition-shadow hover:shadow-md"
         >
           <!-- Header: avatar + name + rating -->
@@ -258,31 +270,71 @@ function errorMessage(err: unknown, fallback: string) {
                 <span class="text-xs text-text-muted ml-2">{{ formatEduSummary(item) }}</span>
               </div>
             </div>
-            <a-rate :value="item.rating" disabled :count="5" style="font-size: 12px" />
+            <a-rate
+              :value="item.rating"
+              disabled
+              :count="5"
+              style="font-size: 12px"
+            />
           </div>
 
           <!-- Body -->
           <div class="ml-[52px] border-t border-border-light pt-3">
-            <div v-if="item.jobIntention" class="text-sm mb-1">
+            <div
+              v-if="item.jobIntention"
+              class="text-sm mb-1"
+            >
               <span class="text-text-muted mr-2">求职意向</span>
               <span class="text-primary font-medium">{{ item.jobIntention }}</span>
             </div>
-            <div v-if="item.email" class="text-sm mb-1">
+            <div
+              v-if="item.email"
+              class="text-sm mb-1"
+            >
               <span class="text-text-muted mr-2">邮箱</span>
               <span class="text-text-secondary">{{ item.email }}</span>
             </div>
-            <div v-if="item.mobile" class="text-sm mb-1">
+            <div
+              v-if="item.mobile"
+              class="text-sm mb-1"
+            >
               <span class="text-text-muted mr-2">手机</span>
               <span class="text-text-secondary">{{ item.mobile }}</span>
             </div>
-            <div v-if="parseSkills(item.skills).length" class="mt-1">
-              <a-tag v-for="s in parseSkills(item.skills).slice(0, 6)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
-              <span v-if="parseSkills(item.skills).length > 6" class="text-xs text-text-muted">+{{ parseSkills(item.skills).length - 6 }}</span>
+            <div
+              v-if="parseSkills(item.skills).length"
+              class="mt-1"
+            >
+              <a-tag
+                v-for="s in parseSkills(item.skills).slice(0, 6)"
+                :key="s"
+                color="blue"
+                class="m-0.5"
+              >
+                {{ s }}
+              </a-tag>
+              <span
+                v-if="parseSkills(item.skills).length > 6"
+                class="text-xs text-text-muted"
+              >+{{ parseSkills(item.skills).length - 6 }}</span>
             </div>
-            <div v-if="item.tags" class="mt-1">
-              <a-tag v-for="t in item.tags.split(',').filter(Boolean)" :key="t" color="orange" class="m-0.5">{{ t }}</a-tag>
+            <div
+              v-if="item.tags"
+              class="mt-1"
+            >
+              <a-tag
+                v-for="t in item.tags.split(',').filter(Boolean)"
+                :key="t"
+                color="orange"
+                class="m-0.5"
+              >
+                {{ t }}
+              </a-tag>
             </div>
-            <div v-if="item.remark" class="mt-1 p-2 bg-bg-page rounded text-sm text-text-secondary">
+            <div
+              v-if="item.remark"
+              class="mt-1 p-2 bg-bg-page rounded text-sm text-text-secondary"
+            >
               <span class="text-text-muted">备注：</span>{{ item.remark }}
             </div>
           </div>
@@ -291,11 +343,27 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="flex items-center justify-between mt-3 pt-3 border-t border-border-light ml-[52px]">
             <span class="text-xs text-text-muted">{{ item.createTime }}</span>
             <div class="flex items-center gap-4">
-              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openDetail(item)">详情</span>
-              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openEditModal(item)">编辑标注</span>
-              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openRecommend(item)">推荐到岗位</span>
-              <span v-if="item.raw" class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="handleViewResume(item.raw)">查看简历</span>
-              <a-popconfirm title="确定移出人才库？" @confirm="handleRemove(item)">
+              <span
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="openDetail(item)"
+              >详情</span>
+              <span
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="openEditModal(item)"
+              >编辑标注</span>
+              <span
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="openRecommend(item)"
+              >推荐到岗位</span>
+              <span
+                v-if="item.raw"
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="handleViewResume(item.raw)"
+              >查看简历</span>
+              <a-popconfirm
+                title="确定移出人才库？"
+                @confirm="handleRemove(item)"
+              >
                 <span class="text-[13px] text-red-500 cursor-pointer hover:text-red-600">移出</span>
               </a-popconfirm>
             </div>
@@ -307,12 +375,17 @@ function errorMessage(err: unknown, fallback: string) {
           v-if="list.length === 0 && !loading"
           class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-border-light"
         >
-          <p class="text-sm text-text-muted m-0">人才库暂无候选人</p>
+          <p class="text-sm text-text-muted m-0">
+            人才库暂无候选人
+          </p>
         </div>
       </div>
 
       <!-- Pagination -->
-      <div v-if="total > 0" class="flex justify-center mt-6">
+      <div
+        v-if="total > 0"
+        class="flex justify-center mt-6"
+      >
         <a-pagination
           v-model:current="page"
           v-model:page-size="pageSize"
@@ -324,16 +397,33 @@ function errorMessage(err: unknown, fallback: string) {
     </a-spin>
 
     <!-- 添加人才 Modal -->
-    <a-modal v-model:open="addModal.visible" title="添加人才" @ok="submitAdd">
+    <a-modal
+      v-model:open="addModal.visible"
+      title="添加人才"
+      @ok="submitAdd"
+    >
       <a-form :label-col="{ span: 4 }">
-        <a-form-item label="快照ID" required>
-          <a-input v-model:value="addModal.form.resumeSnapshotId" placeholder="简历快照ID" />
+        <a-form-item
+          label="快照ID"
+          required
+        >
+          <a-input
+            v-model:value="addModal.form.resumeSnapshotId"
+            placeholder="简历快照ID"
+          />
         </a-form-item>
         <a-form-item label="标签">
-          <a-input v-model:value="addModal.form.tags" placeholder="多个标签用逗号分隔" />
+          <a-input
+            v-model:value="addModal.form.tags"
+            placeholder="多个标签用逗号分隔"
+          />
         </a-form-item>
         <a-form-item label="备注">
-          <a-textarea v-model:value="addModal.form.remark" :rows="3" placeholder="HR 备注信息" />
+          <a-textarea
+            v-model:value="addModal.form.remark"
+            :rows="3"
+            placeholder="HR 备注信息"
+          />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -343,14 +433,25 @@ function errorMessage(err: unknown, fallback: string) {
       v-model:open="editModal.visible"
       title="编辑人才库标注"
       :confirm-loading="editModal.submitting"
-      @ok="submitEdit"
       width="480px"
+      @ok="submitEdit"
     >
       <div class="py-2">
-        <div class="text-sm font-semibold text-text-primary mb-2">标签（逗号分隔）</div>
-        <a-input v-model:value="editModal.form.tags" placeholder="如：重点跟进,技术强" />
-        <div class="text-sm font-semibold text-text-primary mb-2 mt-3">备注</div>
-        <a-textarea v-model:value="editModal.form.remark" :rows="4" placeholder="HR 备注信息" />
+        <div class="text-sm font-semibold text-text-primary mb-2">
+          标签（逗号分隔）
+        </div>
+        <a-input
+          v-model:value="editModal.form.tags"
+          placeholder="如：重点跟进,技术强"
+        />
+        <div class="text-sm font-semibold text-text-primary mb-2 mt-3">
+          备注
+        </div>
+        <a-textarea
+          v-model:value="editModal.form.remark"
+          :rows="4"
+          placeholder="HR 备注信息"
+        />
       </div>
     </a-modal>
 
@@ -362,68 +463,181 @@ function errorMessage(err: unknown, fallback: string) {
       width="640px"
     >
       <a-spin :spinning="detailModal.loading">
-      <div v-if="detailModal.data">
-        <div class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">基本信息</h4>
-          <p class="text-sm text-text-secondary m-1"><b>姓名：</b>{{ detailModal.data.name || '-' }}</p>
-          <p v-if="detailModal.data.sex" class="text-sm text-text-secondary m-1"><b>性别：</b>{{ detailModal.data.sex }}</p>
-          <p class="text-sm text-text-secondary m-1"><b>手机：</b>{{ detailModal.data.mobile || '-' }}</p>
-          <p class="text-sm text-text-secondary m-1"><b>邮箱：</b>{{ detailModal.data.email || '-' }}</p>
-          <p v-if="detailModal.data.expectedSalary" class="text-sm text-text-secondary m-1"><b>期望薪资：</b>{{ detailModal.data.expectedSalary }}</p>
-          <p v-if="detailModal.data.jobIntention" class="text-sm text-text-secondary m-1"><b>求职意向：</b>{{ detailModal.data.jobIntention }}</p>
-          <p v-if="detailModal.data.source" class="text-sm text-text-secondary m-1"><b>来源：</b>{{ detailModal.data.source }}</p>
-          <p v-if="detailModal.data.summary" class="text-sm text-text-secondary m-1"><b>个人总结：</b>{{ detailModal.data.summary }}</p>
-        </div>
-        <div v-if="getEduItems(detailModal.data).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">教育经历</h4>
-          <div v-for="(e, i) in getEduItems(detailModal.data)" :key="`edu-${i}`" class="text-sm mb-1">
-            <span class="font-semibold text-text-primary">{{ e.school || '-' }}</span>
-            <span v-if="e.degree" class="text-primary ml-2 text-xs">{{ e.degree }}</span>
-            <span class="text-text-secondary ml-2">{{ e.major || '-' }}</span>
-            <span class="text-text-muted ml-2">{{ e.duration || '-' }}</span>
+        <div v-if="detailModal.data">
+          <div class="mb-4">
+            <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+              基本信息
+            </h4>
+            <p class="text-sm text-text-secondary m-1">
+              <b>姓名：</b>{{ detailModal.data.name || '-' }}
+            </p>
+            <p
+              v-if="detailModal.data.sex"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>性别：</b>{{ detailModal.data.sex }}
+            </p>
+            <p class="text-sm text-text-secondary m-1">
+              <b>手机：</b>{{ detailModal.data.mobile || '-' }}
+            </p>
+            <p class="text-sm text-text-secondary m-1">
+              <b>邮箱：</b>{{ detailModal.data.email || '-' }}
+            </p>
+            <p
+              v-if="detailModal.data.expectedSalary"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>期望薪资：</b>{{ detailModal.data.expectedSalary }}
+            </p>
+            <p
+              v-if="detailModal.data.jobIntention"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>求职意向：</b>{{ detailModal.data.jobIntention }}
+            </p>
+            <p
+              v-if="detailModal.data.source"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>来源：</b>{{ detailModal.data.source }}
+            </p>
+            <p
+              v-if="detailModal.data.summary"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>个人总结：</b>{{ detailModal.data.summary }}
+            </p>
+          </div>
+          <div
+            v-if="getEduItems(detailModal.data).length"
+            class="mb-4"
+          >
+            <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+              教育经历
+            </h4>
+            <div
+              v-for="(e, i) in getEduItems(detailModal.data)"
+              :key="`edu-${i}`"
+              class="text-sm mb-1"
+            >
+              <span class="font-semibold text-text-primary">{{ e.school || '-' }}</span>
+              <span
+                v-if="e.degree"
+                class="text-primary ml-2 text-xs"
+              >{{ e.degree }}</span>
+              <span class="text-text-secondary ml-2">{{ e.major || '-' }}</span>
+              <span class="text-text-muted ml-2">{{ e.duration || '-' }}</span>
+            </div>
+          </div>
+          <div
+            v-if="parseSkills(detailModal.data.skills).length"
+            class="mb-4"
+          >
+            <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+              技能
+            </h4>
+            <div>
+              <a-tag
+                v-for="s in parseSkills(detailModal.data.skills)"
+                :key="s"
+                color="blue"
+                class="m-0.5"
+              >
+                {{ s }}
+              </a-tag>
+            </div>
+          </div>
+          <div
+            v-if="parseWorkExperience(detailModal.data.experience).length"
+            class="mb-4"
+          >
+            <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+              工作经历
+            </h4>
+            <div
+              v-for="(e, i) in parseWorkExperience(detailModal.data.experience)"
+              :key="i"
+              class="text-sm mb-1"
+            >
+              <span class="font-semibold text-text-primary">{{ e.company }}</span>
+              <span class="text-text-secondary ml-2">{{ e.position }}</span>
+              <span class="text-text-muted ml-2">{{ e.duration }}</span>
+            </div>
+          </div>
+          <div
+            v-if="parseProjects(detailModal.data.projects).length"
+            class="mb-4"
+          >
+            <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+              项目经历
+            </h4>
+            <div
+              v-for="(p, i) in parseProjects(detailModal.data.projects)"
+              :key="i"
+              class="mb-2"
+            >
+              <span class="font-semibold text-text-primary text-sm">{{ p.name }}</span>
+              <span class="text-text-secondary ml-2 text-sm">{{ p.role }}</span>
+              <p
+                v-if="p.description"
+                class="text-sm text-text-secondary m-0.5 leading-relaxed"
+              >
+                {{ p.description }}
+              </p>
+            </div>
+          </div>
+          <div
+            v-if="detailModal.data.tags || detailModal.data.remark"
+            class="mb-4"
+          >
+            <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+              HR 标注
+            </h4>
+            <p
+              v-if="detailModal.data.tags"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>标签：</b>
+              <a-tag
+                v-for="t in detailModal.data.tags.split(',').filter(Boolean)"
+                :key="t"
+                color="orange"
+                class="m-0.5"
+              >
+                {{ t }}
+              </a-tag>
+            </p>
+            <p
+              v-if="detailModal.data.remark"
+              class="text-sm text-text-secondary m-1"
+            >
+              <b>备注：</b>{{ detailModal.data.remark }}
+            </p>
           </div>
         </div>
-        <div v-if="parseSkills(detailModal.data.skills).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">技能</h4>
-          <div>
-            <a-tag v-for="s in parseSkills(detailModal.data.skills)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
-          </div>
-        </div>
-        <div v-if="parseWorkExperience(detailModal.data.experience).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">工作经历</h4>
-          <div v-for="(e, i) in parseWorkExperience(detailModal.data.experience)" :key="i" class="text-sm mb-1">
-            <span class="font-semibold text-text-primary">{{ e.company }}</span>
-            <span class="text-text-secondary ml-2">{{ e.position }}</span>
-            <span class="text-text-muted ml-2">{{ e.duration }}</span>
-          </div>
-        </div>
-        <div v-if="parseProjects(detailModal.data.projects).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">项目经历</h4>
-          <div v-for="(p, i) in parseProjects(detailModal.data.projects)" :key="i" class="mb-2">
-            <span class="font-semibold text-text-primary text-sm">{{ p.name }}</span>
-            <span class="text-text-secondary ml-2 text-sm">{{ p.role }}</span>
-            <p v-if="p.description" class="text-sm text-text-secondary m-0.5 leading-relaxed">{{ p.description }}</p>
-          </div>
-        </div>
-        <div v-if="detailModal.data.tags || detailModal.data.remark" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">HR 标注</h4>
-          <p v-if="detailModal.data.tags" class="text-sm text-text-secondary m-1">
-            <b>标签：</b>
-            <a-tag v-for="t in detailModal.data.tags.split(',').filter(Boolean)" :key="t" color="orange" class="m-0.5">{{ t }}</a-tag>
-          </p>
-          <p v-if="detailModal.data.remark" class="text-sm text-text-secondary m-1"><b>备注：</b>{{ detailModal.data.remark }}</p>
-        </div>
-      </div>
       </a-spin>
     </a-modal>
 
     <!-- 简历预览 Drawer -->
-    <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
-      <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
+    <a-drawer
+      v-model:open="resumeDrawer.visible"
+      title="简历预览"
+      width="700px"
+    >
+      <iframe
+        v-if="resumeDrawer.url"
+        :src="resumeDrawer.url"
+        class="w-full h-[80vh] border-none"
+      />
     </a-drawer>
 
     <!-- 推荐到岗位 Modal -->
-    <a-modal v-model:open="recommendModal.visible" title="推荐到岗位" @ok="submitRecommend" width="480px">
+    <a-modal
+      v-model:open="recommendModal.visible"
+      title="推荐到岗位"
+      width="480px"
+      @ok="submitRecommend"
+    >
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="目标岗位">
           <a-select
@@ -432,7 +646,14 @@ function errorMessage(err: unknown, fallback: string) {
             show-search
             :filter-option="(input: string, option?: SelectOption) => option?.title?.toLowerCase().includes(input.toLowerCase()) ?? false"
           >
-            <a-select-option v-for="j in jobOptions" :key="j.id" :value="j.id" :title="j.title">{{ j.title }}</a-select-option>
+            <a-select-option
+              v-for="j in jobOptions"
+              :key="j.id"
+              :value="j.id"
+              :title="j.title"
+            >
+              {{ j.title }}
+            </a-select-option>
           </a-select>
         </a-form-item>
       </a-form>

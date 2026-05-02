@@ -84,7 +84,11 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-button v-if="!hasCompany" type="primary" @click="openCreate">
+        <a-button
+          v-if="!hasCompany"
+          type="primary"
+          @click="openCreate"
+        >
           初始化公司资料
         </a-button>
       </div>
@@ -101,7 +105,10 @@ const columns = [
     >
       <template #bodyCell="{ column }">
         <template v-if="column.key === 'action'">
-          <a-button type="link" @click="openEdit">
+          <a-button
+            type="link"
+            @click="openEdit"
+          >
             编辑
           </a-button>
         </template>
@@ -109,22 +116,45 @@ const columns = [
     </a-table>
 
     <!-- 新增/编辑弹窗 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit">
+    <a-modal
+      v-model:open="modalVisible"
+      :title="modalTitle"
+      @ok="handleSubmit"
+    >
       <a-form :label-col="{ span: 4 }">
-        <a-form-item label="公司名称" required>
-          <a-input v-model:value="formState.title" placeholder="请输入公司名称" />
+        <a-form-item
+          label="公司名称"
+          required
+        >
+          <a-input
+            v-model:value="formState.title"
+            placeholder="请输入公司名称"
+          />
         </a-form-item>
         <a-form-item label="地点">
-          <a-input v-model:value="formState.location" placeholder="请输入地点" />
+          <a-input
+            v-model:value="formState.location"
+            placeholder="请输入地点"
+          />
         </a-form-item>
         <a-form-item label="行业">
-          <a-input v-model:value="formState.hangye" placeholder="请输入行业" />
+          <a-input
+            v-model:value="formState.hangye"
+            placeholder="请输入行业"
+          />
         </a-form-item>
         <a-form-item label="规模">
-          <a-input v-model:value="formState.guimo" placeholder="请输入规模" />
+          <a-input
+            v-model:value="formState.guimo"
+            placeholder="请输入规模"
+          />
         </a-form-item>
         <a-form-item label="简介">
-          <a-textarea v-model:value="formState.description" :rows="3" placeholder="请输入公司简介" />
+          <a-textarea
+            v-model:value="formState.description"
+            :rows="3"
+            placeholder="请输入公司简介"
+          />
         </a-form-item>
       </a-form>
     </a-modal>

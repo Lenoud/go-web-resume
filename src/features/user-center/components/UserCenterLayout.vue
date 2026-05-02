@@ -82,9 +82,14 @@ const iconPaths: Record<string, string> = {
           {{ (auth.username || '?')[0]!.toUpperCase() }}
         </div>
         <div class="min-w-0">
-          <h2 class="text-lg font-semibold text-text-primary m-0 truncate">{{ auth.username }}</h2>
+          <h2 class="text-lg font-semibold text-text-primary m-0 truncate">
+            {{ auth.username }}
+          </h2>
           <div class="text-xs text-text-muted mt-1">
-            <a-tag :color="auth.currentUserRole === ROLE.HR ? 'blue' : 'green'" size="small">
+            <a-tag
+              :color="auth.currentUserRole === ROLE.HR ? 'blue' : 'green'"
+              size="small"
+            >
               {{ auth.currentUserRole === ROLE.HR ? 'HR' : '求职者' }}
             </a-tag>
           </div>
@@ -92,13 +97,20 @@ const iconPaths: Record<string, string> = {
       </div>
 
       <!-- Menu groups -->
-      <div v-for="group in menuGroups" :key="group.title" class="border-t border-border-light mt-4">
+      <div
+        v-for="group in menuGroups"
+        :key="group.title"
+        class="border-t border-border-light mt-4"
+      >
         <div class="px-5 pt-4 pb-2">
-          <div class="text-sm font-semibold text-text-primary">{{ group.title }}</div>
+          <div class="text-sm font-semibold text-text-primary">
+            {{ group.title }}
+          </div>
         </div>
         <div class="px-3 pb-3">
           <div
-            v-for="item in group.items" :key="item.key"
+            v-for="item in group.items"
+            :key="item.key"
             class="relative flex items-center h-11 px-3 rounded-lg cursor-pointer transition-colors text-sm"
             :class="isActive(item.key)
               ? 'bg-primary-light text-primary font-medium'
@@ -111,11 +123,20 @@ const iconPaths: Record<string, string> = {
               class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r"
             />
             <svg
-              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
               class="mr-2.5 shrink-0 opacity-60"
             >
-              <path v-if="iconPaths[item.icon]" :d="iconPaths[item.icon]" />
+              <path
+                v-if="iconPaths[item.icon]"
+                :d="iconPaths[item.icon]"
+              />
             </svg>
             <span>{{ item.label }}</span>
           </div>

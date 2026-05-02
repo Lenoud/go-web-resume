@@ -132,14 +132,26 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索职位" class="w-60" allow-clear />
-        <a-button type="primary" @click="openCreate">新增职位</a-button>
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索职位"
+          class="w-60"
+          allow-clear
+        />
+        <a-button
+          type="primary"
+          @click="openCreate"
+        >
+          新增职位
+        </a-button>
         <a-popconfirm
           v-if="selectedRowKeys.length > 0"
           title="确认批量删除选中的职位？"
           @confirm="batchDelete"
         >
-          <a-button danger>批量删除 ({{ selectedRowKeys.length }})</a-button>
+          <a-button danger>
+            批量删除 ({{ selectedRowKeys.length }})
+          </a-button>
         </a-popconfirm>
       </div>
     </div>
@@ -152,8 +164,8 @@ const columns = [
       :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="handlePageChange"
       :scroll="{ x: 'max-content' }"
+      @change="handlePageChange"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'jobCode'">
@@ -181,43 +193,99 @@ const columns = [
         </template>
         <template v-else-if="column.key === 'action'">
           <a-dropdown :trigger="['click']">
-            <a-button type="link" size="small">
+            <a-button
+              type="link"
+              size="small"
+            >
               {{ statusLabelMap[record.status] ?? '状态' }} ▾
             </a-button>
             <template #overlay>
               <a-menu @click="(e: MenuClickEvent) => handleStatusChange(record as JobInfo, Number(e.key))">
-                <a-menu-item key="1" :disabled="record.status === 1">招聘中</a-menu-item>
-                <a-menu-item key="2" :disabled="record.status === 2">已关闭</a-menu-item>
-                <a-menu-item key="4" :disabled="record.status === 4">已招满</a-menu-item>
+                <a-menu-item
+                  key="1"
+                  :disabled="record.status === 1"
+                >
+                  招聘中
+                </a-menu-item>
+                <a-menu-item
+                  key="2"
+                  :disabled="record.status === 2"
+                >
+                  已关闭
+                </a-menu-item>
+                <a-menu-item
+                  key="4"
+                  :disabled="record.status === 4"
+                >
+                  已招满
+                </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
-          <a-button type="link" @click="openEdit(record)">编辑</a-button>
-          <a-popconfirm title="确认删除该职位？" @confirm="handleDelete(record.id)">
-            <a-button type="link" danger>删除</a-button>
+          <a-button
+            type="link"
+            @click="openEdit(record)"
+          >
+            编辑
+          </a-button>
+          <a-popconfirm
+            title="确认删除该职位？"
+            @confirm="handleDelete(record.id)"
+          >
+            <a-button
+              type="link"
+              danger
+            >
+              删除
+            </a-button>
           </a-popconfirm>
         </template>
       </template>
     </a-table>
 
     <!-- 新增/编辑弹窗 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="880px">
+    <a-modal
+      v-model:open="modalVisible"
+      :title="modalTitle"
+      width="880px"
+      @ok="handleSubmit"
+    >
       <a-form :label-col="{ span: 4 }">
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item label="职位名称" required>
-              <a-input v-model:value="formState.title" placeholder="请输入职位名称" />
+            <a-form-item
+              label="职位名称"
+              required
+            >
+              <a-input
+                v-model:value="formState.title"
+                placeholder="请输入职位名称"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="岗位编号">
-              <a-input v-model:value="formState.jobCode" placeholder="请输入岗位编号" allow-clear />
+              <a-input
+                v-model:value="formState.jobCode"
+                placeholder="请输入岗位编号"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="分类">
-              <a-select v-model:value="formState.category" placeholder="请选择分类" allow-clear>
-                <a-select-option v-for="c in JOB_CATEGORY_OPTIONS" :key="c.value" :value="c.value">{{ c.label }}</a-select-option>
+              <a-select
+                v-model:value="formState.category"
+                placeholder="请选择分类"
+                allow-clear
+              >
+                <a-select-option
+                  v-for="c in JOB_CATEGORY_OPTIONS"
+                  :key="c.value"
+                  :value="c.value"
+                >
+                  {{ c.label }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -255,56 +323,112 @@ const columns = [
           </a-col>
           <a-col :span="24">
             <a-form-item label="职位描述">
-              <a-textarea v-model:value="formState.description" :rows="4" placeholder="请输入职位描述" />
+              <a-textarea
+                v-model:value="formState.description"
+                :rows="4"
+                placeholder="请输入职位描述"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="24">
             <a-form-item label="岗位要求">
-              <a-textarea v-model:value="formState.requirement" :rows="4" placeholder="请输入岗位要求" />
+              <a-textarea
+                v-model:value="formState.requirement"
+                :rows="4"
+                placeholder="请输入岗位要求"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="工作地点">
-              <a-input v-model:value="formState.location" placeholder="请输入工作地点" />
+              <a-input
+                v-model:value="formState.location"
+                placeholder="请输入工作地点"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="详细地址">
-              <a-input v-model:value="formState.address" placeholder="请输入详细地址" />
+              <a-input
+                v-model:value="formState.address"
+                placeholder="请输入详细地址"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="薪资范围">
               <div class="flex items-center gap-1">
-                <a-input-number v-model:value="formState.minSalary" placeholder="最低" class="flex-1" :min="0" :precision="0" />
+                <a-input-number
+                  v-model:value="formState.minSalary"
+                  placeholder="最低"
+                  class="flex-1"
+                  :min="0"
+                  :precision="0"
+                />
                 <span class="text-gray-400">~</span>
-                <a-input-number v-model:value="formState.maxSalary" placeholder="最高" class="flex-1" :min="0" :precision="0" />
-                <a-select v-model:value="formState.salaryUnit" style="width: 80px">
-                  <a-select-option :value="1">K/月</a-select-option>
-                  <a-select-option :value="2">元/天</a-select-option>
-                  <a-select-option :value="3">K/年</a-select-option>
+                <a-input-number
+                  v-model:value="formState.maxSalary"
+                  placeholder="最高"
+                  class="flex-1"
+                  :min="0"
+                  :precision="0"
+                />
+                <a-select
+                  v-model:value="formState.salaryUnit"
+                  style="width: 80px"
+                >
+                  <a-select-option :value="1">
+                    K/月
+                  </a-select-option>
+                  <a-select-option :value="2">
+                    元/天
+                  </a-select-option>
+                  <a-select-option :value="3">
+                    K/年
+                  </a-select-option>
                 </a-select>
               </div>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="薪资展示">
-              <a-input v-model:value="formState.salaryShow" placeholder="如：10-20K/月、面议" allow-clear />
+              <a-input
+                v-model:value="formState.salaryShow"
+                placeholder="如：10-20K/月、面议"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
-          <a-col v-if="editingId" :span="12">
+          <a-col
+            v-if="editingId"
+            :span="12"
+          >
             <a-form-item label="状态">
-              <a-select v-model:value="formState.status" :options="statusOptions" placeholder="请选择状态" />
+              <a-select
+                v-model:value="formState.status"
+                :options="statusOptions"
+                placeholder="请选择状态"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="学历要求">
-              <a-select v-model:value="formState.education" :options="EDUCATION_OPTIONS" placeholder="请选择学历" allow-clear />
+              <a-select
+                v-model:value="formState.education"
+                :options="EDUCATION_OPTIONS"
+                placeholder="请选择学历"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="经验要求">
-              <a-select v-model:value="formState.workExpe" :options="WORK_EXPERIENCE_OPTIONS" placeholder="请选择经验" allow-clear />
+              <a-select
+                v-model:value="formState.workExpe"
+                :options="WORK_EXPERIENCE_OPTIONS"
+                placeholder="请选择经验"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
         </a-row>

@@ -44,9 +44,12 @@ const loginLogColumns = [
 
 <template>
   <div class="p-6">
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 操作日志 Tab -->
-      <a-tab-pane key="opLog" tab="操作日志">
+      <a-tab-pane
+        key="opLog"
+        tab="操作日志"
+      >
         <a-table
           :columns="opLogColumns"
           :data-source="opLogList"
@@ -59,7 +62,10 @@ const loginLogColumns = [
       </a-tab-pane>
 
       <!-- 登录日志 Tab -->
-      <a-tab-pane key="loginLog" tab="登录日志">
+      <a-tab-pane
+        key="loginLog"
+        tab="登录日志"
+      >
         <a-table
           :columns="loginLogColumns"
           :data-source="loginLogList"

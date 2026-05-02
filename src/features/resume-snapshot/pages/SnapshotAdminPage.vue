@@ -322,8 +322,17 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索快照" class="w-60" allow-clear />
-        <a-button v-permission="PermissionCode.RESUME_CREATE" type="primary" @click="openBatchUploadModal">
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索快照"
+          class="w-60"
+          allow-clear
+        />
+        <a-button
+          v-permission="PermissionCode.RESUME_CREATE"
+          type="primary"
+          @click="openBatchUploadModal"
+        >
           批量上传
         </a-button>
         <a-popconfirm
@@ -346,22 +355,44 @@ const columns = [
       :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="handlePageChange"
       :scroll="{ x: 'max-content' }"
+      @change="handlePageChange"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
-          <a-button v-if="record.raw" type="link" size="small" @click="openResumePreview(record.raw)">
+          <a-button
+            v-if="record.raw"
+            type="link"
+            size="small"
+            @click="openResumePreview(record.raw)"
+          >
             查看简历
           </a-button>
-          <a-button type="link" size="small" @click="openRecommend(record as ResumeSnapshotInfo)">
+          <a-button
+            type="link"
+            size="small"
+            @click="openRecommend(record as ResumeSnapshotInfo)"
+          >
             推荐到岗位
           </a-button>
-          <a-button v-permission="PermissionCode.RESUME_UPDATE" type="link" size="small" @click="openEdit(record as ResumeSnapshotInfo)">
+          <a-button
+            v-permission="PermissionCode.RESUME_UPDATE"
+            type="link"
+            size="small"
+            @click="openEdit(record as ResumeSnapshotInfo)"
+          >
             编辑
           </a-button>
-          <a-popconfirm title="确认删除该快照？" @confirm="handleDelete(record.id)">
-            <a-button v-permission="PermissionCode.RESUME_DELETE" type="link" size="small" danger>
+          <a-popconfirm
+            title="确认删除该快照？"
+            @confirm="handleDelete(record.id)"
+          >
+            <a-button
+              v-permission="PermissionCode.RESUME_DELETE"
+              type="link"
+              size="small"
+              danger
+            >
               删除
             </a-button>
           </a-popconfirm>
@@ -370,77 +401,143 @@ const columns = [
     </a-table>
 
     <!-- 编辑弹窗 - 完整字段 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="880px">
+    <a-modal
+      v-model:open="modalVisible"
+      :title="modalTitle"
+      width="880px"
+      @ok="handleSubmit"
+    >
       <a-form :label-col="{ span: 4 }">
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item label="姓名">
-              <a-input v-model:value="formState.name" placeholder="请输入姓名" />
+              <a-input
+                v-model:value="formState.name"
+                placeholder="请输入姓名"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="性别">
-              <a-select v-model:value="formState.sex" :options="SEX_OPTIONS" allow-clear placeholder="请选择" />
+              <a-select
+                v-model:value="formState.sex"
+                :options="SEX_OPTIONS"
+                allow-clear
+                placeholder="请选择"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="邮箱">
-              <a-input v-model:value="formState.email" placeholder="请输入邮箱" />
+              <a-input
+                v-model:value="formState.email"
+                placeholder="请输入邮箱"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="手机">
-              <a-input v-model:value="formState.mobile" placeholder="请输入手机号" />
+              <a-input
+                v-model:value="formState.mobile"
+                placeholder="请输入手机号"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="学历">
-              <a-select v-model:value="formState.education" :options="EDUCATION_OPTIONS" allow-clear placeholder="请选择学历" />
+              <a-select
+                v-model:value="formState.education"
+                :options="EDUCATION_OPTIONS"
+                allow-clear
+                placeholder="请选择学历"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="学校">
-              <a-input v-model:value="formState.school" placeholder="请输入毕业学校" />
+              <a-input
+                v-model:value="formState.school"
+                placeholder="请输入毕业学校"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="期望薪资">
-              <a-input v-model:value="formState.expectedSalary" placeholder="如 15K-20K" />
+              <a-input
+                v-model:value="formState.expectedSalary"
+                placeholder="如 15K-20K"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="求职意向">
-              <a-input v-model:value="formState.jobIntention" placeholder="如 后端开发" />
+              <a-input
+                v-model:value="formState.jobIntention"
+                placeholder="如 后端开发"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="来源">
-              <a-select v-model:value="formState.source" :options="RESUME_SOURCE_OPTIONS" allow-clear placeholder="请选择来源" />
+              <a-select
+                v-model:value="formState.source"
+                :options="RESUME_SOURCE_OPTIONS"
+                allow-clear
+                placeholder="请选择来源"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="评分">
-              <a-input-number v-model:value="formState.rating" :min="0" :max="10" class="w-full" />
+              <a-input-number
+                v-model:value="formState.rating"
+                :min="0"
+                :max="10"
+                class="w-full"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="标签">
-              <a-input v-model:value="formState.tags" placeholder="多个标签用逗号分隔" />
+              <a-input
+                v-model:value="formState.tags"
+                placeholder="多个标签用逗号分隔"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item label="技能" :label-col="{ span: 2 }">
-              <a-textarea v-model:value="formState.skills" placeholder="如: Go, Java, Docker..." :rows="2" />
+            <a-form-item
+              label="技能"
+              :label-col="{ span: 2 }"
+            >
+              <a-textarea
+                v-model:value="formState.skills"
+                placeholder="如: Go, Java, Docker..."
+                :rows="2"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item label="自我评价" :label-col="{ span: 2 }">
-              <a-textarea v-model:value="formState.summary" placeholder="简要介绍" :rows="3" />
+            <a-form-item
+              label="自我评价"
+              :label-col="{ span: 2 }"
+            >
+              <a-textarea
+                v-model:value="formState.summary"
+                placeholder="简要介绍"
+                :rows="3"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item label="备注" :label-col="{ span: 2 }">
-              <a-textarea v-model:value="formState.remark" :rows="3" />
+            <a-form-item
+              label="备注"
+              :label-col="{ span: 2 }"
+            >
+              <a-textarea
+                v-model:value="formState.remark"
+                :rows="3"
+              />
             </a-form-item>
           </a-col>
         </a-row>
@@ -448,8 +545,16 @@ const columns = [
     </a-modal>
 
     <!-- 简历预览 Drawer -->
-    <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
-      <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
+    <a-drawer
+      v-model:open="resumeDrawer.visible"
+      title="简历预览"
+      width="700px"
+    >
+      <iframe
+        v-if="resumeDrawer.url"
+        :src="resumeDrawer.url"
+        class="w-full h-[80vh] border-none"
+      />
     </a-drawer>
 
     <!-- 推荐到岗位 Modal -->
@@ -457,8 +562,8 @@ const columns = [
       v-model:open="recommendModal.visible"
       title="推荐到岗位"
       :confirm-loading="recommendModal.submitting"
-      @ok="submitRecommend"
       width="480px"
+      @ok="submitRecommend"
     >
       <a-form :label-col="{ span: 4 }">
         <a-form-item label="目标岗位">
@@ -468,7 +573,14 @@ const columns = [
             show-search
             :filter-option="(input: string, option?: SelectOption) => option?.title?.toLowerCase().includes(input.toLowerCase()) ?? false"
           >
-            <a-select-option v-for="j in jobOptions" :key="j.id" :value="j.id" :title="j.title">{{ j.title }}</a-select-option>
+            <a-select-option
+              v-for="j in jobOptions"
+              :key="j.id"
+              :value="j.id"
+              :title="j.title"
+            >
+              {{ j.title }}
+            </a-select-option>
           </a-select>
         </a-form-item>
       </a-form>
@@ -486,7 +598,10 @@ const columns = [
       <!-- 配置区域 -->
       <div v-if="!batchUploadModal.uploading">
         <a-form :label-col="{ span: 4 }">
-          <a-form-item label="简历来源" required>
+          <a-form-item
+            label="简历来源"
+            required
+          >
             <a-select
               v-model:value="batchUploadModal.source"
               :options="RESUME_SOURCE_OPTIONS"
@@ -511,7 +626,10 @@ const columns = [
         </a-form>
 
         <!-- 文件列表 -->
-        <div v-if="batchUploadModal.fileList.length > 0" class="mb-4">
+        <div
+          v-if="batchUploadModal.fileList.length > 0"
+          class="mb-4"
+        >
           <div class="text-sm text-gray-500 mb-2">
             已选择 {{ batchUploadModal.fileList.length }} 个文件：
           </div>
@@ -521,14 +639,19 @@ const columns = [
             class="flex items-center justify-between py-1 px-2 bg-gray-50 rounded mb-1"
           >
             <span class="text-sm truncate flex-1">{{ item.fileName }}</span>
-            <span class="text-red-400 text-xs cursor-pointer ml-2 shrink-0" @click="removeBatchFile(item.uid)">
+            <span
+              class="text-red-400 text-xs cursor-pointer ml-2 shrink-0"
+              @click="removeBatchFile(item.uid)"
+            >
               移除
             </span>
           </div>
         </div>
 
         <div class="flex justify-end gap-2">
-          <a-button @click="closeBatchUploadModal">取消</a-button>
+          <a-button @click="closeBatchUploadModal">
+            取消
+          </a-button>
           <a-button
             type="primary"
             :disabled="batchUploadModal.fileList.length === 0"
@@ -549,15 +672,45 @@ const columns = [
           :key="item.uid"
           class="flex items-center gap-2 py-2 px-3 border-b last:border-b-0"
         >
-          <span class="text-sm truncate flex-1" :title="item.fileName">{{ item.fileName }}</span>
-          <a-tag v-if="item.status === 'waiting'" color="default">等待中</a-tag>
-          <a-tag v-else-if="item.status === 'uploading'" color="processing">上传中</a-tag>
-          <a-tag v-else-if="item.status === 'parsing'" color="blue">
+          <span
+            class="text-sm truncate flex-1"
+            :title="item.fileName"
+          >{{ item.fileName }}</span>
+          <a-tag
+            v-if="item.status === 'waiting'"
+            color="default"
+          >
+            等待中
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'uploading'"
+            color="processing"
+          >
+            上传中
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'parsing'"
+            color="blue"
+          >
             <span class="animate-pulse">解析中</span>
           </a-tag>
-          <a-tag v-else-if="item.status === 'success'" color="success">成功</a-tag>
-          <a-tag v-else-if="item.status === 'failed'" color="error">失败</a-tag>
-          <span v-if="item.errorMsg" class="text-xs text-red-400 truncate max-w-[200px]" :title="item.errorMsg">
+          <a-tag
+            v-else-if="item.status === 'success'"
+            color="success"
+          >
+            成功
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'failed'"
+            color="error"
+          >
+            失败
+          </a-tag>
+          <span
+            v-if="item.errorMsg"
+            class="text-xs text-red-400 truncate max-w-[200px]"
+            :title="item.errorMsg"
+          >
             {{ item.errorMsg }}
           </span>
         </div>

@@ -16,5 +16,7 @@ const color = computed(() => {
 </script>
 
 <template>
-  <a-tag :color="color">{{ label }}</a-tag>
+  <a-tag :color="color">
+    {{ label }}
+  </a-tag>
 </template>

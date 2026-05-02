@@ -100,12 +100,17 @@ function renderMarkdown(text: string): string {
             <!-- 基本信息卡片 -->
             <div class="bg-white border border-border rounded-md p-6 mb-4">
               <div class="flex items-center gap-2">
-                <h1 class="m-0 text-[28px] font-semibold text-text-primary leading-[42px]">{{ detail.title ?? '-' }}</h1>
-                <span class="text-xs px-2 py-0.5 rounded-sm shrink-0 border"
+                <h1 class="m-0 text-[28px] font-semibold text-text-primary leading-[42px]">
+                  {{ detail.title ?? '-' }}
+                </h1>
+                <span
+                  class="text-xs px-2 py-0.5 rounded-sm shrink-0 border"
                   :class="detail.status === 1 ? 'text-green-500 bg-green-50/80 border-green-200' : detail.status === 2 ? 'text-red-500 bg-red-50 border-red-200' : 'text-blue-500 bg-blue-50 border-blue-200'"
                 >{{ statusLabel(detail.status) }}</span>
               </div>
-              <div class="text-accent text-xl font-medium my-2">{{ detail.salaryShow || '--' }}</div>
+              <div class="text-accent text-xl font-medium my-2">
+                {{ detail.salaryShow || '--' }}
+              </div>
               <div class="flex flex-wrap gap-2 mb-4">
                 <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-text-secondary">{{ detail.recruitType === 'experienced' ? '社招' : detail.recruitType === 'campus' ? '校招' : '--' }}</span>
                 <span class="text-sm px-2.5 py-[3px] bg-bg-page rounded-sm text-text-secondary">{{ detail.jobNature === 'fulltime' ? '全职' : detail.jobNature === 'parttime' ? '兼职' : detail.jobNature === 'intern' ? '实习' : '--' }}</span>
@@ -124,41 +129,75 @@ function renderMarkdown(text: string): string {
                   class="h-11 px-8 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                   :disabled="applying || detail.status !== 1"
                   @click="handleApply"
-                >{{ applying ? '投递中...' : detail.status === 1 ? '投递简历' : '该岗位已关闭' }}</button>
-                <span v-if="detail.pv" class="text-sm text-text-muted">{{ detail.pv }} 次浏览</span>
+                >
+                  {{ applying ? '投递中...' : detail.status === 1 ? '投递简历' : '该岗位已关闭' }}
+                </button>
+                <span
+                  v-if="detail.pv"
+                  class="text-sm text-text-muted"
+                >{{ detail.pv }} 次浏览</span>
               </div>
             </div>
 
             <!-- 岗位描述 -->
-            <div v-if="detail.description" class="bg-white border border-border rounded-md p-6 mb-4">
-              <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">岗位描述</div>
-              <div class="markdown-body text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.description)" />
+            <div
+              v-if="detail.description"
+              class="bg-white border border-border rounded-md p-6 mb-4"
+            >
+              <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">
+                岗位描述
+              </div>
+              <div
+                class="markdown-body text-text-secondary text-sm leading-[22px] break-words"
+                v-html="renderMarkdown(detail.description)"
+              />
             </div>
 
             <!-- 岗位要求 -->
-            <div v-if="detail.requirement" class="bg-white border border-border rounded-md p-6 mb-4">
-              <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">岗位要求</div>
-              <div class="markdown-body text-text-secondary text-sm leading-[22px] break-words" v-html="renderMarkdown(detail.requirement)" />
+            <div
+              v-if="detail.requirement"
+              class="bg-white border border-border rounded-md p-6 mb-4"
+            >
+              <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">
+                岗位要求
+              </div>
+              <div
+                class="markdown-body text-text-secondary text-sm leading-[22px] break-words"
+                v-html="renderMarkdown(detail.requirement)"
+              />
             </div>
           </div>
 
           <!-- 右栏：相关岗位 -->
           <div class="w-[280px] shrink-0 sticky top-16 max-h-[calc(100vh-80px)] overflow-y-auto">
-            <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">相关岗位</div>
+            <div class="font-medium text-base text-text-primary mb-4 pb-2 border-b border-border">
+              相关岗位
+            </div>
             <div class="flex flex-col gap-4">
-              <JobCard v-for="item in recommendList" :key="item.id" :record="item" />
+              <JobCard
+                v-for="item in recommendList"
+                :key="item.id"
+                :record="item"
+              />
             </div>
           </div>
         </div>
       </template>
 
-      <div v-else-if="!loading" class="flex flex-col items-center py-20">
-        <p class="text-text-muted">职位不存在</p>
+      <div
+        v-else-if="!loading"
+        class="flex flex-col items-center py-20"
+      >
+        <p class="text-text-muted">
+          职位不存在
+        </p>
       </div>
     </a-spin>
 
     <div class="mt-4 text-center">
-      <a-button @click="router.back()">返回</a-button>
+      <a-button @click="router.back()">
+        返回
+      </a-button>
     </div>
   </div>
 </template>

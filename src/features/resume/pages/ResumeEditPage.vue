@@ -219,58 +219,135 @@ function openPreview() {
   <div class="max-w-[800px] mx-auto">
     <!-- Header -->
     <div class="mb-6">
-      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">我的简历</h2>
+      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">
+        我的简历
+      </h2>
     </div>
 
     <a-spin :spinning="loading">
       <div class="bg-white rounded-xl border border-border-light p-6">
         <!-- ====== 基本信息 ====== -->
         <div class="mb-8">
-          <h3 class="text-base font-semibold text-text-primary m-0 mb-5 pb-2 border-b border-border-light">基本信息</h3>
+          <h3 class="text-base font-semibold text-text-primary m-0 mb-5 pb-2 border-b border-border-light">
+            基本信息
+          </h3>
 
           <!-- 头像 -->
           <div class="flex items-center gap-4 mb-4">
             <div class="w-16 h-16 rounded-full border-2 border-border overflow-hidden shrink-0 bg-bg-page flex items-center justify-center">
-              <img v-if="coverPreview" :src="coverPreview" class="w-full h-full object-cover" />
-              <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <img
+                v-if="coverPreview"
+                :src="coverPreview"
+                class="w-full h-full object-cover"
+              >
+              <svg
+                v-else
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c4c9d4"
+                stroke-width="1.5"
+              ><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle
+                cx="12"
+                cy="7"
+                r="4"
+              /></svg>
             </div>
             <div>
-              <a-upload :before-upload="handleCoverUpload" :show-upload-list="false" accept="image/*">
-                <a-button size="small">上传照片</a-button>
+              <a-upload
+                :before-upload="handleCoverUpload"
+                :show-upload-list="false"
+                accept="image/*"
+              >
+                <a-button size="small">
+                  上传照片
+                </a-button>
               </a-upload>
-              <p class="text-xs text-text-muted m-0 mt-1">支持 PNG/JPG，小于 4MB</p>
+              <p class="text-xs text-text-muted m-0 mt-1">
+                支持 PNG/JPG，小于 4MB
+              </p>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">姓名 <span class="text-accent">*</span></label>
-              <a-input v-model:value="base.name" placeholder="请输入姓名" />
+              <a-input
+                v-model:value="base.name"
+                placeholder="请输入姓名"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">性别 <span class="text-accent">*</span></label>
-              <a-select v-model:value="base.sex" placeholder="请选择" allow-clear :options="SEX_OPTIONS" />
+              <a-select
+                v-model:value="base.sex"
+                placeholder="请选择"
+                allow-clear
+                :options="SEX_OPTIONS"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">出生日期 <span class="text-accent">*</span></label>
-              <a-date-picker v-model:value="base.birthday" value-format="YYYY-MM-DD" placeholder="选择出生日期" class="w-full" />
+              <a-date-picker
+                v-model:value="base.birthday"
+                value-format="YYYY-MM-DD"
+                placeholder="选择出生日期"
+                class="w-full"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">手机号 <span class="text-accent">*</span></label>
-              <a-input v-model:value="base.mobile" placeholder="请输入手机号" />
+              <a-input
+                v-model:value="base.mobile"
+                placeholder="请输入手机号"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">邮箱 <span class="text-accent">*</span></label>
-              <a-input v-model:value="base.email" placeholder="请输入邮箱" />
+              <a-input
+                v-model:value="base.email"
+                placeholder="请输入邮箱"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">简历附件</label>
               <div class="flex items-center gap-2">
-                <a-upload :before-upload="handleRawUpload" :show-upload-list="false" accept=".pdf,.doc,.docx">
-                  <a-button><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1 inline-block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>选择文件</a-button>
+                <a-upload
+                  :before-upload="handleRawUpload"
+                  :show-upload-list="false"
+                  accept=".pdf,.doc,.docx"
+                >
+                  <a-button>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="mr-1 inline-block"
+                    ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line
+                      x1="12"
+                      y1="3"
+                      x2="12"
+                      y2="15"
+                    /></svg>选择文件
+                  </a-button>
                 </a-upload>                <span class="text-xs text-text-muted">docx 或 pdf</span>
-                <a v-if="base.raw" class="text-primary text-sm cursor-pointer hover:underline" @click.prevent="openPreview">预览简历</a>
-                <a v-if="base.raw" :href="`/api/staticfiles/resume/${base.raw}`" target="_blank" class="text-primary text-sm hover:underline">下载</a>
+                <a
+                  v-if="base.raw"
+                  class="text-primary text-sm cursor-pointer hover:underline"
+                  @click.prevent="openPreview"
+                >预览简历</a>
+                <a
+                  v-if="base.raw"
+                  :href="`/api/staticfiles/resume/${base.raw}`"
+                  target="_blank"
+                  class="text-primary text-sm hover:underline"
+                >下载</a>
               </div>
             </div>
           </div>
@@ -278,97 +355,215 @@ function openPreview() {
 
         <!-- ====== 扩展信息 ====== -->
         <div>
-          <h3 class="text-base font-semibold text-text-primary m-0 mb-5 pb-2 border-b border-border-light">扩展信息</h3>
+          <h3 class="text-base font-semibold text-text-primary m-0 mb-5 pb-2 border-b border-border-light">
+            扩展信息
+          </h3>
 
           <!-- 教育经历 -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-text-primary mb-2">教育经历</label>
-            <div v-for="(edu, i) in eduList" :key="i" class="bg-bg-page border border-border-light rounded-lg p-3 mb-2">
+            <div
+              v-for="(edu, i) in eduList"
+              :key="i"
+              class="bg-bg-page border border-border-light rounded-lg p-3 mb-2"
+            >
               <div class="flex flex-wrap gap-2 items-center">
-                <a-input v-model:value="edu.school" placeholder="学校" class="w-[160px]" />
-                <a-select v-model:value="edu.degree" placeholder="学历" class="w-[100px]" allow-clear>
-                  <a-select-option v-for="d in degreeOptions" :key="d" :value="d">{{ d }}</a-select-option>
+                <a-input
+                  v-model:value="edu.school"
+                  placeholder="学校"
+                  class="w-[160px]"
+                />
+                <a-select
+                  v-model:value="edu.degree"
+                  placeholder="学历"
+                  class="w-[100px]"
+                  allow-clear
+                >
+                  <a-select-option
+                    v-for="d in degreeOptions"
+                    :key="d"
+                    :value="d"
+                  >
+                    {{ d }}
+                  </a-select-option>
                 </a-select>
-                <a-input v-model:value="edu.major" placeholder="专业" class="w-[120px]" />
-                <a-date-picker v-model:value="edu.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[120px]" />
+                <a-input
+                  v-model:value="edu.major"
+                  placeholder="专业"
+                  class="w-[120px]"
+                />
+                <a-date-picker
+                  v-model:value="edu.start"
+                  picker="month"
+                  value-format="YYYY-MM"
+                  placeholder="开始"
+                  class="w-[120px]"
+                />
                 <span class="text-text-muted text-sm">至</span>
-                <a-date-picker v-model:value="edu.end" picker="month" value-format="YYYY-MM" placeholder="结束" class="w-[120px]" />
-                <span class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600" @click="eduList.splice(i, 1)">删除</span>
+                <a-date-picker
+                  v-model:value="edu.end"
+                  picker="month"
+                  value-format="YYYY-MM"
+                  placeholder="结束"
+                  class="w-[120px]"
+                />
+                <span
+                  class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600"
+                  @click="eduList.splice(i, 1)"
+                >删除</span>
               </div>
             </div>
             <button
               class="bg-transparent border border-dashed border-primary text-primary px-4 py-1 rounded text-sm cursor-pointer hover:bg-primary-light transition-colors"
               @click="eduList.push({ school: '', major: '', degree: '', start: '', end: '' })"
-            >+ 添加教育经历</button>
+            >
+              + 添加教育经历
+            </button>
           </div>
 
           <!-- 工作经历 -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-text-primary mb-2">工作经历</label>
-            <div v-for="(exp, i) in expList" :key="i" class="bg-bg-page border border-border-light rounded-lg p-3 mb-2">
+            <div
+              v-for="(exp, i) in expList"
+              :key="i"
+              class="bg-bg-page border border-border-light rounded-lg p-3 mb-2"
+            >
               <div class="flex flex-wrap gap-2 items-center">
-                <a-input v-model:value="exp.company" placeholder="公司名称" class="w-[160px]" />
-                <a-input v-model:value="exp.position" placeholder="职位" class="w-[120px]" />
-                <a-date-picker v-model:value="exp.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[120px]" />
+                <a-input
+                  v-model:value="exp.company"
+                  placeholder="公司名称"
+                  class="w-[160px]"
+                />
+                <a-input
+                  v-model:value="exp.position"
+                  placeholder="职位"
+                  class="w-[120px]"
+                />
+                <a-date-picker
+                  v-model:value="exp.start"
+                  picker="month"
+                  value-format="YYYY-MM"
+                  placeholder="开始"
+                  class="w-[120px]"
+                />
                 <span class="text-text-muted text-sm">至</span>
-                <a-date-picker v-model:value="exp.end" picker="month" value-format="YYYY-MM" placeholder="结束" class="w-[120px]" />
-                <span class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600" @click="expList.splice(i, 1)">删除</span>
+                <a-date-picker
+                  v-model:value="exp.end"
+                  picker="month"
+                  value-format="YYYY-MM"
+                  placeholder="结束"
+                  class="w-[120px]"
+                />
+                <span
+                  class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600"
+                  @click="expList.splice(i, 1)"
+                >删除</span>
               </div>
             </div>
             <button
               class="bg-transparent border border-dashed border-primary text-primary px-4 py-1 rounded text-sm cursor-pointer hover:bg-primary-light transition-colors"
               @click="expList.push({ company: '', position: '', start: '', end: '' })"
-            >+ 添加工作经历</button>
+            >
+              + 添加工作经历
+            </button>
           </div>
 
           <!-- 项目经验 -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-text-primary mb-2">项目经验</label>
-            <div v-for="(proj, i) in projList" :key="i" class="bg-bg-page border border-border-light rounded-lg p-3 mb-2">
+            <div
+              v-for="(proj, i) in projList"
+              :key="i"
+              class="bg-bg-page border border-border-light rounded-lg p-3 mb-2"
+            >
               <div class="flex flex-wrap gap-2 items-center mb-2">
-                <a-input v-model:value="proj.name" placeholder="项目名称" class="w-[160px]" />
-                <a-input v-model:value="proj.role" placeholder="担任角色" class="w-[120px]" />
-                <span class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600" @click="projList.splice(i, 1)">删除</span>
+                <a-input
+                  v-model:value="proj.name"
+                  placeholder="项目名称"
+                  class="w-[160px]"
+                />
+                <a-input
+                  v-model:value="proj.role"
+                  placeholder="担任角色"
+                  class="w-[120px]"
+                />
+                <span
+                  class="text-red-500 text-sm cursor-pointer shrink-0 hover:text-red-600"
+                  @click="projList.splice(i, 1)"
+                >删除</span>
               </div>
-              <a-textarea v-model:value="proj.description" placeholder="项目描述（选填）" :rows="2" />
+              <a-textarea
+                v-model:value="proj.description"
+                placeholder="项目描述（选填）"
+                :rows="2"
+              />
             </div>
             <button
               class="bg-transparent border border-dashed border-primary text-primary px-4 py-1 rounded text-sm cursor-pointer hover:bg-primary-light transition-colors"
               @click="projList.push({ name: '', role: '', description: '' })"
-            >+ 添加项目经验</button>
+            >
+              + 添加项目经验
+            </button>
           </div>
 
           <!-- 技能 -->
           <div class="mb-4">
             <label class="block text-sm font-medium text-text-primary mb-1">技能</label>
-            <a-textarea v-model:value="ext.skills" placeholder="如: Go, Java, Docker, K8s..." :rows="2" class="max-w-xl" />
+            <a-textarea
+              v-model:value="ext.skills"
+              placeholder="如: Go, Java, Docker, K8s..."
+              :rows="2"
+              class="max-w-xl"
+            />
           </div>
 
           <!-- 自我评价 -->
           <div class="mb-4">
             <label class="block text-sm font-medium text-text-primary mb-1">自我评价</label>
-            <a-textarea v-model:value="ext.summary" placeholder="简要介绍自己的优势和特点" :rows="3" class="max-w-xl" />
+            <a-textarea
+              v-model:value="ext.summary"
+              placeholder="简要介绍自己的优势和特点"
+              :rows="3"
+              class="max-w-xl"
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-x-6 gap-y-4 max-w-xl">
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">期望薪资</label>
-              <a-input v-model:value="ext.expectedSalary" placeholder="如: 15K-20K" />
+              <a-input
+                v-model:value="ext.expectedSalary"
+                placeholder="如: 15K-20K"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">求职意向</label>
-              <a-input v-model:value="ext.jobIntention" placeholder="如: 后端开发" />
+              <a-input
+                v-model:value="ext.jobIntention"
+                placeholder="如: 后端开发"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-text-primary mb-1">来源渠道</label>
-              <a-select v-model:value="ext.source" placeholder="请选择" allow-clear :options="RESUME_SOURCE_OPTIONS" />
+              <a-select
+                v-model:value="ext.source"
+                placeholder="请选择"
+                allow-clear
+                :options="RESUME_SOURCE_OPTIONS"
+              />
             </div>
           </div>
         </div>
 
         <!-- Save -->
         <div class="mt-8 pt-4 border-t border-border-light">
-          <a-button type="primary" size="large" :loading="saving" @click="handleSave">
+          <a-button
+            type="primary"
+            size="large"
+            :loading="saving"
+            @click="handleSave"
+          >
             保存简历
           </a-button>
         </div>
@@ -388,7 +583,10 @@ function openPreview() {
         :src="`/api/staticfiles/resume/${base.raw}`"
         style="width:100%; height:75vh; border:none;"
       />
-      <a-empty v-else description="暂无简历附件" />
+      <a-empty
+        v-else
+        description="暂无简历附件"
+      />
     </a-drawer>
   </div>
 </template>

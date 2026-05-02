@@ -233,8 +233,17 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索简历" class="w-60" allow-clear />
-        <a-button v-permission="PermissionCode.RESUME_CREATE" type="primary" @click="openCreate">
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索简历"
+          class="w-60"
+          allow-clear
+        />
+        <a-button
+          v-permission="PermissionCode.RESUME_CREATE"
+          type="primary"
+          @click="openCreate"
+        >
           新增简历
         </a-button>
         <a-popconfirm
@@ -242,7 +251,10 @@ const columns = [
           title="确认批量删除选中的简历？"
           @confirm="batchDelete"
         >
-          <a-button v-permission="PermissionCode.RESUME_DELETE" danger>
+          <a-button
+            v-permission="PermissionCode.RESUME_DELETE"
+            danger
+          >
             批量删除 ({{ selectedRowKeys.length }})
           </a-button>
         </a-popconfirm>
@@ -257,19 +269,37 @@ const columns = [
       :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="handlePageChange"
       :scroll="{ x: 'max-content' }"
+      @change="handlePageChange"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
-          <a-button v-if="record.raw" type="link" size="small" @click="openPreview(record.raw)">
+          <a-button
+            v-if="record.raw"
+            type="link"
+            size="small"
+            @click="openPreview(record.raw)"
+          >
             预览
           </a-button>
-          <a-button v-permission="PermissionCode.RESUME_UPDATE" type="link" size="small" @click="openEdit(record)">
+          <a-button
+            v-permission="PermissionCode.RESUME_UPDATE"
+            type="link"
+            size="small"
+            @click="openEdit(record)"
+          >
             编辑
           </a-button>
-          <a-popconfirm title="确认删除该简历？" @confirm="handleDelete(record.id)">
-            <a-button v-permission="PermissionCode.RESUME_DELETE" type="link" size="small" danger>
+          <a-popconfirm
+            title="确认删除该简历？"
+            @confirm="handleDelete(record.id)"
+          >
+            <a-button
+              v-permission="PermissionCode.RESUME_DELETE"
+              type="link"
+              size="small"
+              danger
+            >
               删除
             </a-button>
           </a-popconfirm>
@@ -278,30 +308,59 @@ const columns = [
     </a-table>
 
     <!-- 新增/编辑弹窗 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" width="880px">
+    <a-modal
+      v-model:open="modalVisible"
+      :title="modalTitle"
+      width="880px"
+      @ok="handleSubmit"
+    >
       <a-form :label-col="{ span: 4 }">
         <!-- 基本信息 -->
         <div class="flex items-center gap-4 mb-4 ml-[16.67%]">
           <div class="w-14 h-14 rounded-full border-2 border-gray-200 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center">
-            <img v-if="coverPreview" :src="coverPreview" class="w-full h-full object-cover" />
-            <span v-else class="text-gray-300 text-2xl">👤</span>
+            <img
+              v-if="coverPreview"
+              :src="coverPreview"
+              class="w-full h-full object-cover"
+            >
+            <span
+              v-else
+              class="text-gray-300 text-2xl"
+            >👤</span>
           </div>
           <div>
-            <a-upload :before-upload="handleCoverUpload" :show-upload-list="false" accept="image/*">
-              <a-button size="small">上传照片</a-button>
+            <a-upload
+              :before-upload="handleCoverUpload"
+              :show-upload-list="false"
+              accept="image/*"
+            >
+              <a-button size="small">
+                上传照片
+              </a-button>
             </a-upload>
           </div>
         </div>
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item label="姓名" required>
-              <a-input v-model:value="formState.name" placeholder="请输入姓名" />
+            <a-form-item
+              label="姓名"
+              required
+            >
+              <a-input
+                v-model:value="formState.name"
+                placeholder="请输入姓名"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="性别">
-              <a-select v-model:value="formState.sex" :options="SEX_OPTIONS" allow-clear placeholder="请选择" />
+              <a-select
+                v-model:value="formState.sex"
+                :options="SEX_OPTIONS"
+                allow-clear
+                placeholder="请选择"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -316,22 +375,40 @@ const columns = [
           </a-col>
           <a-col :span="12">
             <a-form-item label="手机">
-              <a-input v-model:value="formState.mobile" placeholder="请输入手机号" />
+              <a-input
+                v-model:value="formState.mobile"
+                placeholder="请输入手机号"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="邮箱">
-              <a-input v-model:value="formState.email" placeholder="请输入邮箱" />
+              <a-input
+                v-model:value="formState.email"
+                placeholder="请输入邮箱"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="简历附件">
               <div class="flex items-center gap-2">
-                <a-upload :before-upload="handleRawUpload" :show-upload-list="false" accept=".pdf,.doc,.docx">
-                  <a-button size="small">选择文件</a-button>
+                <a-upload
+                  :before-upload="handleRawUpload"
+                  :show-upload-list="false"
+                  accept=".pdf,.doc,.docx"
+                >
+                  <a-button size="small">
+                    选择文件
+                  </a-button>
                 </a-upload>
-                <span v-if="rawFile" class="text-xs text-gray-500">{{ rawFile.name }}</span>
-                <span v-else-if="formState.raw" class="text-xs text-gray-500">已上传</span>
+                <span
+                  v-if="rawFile"
+                  class="text-xs text-gray-500"
+                >{{ rawFile.name }}</span>
+                <span
+                  v-else-if="formState.raw"
+                  class="text-xs text-gray-500"
+                >已上传</span>
               </div>
             </a-form-item>
           </a-col>
@@ -339,50 +416,146 @@ const columns = [
 
         <!-- 教育经历 -->
         <a-divider>教育经历</a-divider>
-        <div v-for="(edu, i) in eduList" :key="i" class="bg-gray-50 rounded p-3 mb-2">
+        <div
+          v-for="(edu, i) in eduList"
+          :key="i"
+          class="bg-gray-50 rounded p-3 mb-2"
+        >
           <div class="flex flex-wrap gap-2 items-center">
-            <a-input v-model:value="edu.school" placeholder="学校" class="w-[140px]" />
-            <a-select v-model:value="edu.degree" placeholder="学历" class="w-[100px]" allow-clear>
-              <a-select-option v-for="d in degreeOptions" :key="d" :value="d">{{ d }}</a-select-option>
+            <a-input
+              v-model:value="edu.school"
+              placeholder="学校"
+              class="w-[140px]"
+            />
+            <a-select
+              v-model:value="edu.degree"
+              placeholder="学历"
+              class="w-[100px]"
+              allow-clear
+            >
+              <a-select-option
+                v-for="d in degreeOptions"
+                :key="d"
+                :value="d"
+              >
+                {{ d }}
+              </a-select-option>
             </a-select>
-            <a-input v-model:value="edu.major" placeholder="专业" class="w-[110px]" />
-            <a-date-picker v-model:value="edu.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[110px]" />
+            <a-input
+              v-model:value="edu.major"
+              placeholder="专业"
+              class="w-[110px]"
+            />
+            <a-date-picker
+              v-model:value="edu.start"
+              picker="month"
+              value-format="YYYY-MM"
+              placeholder="开始"
+              class="w-[110px]"
+            />
             <span class="text-gray-400 text-sm">至</span>
-            <a-date-picker v-model:value="edu.end" picker="month" value-format="YYYY-MM" placeholder="结束" class="w-[110px]" />
-            <span class="text-red-500 text-sm cursor-pointer shrink-0" @click="eduList.splice(i, 1)">删除</span>
+            <a-date-picker
+              v-model:value="edu.end"
+              picker="month"
+              value-format="YYYY-MM"
+              placeholder="结束"
+              class="w-[110px]"
+            />
+            <span
+              class="text-red-500 text-sm cursor-pointer shrink-0"
+              @click="eduList.splice(i, 1)"
+            >删除</span>
           </div>
         </div>
-        <a-button type="dashed" block @click="eduList.push({ school: '', major: '', degree: '', start: '', end: '' })">
+        <a-button
+          type="dashed"
+          block
+          @click="eduList.push({ school: '', major: '', degree: '', start: '', end: '' })"
+        >
           + 添加教育经历
         </a-button>
 
         <!-- 工作经历 -->
         <a-divider>工作经历</a-divider>
-        <div v-for="(exp, i) in expList" :key="i" class="bg-gray-50 rounded p-3 mb-2">
+        <div
+          v-for="(exp, i) in expList"
+          :key="i"
+          class="bg-gray-50 rounded p-3 mb-2"
+        >
           <div class="flex flex-wrap gap-2 items-center">
-            <a-input v-model:value="exp.company" placeholder="公司名称" class="w-[140px]" />
-            <a-input v-model:value="exp.position" placeholder="职位" class="w-[110px]" />
-            <a-date-picker v-model:value="exp.start" picker="month" value-format="YYYY-MM" placeholder="开始" class="w-[110px]" />
+            <a-input
+              v-model:value="exp.company"
+              placeholder="公司名称"
+              class="w-[140px]"
+            />
+            <a-input
+              v-model:value="exp.position"
+              placeholder="职位"
+              class="w-[110px]"
+            />
+            <a-date-picker
+              v-model:value="exp.start"
+              picker="month"
+              value-format="YYYY-MM"
+              placeholder="开始"
+              class="w-[110px]"
+            />
             <span class="text-gray-400 text-sm">至</span>
-            <a-date-picker v-model:value="exp.end" picker="month" value-format="YYYY-MM" placeholder="结束" class="w-[110px]" />
-            <span class="text-red-500 text-sm cursor-pointer shrink-0" @click="expList.splice(i, 1)">删除</span>
+            <a-date-picker
+              v-model:value="exp.end"
+              picker="month"
+              value-format="YYYY-MM"
+              placeholder="结束"
+              class="w-[110px]"
+            />
+            <span
+              class="text-red-500 text-sm cursor-pointer shrink-0"
+              @click="expList.splice(i, 1)"
+            >删除</span>
           </div>
         </div>
-        <a-button type="dashed" block @click="expList.push({ company: '', position: '', start: '', end: '' })">
+        <a-button
+          type="dashed"
+          block
+          @click="expList.push({ company: '', position: '', start: '', end: '' })"
+        >
           + 添加工作经历
         </a-button>
 
         <!-- 项目经历 -->
         <a-divider>项目经历</a-divider>
-        <div v-for="(proj, i) in projList" :key="i" class="bg-gray-50 rounded p-3 mb-2">
+        <div
+          v-for="(proj, i) in projList"
+          :key="i"
+          class="bg-gray-50 rounded p-3 mb-2"
+        >
           <div class="flex flex-wrap gap-2 items-center mb-2">
-            <a-input v-model:value="proj.name" placeholder="项目名称" class="w-[140px]" />
-            <a-input v-model:value="proj.role" placeholder="担任角色" class="w-[110px]" />
-            <span class="text-red-500 text-sm cursor-pointer shrink-0" @click="projList.splice(i, 1)">删除</span>
+            <a-input
+              v-model:value="proj.name"
+              placeholder="项目名称"
+              class="w-[140px]"
+            />
+            <a-input
+              v-model:value="proj.role"
+              placeholder="担任角色"
+              class="w-[110px]"
+            />
+            <span
+              class="text-red-500 text-sm cursor-pointer shrink-0"
+              @click="projList.splice(i, 1)"
+            >删除</span>
           </div>
-          <a-textarea v-model:value="proj.description" placeholder="项目描述（选填）" :rows="2" />
+          <a-textarea
+            v-model:value="proj.description"
+            placeholder="项目描述（选填）"
+            :rows="2"
+          />
         </div>
-        <a-button type="dashed" block @click="projList.push({ name: '', role: '', description: '' })">
+        <a-button
+          type="dashed"
+          block
+          @click="projList.push({ name: '', role: '', description: '' })"
+        >
           + 添加项目经历
         </a-button>
 
@@ -391,33 +564,69 @@ const columns = [
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item label="期望薪资">
-              <a-input v-model:value="ext.expectedSalary" placeholder="如 15K-20K" />
+              <a-input
+                v-model:value="ext.expectedSalary"
+                placeholder="如 15K-20K"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="求职意向">
-              <a-input v-model:value="ext.jobIntention" placeholder="如 后端开发" />
+              <a-input
+                v-model:value="ext.jobIntention"
+                placeholder="如 后端开发"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item label="来源">
-              <a-select v-model:value="ext.source" :options="RESUME_SOURCE_OPTIONS" allow-clear placeholder="请选择来源" />
+              <a-select
+                v-model:value="ext.source"
+                :options="RESUME_SOURCE_OPTIONS"
+                allow-clear
+                placeholder="请选择来源"
+              />
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item label="技能" :label-col="{ span: 4 }">
-          <a-textarea v-model:value="ext.skills" placeholder="如: Go, Java, Docker..." :rows="2" />
+        <a-form-item
+          label="技能"
+          :label-col="{ span: 4 }"
+        >
+          <a-textarea
+            v-model:value="ext.skills"
+            placeholder="如: Go, Java, Docker..."
+            :rows="2"
+          />
         </a-form-item>
-        <a-form-item label="自我评价" :label-col="{ span: 4 }">
-          <a-textarea v-model:value="ext.summary" placeholder="简要介绍自己的优势和特点" :rows="3" />
+        <a-form-item
+          label="自我评价"
+          :label-col="{ span: 4 }"
+        >
+          <a-textarea
+            v-model:value="ext.summary"
+            placeholder="简要介绍自己的优势和特点"
+            :rows="3"
+          />
         </a-form-item>
       </a-form>
     </a-modal>
 
     <!-- 简历预览 Drawer -->
-    <a-drawer v-model:open="previewVisible" title="简历预览" width="700px">
-      <iframe v-if="previewUrl" :src="previewUrl" class="w-full h-[80vh] border-none" />
-      <a-empty v-else description="暂无简历附件" />
+    <a-drawer
+      v-model:open="previewVisible"
+      title="简历预览"
+      width="700px"
+    >
+      <iframe
+        v-if="previewUrl"
+        :src="previewUrl"
+        class="w-full h-[80vh] border-none"
+      />
+      <a-empty
+        v-else
+        description="暂无简历附件"
+      />
     </a-drawer>
   </div>
 </template>

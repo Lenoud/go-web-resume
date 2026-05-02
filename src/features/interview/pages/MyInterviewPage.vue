@@ -41,14 +41,22 @@ const resultColor: Record<string, string> = {
 <template>
   <div class="max-w-[800px] mx-auto">
     <div class="mb-6">
-      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">面试通知</h2>
-      <p class="text-[13px] text-text-muted m-0">共 {{ total }} 条面试记录</p>
+      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">
+        面试通知
+      </h2>
+      <p class="text-[13px] text-text-muted m-0">
+        共 {{ total }} 条面试记录
+      </p>
     </div>
 
-    <a-spin :spinning="loading" style="min-height: 200px">
+    <a-spin
+      :spinning="loading"
+      style="min-height: 200px"
+    >
       <div class="flex flex-col gap-3">
         <div
-          v-for="item in list" :key="item.id"
+          v-for="item in list"
+          :key="item.id"
           class="bg-white rounded-xl p-5 border border-border-light transition-shadow hover:shadow-md"
         >
           <div class="flex items-center justify-between mb-3">
@@ -72,15 +80,33 @@ const resultColor: Record<string, string> = {
             <span v-if="item.interviewerName">面试官：{{ item.interviewerName }}</span>
           </div>
 
-          <div v-if="item.scheduledAt" class="flex items-center gap-1.5 mt-2 text-[13px] text-text-muted">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div
+            v-if="item.scheduledAt"
+            class="flex items-center gap-1.5 mt-2 text-[13px] text-text-muted"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ><circle
+              cx="12"
+              cy="12"
+              r="10"
+            /><polyline points="12 6 12 12 16 14" /></svg>
             <span>{{ item.scheduledAt }}</span>
           </div>
 
           <div
             v-if="item.evaluation"
             class="mt-2 p-2 px-3 bg-bg-page rounded-md text-[13px] text-text-secondary leading-relaxed"
-          >{{ item.evaluation }}</div>
+          >
+            {{ item.evaluation }}
+          </div>
         </div>
 
         <!-- Empty -->
@@ -88,14 +114,28 @@ const resultColor: Record<string, string> = {
           v-if="list.length === 0 && !loading"
           class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-border-light"
         >
-          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#d0d5dd" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <svg
+            width="80"
+            height="80"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d0d5dd"
+            stroke-width="0.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <p class="mt-4 text-sm text-text-muted m-0">暂无面试通知</p>
+          <p class="mt-4 text-sm text-text-muted m-0">
+            暂无面试通知
+          </p>
         </div>
       </div>
 
-      <div v-if="total > 0" class="flex justify-center mt-6">
+      <div
+        v-if="total > 0"
+        class="flex justify-center mt-6"
+      >
         <a-pagination
           v-model:current="page"
           v-model:page-size="pageSize"

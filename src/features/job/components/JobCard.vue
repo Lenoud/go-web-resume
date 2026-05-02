@@ -30,7 +30,9 @@ defineProps<{
       <div class="flex-1 min-w-0">
         <h3
           class="text-xl font-semibold text-text-primary m-0 mb-2 overflow-hidden text-ellipsis whitespace-nowrap leading-8 transition-colors"
-        >{{ record.title ?? '-' }}</h3>
+        >
+          {{ record.title ?? '-' }}
+        </h3>
         <div class="flex items-center flex-wrap gap-0">
           <span class="text-sm text-text-secondary leading-[22px]">{{ record.location ?? '-' }}</span>
           <template v-if="record.workExpe">

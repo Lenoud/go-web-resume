@@ -121,8 +121,17 @@ const columns = [
     <!-- 工具栏 -->
     <div class="mb-4 flex items-center justify-between">
       <div class="flex gap-3">
-        <a-input v-model:value="keyword" placeholder="搜索部门" class="w-60" allow-clear />
-        <a-button v-permission="PermissionCode.DEPT_CREATE" type="primary" @click="openCreate">
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索部门"
+          class="w-60"
+          allow-clear
+        />
+        <a-button
+          v-permission="PermissionCode.DEPT_CREATE"
+          type="primary"
+          @click="openCreate"
+        >
           新增部门
         </a-button>
         <a-popconfirm
@@ -130,7 +139,10 @@ const columns = [
           title="确认批量删除选中的部门？"
           @confirm="batchDelete"
         >
-          <a-button v-permission="PermissionCode.DEPT_DELETE" danger>
+          <a-button
+            v-permission="PermissionCode.DEPT_DELETE"
+            danger
+          >
             批量删除 ({{ selectedRowKeys.length }})
           </a-button>
         </a-popconfirm>
@@ -145,19 +157,30 @@ const columns = [
       :row-selection="{ selectedRowKeys, onChange: (keys: (string | number)[]) => selectedRowKeys = keys }"
       row-key="id"
       :pagination="{ current: page, pageSize, total, showSizeChanger: true, showTotal: (t: number) => `共 ${t} 条` }"
-      @change="handlePageChange"
       :scroll="{ x: 'max-content' }"
+      @change="handlePageChange"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'parentName'">
           {{ getParentName(record.parentId) }}
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button v-permission="PermissionCode.DEPT_UPDATE" type="link" @click="openEdit(record)">
+          <a-button
+            v-permission="PermissionCode.DEPT_UPDATE"
+            type="link"
+            @click="openEdit(record)"
+          >
             编辑
           </a-button>
-          <a-popconfirm title="确认删除该部门？" @confirm="handleDelete(record.id)">
-            <a-button v-permission="PermissionCode.DEPT_DELETE" type="link" danger>
+          <a-popconfirm
+            title="确认删除该部门？"
+            @confirm="handleDelete(record.id)"
+          >
+            <a-button
+              v-permission="PermissionCode.DEPT_DELETE"
+              type="link"
+              danger
+            >
               删除
             </a-button>
           </a-popconfirm>
@@ -166,10 +189,20 @@ const columns = [
     </a-table>
 
     <!-- 新增/编辑弹窗 -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit">
+    <a-modal
+      v-model:open="modalVisible"
+      :title="modalTitle"
+      @ok="handleSubmit"
+    >
       <a-form :label-col="{ span: 4 }">
-        <a-form-item label="部门名称" required>
-          <a-input v-model:value="formState.title" placeholder="请输入部门名称" />
+        <a-form-item
+          label="部门名称"
+          required
+        >
+          <a-input
+            v-model:value="formState.title"
+            placeholder="请输入部门名称"
+          />
         </a-form-item>
         <a-form-item label="上级部门">
           <a-tree-select
@@ -182,7 +215,11 @@ const columns = [
           />
         </a-form-item>
         <a-form-item label="描述">
-          <a-textarea v-model:value="formState.description" :rows="3" placeholder="请输入部门描述" />
+          <a-textarea
+            v-model:value="formState.description"
+            :rows="3"
+            placeholder="请输入部门描述"
+          />
         </a-form-item>
       </a-form>
     </a-modal>

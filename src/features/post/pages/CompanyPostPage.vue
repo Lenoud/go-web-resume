@@ -414,8 +414,12 @@ function errorMessage(err: unknown, fallback: string) {
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">投递管理</h2>
-        <p class="text-[13px] text-text-muted m-0">共 {{ total }} 条投递记录</p>
+        <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">
+          投递管理
+        </h2>
+        <p class="text-[13px] text-text-muted m-0">
+          共 {{ total }} 条投递记录
+        </p>
       </div>
     </div>
 
@@ -433,7 +437,10 @@ function errorMessage(err: unknown, fallback: string) {
           :class="{ 'bg-[#f0f5ff] !border-primary': activeStatus === stage.value }"
           @click="activeStatus = activeStatus === stage.value ? 'all' : stage.value"
         >
-          <span class="w-2 h-2 rounded-full shrink-0" :style="{ background: stage.color }" />
+          <span
+            class="w-2 h-2 rounded-full shrink-0"
+            :style="{ background: stage.color }"
+          />
           <span class="text-[13px] text-text-secondary">{{ stage.label }}</span>
           <span class="text-xs font-semibold text-text-primary bg-black/5 px-1.5 py-0.5 rounded-full">
             {{ statusCounts[stage.value] ?? 0 }}
@@ -450,12 +457,27 @@ function errorMessage(err: unknown, fallback: string) {
         allow-clear
         class="w-40"
       >
-        <a-select-option v-for="j in uniqueJobs" :key="j" :value="j">{{ j }}</a-select-option>
+        <a-select-option
+          v-for="j in uniqueJobs"
+          :key="j"
+          :value="j"
+        >
+          {{ j }}
+        </a-select-option>
       </a-select>
-      <a-select v-model:value="activeTimeRange" class="w-28">
-        <a-select-option value="all">全部时间</a-select-option>
-        <a-select-option value="week">本周</a-select-option>
-        <a-select-option value="month">本月</a-select-option>
+      <a-select
+        v-model:value="activeTimeRange"
+        class="w-28"
+      >
+        <a-select-option value="all">
+          全部时间
+        </a-select-option>
+        <a-select-option value="week">
+          本周
+        </a-select-option>
+        <a-select-option value="month">
+          本月
+        </a-select-option>
       </a-select>
       <a-input
         v-model:value="keyword"
@@ -466,10 +488,14 @@ function errorMessage(err: unknown, fallback: string) {
     </div>
 
     <!-- Card List -->
-    <a-spin :spinning="loading" style="min-height: 200px">
+    <a-spin
+      :spinning="loading"
+      style="min-height: 200px"
+    >
       <div class="flex flex-col gap-3">
         <div
-          v-for="item in displayData" :key="item.id"
+          v-for="item in displayData"
+          :key="item.id"
           class="bg-white rounded-xl p-5 border border-border-light transition-shadow hover:shadow-md"
         >
           <!-- Header: name + status -->
@@ -495,7 +521,9 @@ function errorMessage(err: unknown, fallback: string) {
               <span class="text-sm font-medium text-text-primary">{{ item.title || '未知岗位' }}</span>
               <span class="text-xs text-text-muted">{{ item.companyTitle }}</span>
             </div>
-            <div class="text-xs text-text-muted mb-2">投递时间：{{ item.createTime }}</div>
+            <div class="text-xs text-text-muted mb-2">
+              投递时间：{{ item.createTime }}
+            </div>
 
             <!-- Feedback -->
             <div
@@ -518,15 +546,21 @@ function errorMessage(err: unknown, fallback: string) {
               v-if="getStatusLogs(item.id).length > 0"
               class="p-2 px-3 bg-bg-page rounded-md mb-2"
             >
-              <div class="text-xs text-text-muted mb-1">状态流转记录</div>
+              <div class="text-xs text-text-muted mb-1">
+                状态流转记录
+              </div>
               <div
-                v-for="log in getStatusLogs(item.id)" :key="log.id"
+                v-for="log in getStatusLogs(item.id)"
+                :key="log.id"
                 class="text-xs text-text-secondary py-0.5 border-b border-border-light last:border-b-0"
               >
                 <span class="text-text-muted mr-1">{{ log.createTime }}</span>
                 <span class="text-primary font-medium mr-1">{{ log.operatorName || '系统' }}</span>
                 <span class="mr-1">{{ statusLabel(log.fromStatus) }} → {{ statusLabel(log.toStatus) }}</span>
-                <span v-if="log.remark" class="text-text-muted">{{ log.remark }}</span>
+                <span
+                  v-if="log.remark"
+                  class="text-text-muted"
+                >{{ log.remark }}</span>
               </div>
             </div>
 
@@ -538,9 +572,19 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="flex items-center justify-between mt-3 pt-3 border-t border-border-light ml-12">
             <span class="text-xs text-text-muted">{{ statusLabel(item.status) }}</span>
             <div class="flex items-center gap-4">
-              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="openSnapshotDetail(item.resumeSnapshotId)">详情</span>
-              <span class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="handleAddToPool(item)">加入人才库</span>
-              <span v-if="item.raw" class="text-[13px] text-primary cursor-pointer hover:text-primary-hover" @click="resumeDrawer.url = `/api/staticfiles/resume/${item.raw}`; resumeDrawer.visible = true">查看简历</span>
+              <span
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="openSnapshotDetail(item.resumeSnapshotId)"
+              >详情</span>
+              <span
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="handleAddToPool(item)"
+              >加入人才库</span>
+              <span
+                v-if="item.raw"
+                class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
+                @click="resumeDrawer.url = `/api/staticfiles/resume/${item.raw}`; resumeDrawer.visible = true"
+              >查看简历</span>
               <span
                 v-if="isOfferVisible(item.status)"
                 class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
@@ -559,12 +603,17 @@ function errorMessage(err: unknown, fallback: string) {
           v-if="displayData.length === 0 && !loading"
           class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-border-light"
         >
-          <p class="text-sm text-text-muted m-0">暂无投递记录</p>
+          <p class="text-sm text-text-muted m-0">
+            暂无投递记录
+          </p>
         </div>
       </div>
 
       <!-- Pagination -->
-      <div v-if="total > 0" class="flex justify-center mt-6">
+      <div
+        v-if="total > 0"
+        class="flex justify-center mt-6"
+      >
         <a-pagination
           v-model:current="page"
           v-model:page-size="pageSize"
@@ -580,13 +629,22 @@ function errorMessage(err: unknown, fallback: string) {
       v-model:open="processModal.visible"
       title="处理投递"
       :confirm-loading="processModal.submitting"
-      @ok="submitProcess"
       width="560px"
+      @ok="submitProcess"
     >
       <div class="mb-3">
-        <div class="text-sm font-semibold text-text-primary mb-2">状态</div>
-        <a-select v-model:value="processModal.form.status" class="w-full">
-          <a-select-option v-for="item in statusOptions" :key="item.value" :value="item.value">
+        <div class="text-sm font-semibold text-text-primary mb-2">
+          状态
+        </div>
+        <a-select
+          v-model:value="processModal.form.status"
+          class="w-full"
+        >
+          <a-select-option
+            v-for="item in statusOptions"
+            :key="item.value"
+            :value="item.value"
+          >
             {{ item.label }}
           </a-select-option>
         </a-select>
@@ -617,12 +675,38 @@ function errorMessage(err: unknown, fallback: string) {
       <!-- 历史面试记录 -->
       <template v-if="interviewList.length > 0">
         <a-divider>历史面试记录</a-divider>
-        <div v-for="(iv, idx) in interviewList" :key="idx" class="p-2.5 bg-bg-page rounded mb-2">
-          <div class="text-sm font-semibold text-text-primary mb-1">{{ statusLabel(iv.round) }}</div>
-          <div v-if="iv.interviewerName" class="text-xs text-text-secondary">面试官：{{ iv.interviewerName }}</div>
-          <div v-if="iv.scheduledAt" class="text-xs text-text-secondary">时间：{{ iv.scheduledAt }}</div>
-          <div v-if="iv.location" class="text-xs text-text-secondary">{{ iv.type === 'video' ? '会议链接' : '地点' }}：{{ iv.location }}</div>
-          <div v-if="iv.type" class="text-xs text-text-secondary">方式：{{ iv.type === 'onsite' ? '现场' : iv.type === 'video' ? '视频' : '电话' }}</div>
+        <div
+          v-for="(iv, idx) in interviewList"
+          :key="idx"
+          class="p-2.5 bg-bg-page rounded mb-2"
+        >
+          <div class="text-sm font-semibold text-text-primary mb-1">
+            {{ statusLabel(iv.round) }}
+          </div>
+          <div
+            v-if="iv.interviewerName"
+            class="text-xs text-text-secondary"
+          >
+            面试官：{{ iv.interviewerName }}
+          </div>
+          <div
+            v-if="iv.scheduledAt"
+            class="text-xs text-text-secondary"
+          >
+            时间：{{ iv.scheduledAt }}
+          </div>
+          <div
+            v-if="iv.location"
+            class="text-xs text-text-secondary"
+          >
+            {{ iv.type === 'video' ? '会议链接' : '地点' }}：{{ iv.location }}
+          </div>
+          <div
+            v-if="iv.type"
+            class="text-xs text-text-secondary"
+          >
+            方式：{{ iv.type === 'onsite' ? '现场' : iv.type === 'video' ? '视频' : '电话' }}
+          </div>
         </div>
       </template>
 
@@ -630,12 +714,42 @@ function errorMessage(err: unknown, fallback: string) {
       <template v-if="offerData">
         <a-divider>Offer详情</a-divider>
         <div class="p-3 bg-[#f0f5ff] rounded border border-blue-200">
-          <div v-if="offerData.salary" class="text-sm text-text-primary">薪资：{{ offerData.salary }}</div>
-          <div v-if="offerData.level" class="text-sm text-text-primary">职级：{{ offerData.level }}</div>
-          <div v-if="offerData.joinDate" class="text-sm text-text-primary">入职日期：{{ offerData.joinDate }}</div>
-          <div v-if="offerData.contractPeriod" class="text-sm text-text-primary">合同期限：{{ offerData.contractPeriod }}</div>
-          <div v-if="offerData.probationPeriod" class="text-sm text-text-primary">试用期：{{ offerData.probationPeriod }}</div>
-          <div v-if="offerData.workLocation" class="text-sm text-text-primary">工作地点：{{ offerData.workLocation }}</div>
+          <div
+            v-if="offerData.salary"
+            class="text-sm text-text-primary"
+          >
+            薪资：{{ offerData.salary }}
+          </div>
+          <div
+            v-if="offerData.level"
+            class="text-sm text-text-primary"
+          >
+            职级：{{ offerData.level }}
+          </div>
+          <div
+            v-if="offerData.joinDate"
+            class="text-sm text-text-primary"
+          >
+            入职日期：{{ offerData.joinDate }}
+          </div>
+          <div
+            v-if="offerData.contractPeriod"
+            class="text-sm text-text-primary"
+          >
+            合同期限：{{ offerData.contractPeriod }}
+          </div>
+          <div
+            v-if="offerData.probationPeriod"
+            class="text-sm text-text-primary"
+          >
+            试用期：{{ offerData.probationPeriod }}
+          </div>
+          <div
+            v-if="offerData.workLocation"
+            class="text-sm text-text-primary"
+          >
+            工作地点：{{ offerData.workLocation }}
+          </div>
         </div>
       </template>
 
@@ -643,11 +757,18 @@ function errorMessage(err: unknown, fallback: string) {
       <template v-if="isInterviewStatus(processModal.form.status)">
         <a-divider>面试安排</a-divider>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">面试官</div>
-          <a-input v-model:value="interviewForm.interviewerName" placeholder="面试官姓名" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            面试官
+          </div>
+          <a-input
+            v-model:value="interviewForm.interviewerName"
+            placeholder="面试官姓名"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">面试时间</div>
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            面试时间
+          </div>
           <a-date-picker
             v-model:value="interviewForm.scheduledAt"
             show-time
@@ -657,15 +778,28 @@ function errorMessage(err: unknown, fallback: string) {
           />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">{{ interviewForm.type === 'video' ? '会议链接' : '面试地点' }}</div>
-          <a-input v-model:value="interviewForm.location" :placeholder="interviewForm.type === 'video' ? '输入视频会议链接' : '输入面试地点'" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            {{ interviewForm.type === 'video' ? '会议链接' : '面试地点' }}
+          </div>
+          <a-input
+            v-model:value="interviewForm.location"
+            :placeholder="interviewForm.type === 'video' ? '输入视频会议链接' : '输入面试地点'"
+          />
         </div>
         <div>
-          <div class="text-sm font-semibold text-text-primary mb-2">面试方式</div>
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            面试方式
+          </div>
           <a-select v-model:value="interviewForm.type">
-            <a-select-option value="onsite">现场</a-select-option>
-            <a-select-option value="video">视频</a-select-option>
-            <a-select-option value="phone">电话</a-select-option>
+            <a-select-option value="onsite">
+              现场
+            </a-select-option>
+            <a-select-option value="video">
+              视频
+            </a-select-option>
+            <a-select-option value="phone">
+              电话
+            </a-select-option>
           </a-select>
         </div>
       </template>
@@ -674,28 +808,59 @@ function errorMessage(err: unknown, fallback: string) {
       <template v-if="isOfferStatus(processModal.form.status)">
         <a-divider>Offer详情</a-divider>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">薪资</div>
-          <a-input v-model:value="offerForm.salary" placeholder="如 30K-50K" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            薪资
+          </div>
+          <a-input
+            v-model:value="offerForm.salary"
+            placeholder="如 30K-50K"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">职级</div>
-          <a-input v-model:value="offerForm.level" placeholder="如 P6" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            职级
+          </div>
+          <a-input
+            v-model:value="offerForm.level"
+            placeholder="如 P6"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">入职日期</div>
-          <a-date-picker v-model:value="offerForm.joinDate" placeholder="选择日期" class="w-full" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            入职日期
+          </div>
+          <a-date-picker
+            v-model:value="offerForm.joinDate"
+            placeholder="选择日期"
+            class="w-full"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">合同期限</div>
-          <a-input v-model:value="offerForm.contractPeriod" placeholder="如 3年" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            合同期限
+          </div>
+          <a-input
+            v-model:value="offerForm.contractPeriod"
+            placeholder="如 3年"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">试用期</div>
-          <a-input v-model:value="offerForm.probationPeriod" placeholder="如 6个月" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            试用期
+          </div>
+          <a-input
+            v-model:value="offerForm.probationPeriod"
+            placeholder="如 6个月"
+          />
         </div>
         <div>
-          <div class="text-sm font-semibold text-text-primary mb-2">工作地点</div>
-          <a-input v-model:value="offerForm.workLocation" placeholder="如 北京" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            工作地点
+          </div>
+          <a-input
+            v-model:value="offerForm.workLocation"
+            placeholder="如 北京"
+          />
         </div>
       </template>
     </a-modal>
@@ -705,45 +870,89 @@ function errorMessage(err: unknown, fallback: string) {
       v-model:open="offerModal.visible"
       title="Offer 详情"
       :confirm-loading="offerModal.submitting"
-      @ok="submitOffer"
       width="520px"
+      @ok="submitOffer"
     >
-      <div v-if="offerModal.noData" class="text-center py-6 text-text-muted">暂无 Offer 记录</div>
+      <div
+        v-if="offerModal.noData"
+        class="text-center py-6 text-text-muted"
+      >
+        暂无 Offer 记录
+      </div>
       <div v-else>
         <div class="flex gap-3 text-sm mb-3">
           <span class="text-text-muted">候选人：</span><span>{{ offerModal.name }}</span>
           <span class="text-text-muted">投递ID：</span><span>{{ offerModal.postId }}</span>
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">薪资</div>
-          <a-input v-model:value="offerModal.form.salary" placeholder="如 30K-50K" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            薪资
+          </div>
+          <a-input
+            v-model:value="offerModal.form.salary"
+            placeholder="如 30K-50K"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">职级</div>
-          <a-input v-model:value="offerModal.form.level" placeholder="如 P6" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            职级
+          </div>
+          <a-input
+            v-model:value="offerModal.form.level"
+            placeholder="如 P6"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">入职日期</div>
-          <a-date-picker v-model:value="offerModal.form.joinDate" placeholder="选择日期" class="w-full" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            入职日期
+          </div>
+          <a-date-picker
+            v-model:value="offerModal.form.joinDate"
+            placeholder="选择日期"
+            class="w-full"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">合同期限</div>
-          <a-input v-model:value="offerModal.form.contractPeriod" placeholder="如 3年" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            合同期限
+          </div>
+          <a-input
+            v-model:value="offerModal.form.contractPeriod"
+            placeholder="如 3年"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">试用期</div>
-          <a-input v-model:value="offerModal.form.probationPeriod" placeholder="如 6个月" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            试用期
+          </div>
+          <a-input
+            v-model:value="offerModal.form.probationPeriod"
+            placeholder="如 6个月"
+          />
         </div>
         <div class="mb-3">
-          <div class="text-sm font-semibold text-text-primary mb-2">工作地点</div>
-          <a-input v-model:value="offerModal.form.workLocation" placeholder="如 北京" />
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            工作地点
+          </div>
+          <a-input
+            v-model:value="offerModal.form.workLocation"
+            placeholder="如 北京"
+          />
         </div>
         <div>
-          <div class="text-sm font-semibold text-text-primary mb-2">状态</div>
+          <div class="text-sm font-semibold text-text-primary mb-2">
+            状态
+          </div>
           <a-select v-model:value="offerModal.form.status">
-            <a-select-option value="pending">待处理</a-select-option>
-            <a-select-option value="accepted">已接受</a-select-option>
-            <a-select-option value="rejected">已拒绝</a-select-option>
+            <a-select-option value="pending">
+              待处理
+            </a-select-option>
+            <a-select-option value="accepted">
+              已接受
+            </a-select-option>
+            <a-select-option value="rejected">
+              已拒绝
+            </a-select-option>
           </a-select>
         </div>
       </div>
@@ -758,57 +967,152 @@ function errorMessage(err: unknown, fallback: string) {
     >
       <div v-if="snapshotDetail.data">
         <div class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">基本信息</h4>
-          <p class="text-sm text-text-secondary m-1"><b>姓名：</b>{{ snapshotDetail.data.name || '-' }}</p>
-          <p v-if="snapshotDetail.data.sex" class="text-sm text-text-secondary m-1"><b>性别：</b>{{ snapshotDetail.data.sex }}</p>
-          <p class="text-sm text-text-secondary m-1"><b>手机：</b>{{ snapshotDetail.data.mobile || '-' }}</p>
-          <p class="text-sm text-text-secondary m-1"><b>邮箱：</b>{{ snapshotDetail.data.email || '-' }}</p>
-          <p v-if="snapshotDetail.data.expectedSalary" class="text-sm text-text-secondary m-1"><b>期望薪资：</b>{{ snapshotDetail.data.expectedSalary }}</p>
-          <p v-if="snapshotDetail.data.jobIntention" class="text-sm text-text-secondary m-1"><b>求职意向：</b>{{ snapshotDetail.data.jobIntention }}</p>
-          <p v-if="snapshotDetail.data.source" class="text-sm text-text-secondary m-1"><b>来源：</b>{{ snapshotDetail.data.source }}</p>
-          <p v-if="snapshotDetail.data.summary" class="text-sm text-text-secondary m-1"><b>个人总结：</b>{{ snapshotDetail.data.summary }}</p>
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+            基本信息
+          </h4>
+          <p class="text-sm text-text-secondary m-1">
+            <b>姓名：</b>{{ snapshotDetail.data.name || '-' }}
+          </p>
+          <p
+            v-if="snapshotDetail.data.sex"
+            class="text-sm text-text-secondary m-1"
+          >
+            <b>性别：</b>{{ snapshotDetail.data.sex }}
+          </p>
+          <p class="text-sm text-text-secondary m-1">
+            <b>手机：</b>{{ snapshotDetail.data.mobile || '-' }}
+          </p>
+          <p class="text-sm text-text-secondary m-1">
+            <b>邮箱：</b>{{ snapshotDetail.data.email || '-' }}
+          </p>
+          <p
+            v-if="snapshotDetail.data.expectedSalary"
+            class="text-sm text-text-secondary m-1"
+          >
+            <b>期望薪资：</b>{{ snapshotDetail.data.expectedSalary }}
+          </p>
+          <p
+            v-if="snapshotDetail.data.jobIntention"
+            class="text-sm text-text-secondary m-1"
+          >
+            <b>求职意向：</b>{{ snapshotDetail.data.jobIntention }}
+          </p>
+          <p
+            v-if="snapshotDetail.data.source"
+            class="text-sm text-text-secondary m-1"
+          >
+            <b>来源：</b>{{ snapshotDetail.data.source }}
+          </p>
+          <p
+            v-if="snapshotDetail.data.summary"
+            class="text-sm text-text-secondary m-1"
+          >
+            <b>个人总结：</b>{{ snapshotDetail.data.summary }}
+          </p>
         </div>
-        <div v-if="getEduItems(snapshotDetail.data).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">教育经历</h4>
-          <div v-for="(e, i) in getEduItems(snapshotDetail.data)" :key="`edu-${i}`" class="text-sm mb-1">
+        <div
+          v-if="getEduItems(snapshotDetail.data).length"
+          class="mb-4"
+        >
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+            教育经历
+          </h4>
+          <div
+            v-for="(e, i) in getEduItems(snapshotDetail.data)"
+            :key="`edu-${i}`"
+            class="text-sm mb-1"
+          >
             <span class="font-semibold text-text-primary">{{ e.school || '-' }}</span>
-            <span v-if="e.degree" class="text-primary ml-2 text-xs">{{ e.degree }}</span>
+            <span
+              v-if="e.degree"
+              class="text-primary ml-2 text-xs"
+            >{{ e.degree }}</span>
             <span class="text-text-secondary ml-2">{{ e.major || '-' }}</span>
             <span class="text-text-muted ml-2">{{ e.duration || '-' }}</span>
           </div>
         </div>
-        <div v-if="parseSkills(snapshotDetail.data.skills).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">技能</h4>
+        <div
+          v-if="parseSkills(snapshotDetail.data.skills).length"
+          class="mb-4"
+        >
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+            技能
+          </h4>
           <div>
-            <a-tag v-for="s in parseSkills(snapshotDetail.data.skills)" :key="s" color="blue" class="m-0.5">{{ s }}</a-tag>
+            <a-tag
+              v-for="s in parseSkills(snapshotDetail.data.skills)"
+              :key="s"
+              color="blue"
+              class="m-0.5"
+            >
+              {{ s }}
+            </a-tag>
           </div>
         </div>
-        <div v-if="parseWorkExperience(snapshotDetail.data.experience).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">工作经历</h4>
-          <div v-for="(e, i) in parseWorkExperience(snapshotDetail.data.experience)" :key="i" class="text-sm mb-1">
+        <div
+          v-if="parseWorkExperience(snapshotDetail.data.experience).length"
+          class="mb-4"
+        >
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+            工作经历
+          </h4>
+          <div
+            v-for="(e, i) in parseWorkExperience(snapshotDetail.data.experience)"
+            :key="i"
+            class="text-sm mb-1"
+          >
             <span class="font-semibold text-text-primary">{{ e.company }}</span>
             <span class="text-text-secondary ml-2">{{ e.position }}</span>
             <span class="text-text-muted ml-2">{{ e.duration }}</span>
           </div>
         </div>
-        <div v-if="parseProjects(snapshotDetail.data.projects).length" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">项目经历</h4>
-          <div v-for="(p, i) in parseProjects(snapshotDetail.data.projects)" :key="i" class="mb-2">
+        <div
+          v-if="parseProjects(snapshotDetail.data.projects).length"
+          class="mb-4"
+        >
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+            项目经历
+          </h4>
+          <div
+            v-for="(p, i) in parseProjects(snapshotDetail.data.projects)"
+            :key="i"
+            class="mb-2"
+          >
             <span class="font-semibold text-text-primary text-sm">{{ p.name }}</span>
             <span class="text-text-secondary ml-2 text-sm">{{ p.role }}</span>
-            <p v-if="p.description" class="text-sm text-text-secondary m-0.5 leading-relaxed">{{ p.description }}</p>
+            <p
+              v-if="p.description"
+              class="text-sm text-text-secondary m-0.5 leading-relaxed"
+            >
+              {{ p.description }}
+            </p>
           </div>
         </div>
-        <div v-if="snapshotDetail.data.remark" class="mb-4">
-          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">备注</h4>
-          <p class="text-sm text-text-secondary">{{ snapshotDetail.data.remark }}</p>
+        <div
+          v-if="snapshotDetail.data.remark"
+          class="mb-4"
+        >
+          <h4 class="text-sm font-semibold text-text-primary border-b border-border-light pb-1.5 mb-2 m-0">
+            备注
+          </h4>
+          <p class="text-sm text-text-secondary">
+            {{ snapshotDetail.data.remark }}
+          </p>
         </div>
       </div>
     </a-modal>
 
     <!-- 简历预览 Drawer -->
-    <a-drawer v-model:open="resumeDrawer.visible" title="简历预览" width="700px">
-      <iframe v-if="resumeDrawer.url" :src="resumeDrawer.url" class="w-full h-[80vh] border-none" />
+    <a-drawer
+      v-model:open="resumeDrawer.visible"
+      title="简历预览"
+      width="700px"
+    >
+      <iframe
+        v-if="resumeDrawer.url"
+        :src="resumeDrawer.url"
+        class="w-full h-[80vh] border-none"
+      />
     </a-drawer>
   </div>
 </template>

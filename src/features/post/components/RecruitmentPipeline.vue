@@ -45,21 +45,34 @@ function colorToHex(color: string): string {
 
 <template>
   <div class="pipeline">
-    <template v-for="(stage, idx) in stages" :key="stage.value">
+    <template
+      v-for="(stage, idx) in stages"
+      :key="stage.value"
+    >
       <div
         class="pipe-step"
         :class="{ done: currentIdx > idx, current: !isBranch && currentIdx === idx }"
       >
-        <div class="pipe-dot" :style="dotStyle(idx)" />
+        <div
+          class="pipe-dot"
+          :style="dotStyle(idx)"
+        />
         <span class="pipe-label">{{ stage.label }}</span>
       </div>
-      <div v-if="idx < stages.length - 1" class="pipe-line" :class="{ done: lineDone(idx) }" />
+      <div
+        v-if="idx < stages.length - 1"
+        class="pipe-line"
+        :class="{ done: lineDone(idx) }"
+      />
     </template>
     <!-- Branch status (rejected / on_hold) -->
     <template v-if="isBranch && branchMeta">
       <div class="pipe-line" />
       <div class="pipe-step current reject">
-        <div class="pipe-dot" :style="{ background: branchMeta.color }" />
+        <div
+          class="pipe-dot"
+          :style="{ background: branchMeta.color }"
+        />
         <span class="pipe-label">{{ branchMeta.label }}</span>
       </div>
     </template>

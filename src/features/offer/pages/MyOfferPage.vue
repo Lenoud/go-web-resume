@@ -38,14 +38,22 @@ function statusBg(s: string) { return statusColor(s) + '14' }
 <template>
   <div class="max-w-[800px] mx-auto">
     <div class="mb-6">
-      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">我的Offer</h2>
-      <p class="text-[13px] text-text-muted m-0">共 {{ total }} 条记录</p>
+      <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">
+        我的Offer
+      </h2>
+      <p class="text-[13px] text-text-muted m-0">
+        共 {{ total }} 条记录
+      </p>
     </div>
 
-    <a-spin :spinning="loading" style="min-height: 200px">
+    <a-spin
+      :spinning="loading"
+      style="min-height: 200px"
+    >
       <div class="flex flex-col gap-3">
         <div
-          v-for="item in list" :key="item.id"
+          v-for="item in list"
+          :key="item.id"
           class="bg-white rounded-xl p-5 border border-border-light transition-shadow hover:shadow-md"
         >
           <div class="flex items-center justify-between mb-3">
@@ -63,7 +71,10 @@ function statusBg(s: string) { return statusColor(s) + '14' }
             <span v-if="item.workLocation">工作地：{{ item.workLocation }}</span>
           </div>
 
-          <div v-if="item.joinDate || item.contractPeriod" class="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-[13px] text-text-muted">
+          <div
+            v-if="item.joinDate || item.contractPeriod"
+            class="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-[13px] text-text-muted"
+          >
             <span v-if="item.joinDate">入职日期：{{ item.joinDate }}</span>
             <span v-if="item.contractPeriod">合同期：{{ item.contractPeriod }}</span>
             <span v-if="item.probationPeriod">试用期：{{ item.probationPeriod }}</span>
@@ -75,14 +86,28 @@ function statusBg(s: string) { return statusColor(s) + '14' }
           v-if="list.length === 0 && !loading"
           class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-border-light"
         >
-          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#d0d5dd" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          <svg
+            width="80"
+            height="80"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d0d5dd"
+            stroke-width="0.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
           </svg>
-          <p class="mt-4 text-sm text-text-muted m-0">暂无Offer</p>
+          <p class="mt-4 text-sm text-text-muted m-0">
+            暂无Offer
+          </p>
         </div>
       </div>
 
-      <div v-if="total > 0" class="flex justify-center mt-6">
+      <div
+        v-if="total > 0"
+        class="flex justify-center mt-6"
+      >
         <a-pagination
           v-model:current="page"
           v-model:page-size="pageSize"

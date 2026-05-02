@@ -70,20 +70,37 @@ function goDetail(jobId: string) {
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">应聘记录</h2>
-        <p class="text-[13px] text-text-muted m-0">共 {{ total }} 条投递记录</p>
+        <h2 class="text-[22px] font-semibold text-text-primary m-0 mb-1">
+          应聘记录
+        </h2>
+        <p class="text-[13px] text-text-muted m-0">
+          共 {{ total }} 条投递记录
+        </p>
       </div>
       <div class="flex gap-2">
-        <a-select v-model:value="statusFilter" :options="statusFilterOptions" class="w-36" />
-        <a-input v-model:value="keyword" placeholder="搜索职位/公司/地点" class="w-52" allow-clear />
+        <a-select
+          v-model:value="statusFilter"
+          :options="statusFilterOptions"
+          class="w-36"
+        />
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索职位/公司/地点"
+          class="w-52"
+          allow-clear
+        />
       </div>
     </div>
 
-    <a-spin :spinning="loading" style="min-height: 200px">
+    <a-spin
+      :spinning="loading"
+      style="min-height: 200px"
+    >
       <div class="flex flex-col gap-3">
         <!-- Post Card -->
         <div
-          v-for="item in list" :key="item.id"
+          v-for="item in list"
+          :key="item.id"
           class="bg-white rounded-xl p-5 border border-border-light transition-shadow hover:shadow-md cursor-default"
         >
           <!-- Title + Status -->
@@ -101,7 +118,20 @@ function goDetail(jobId: string) {
           <!-- Meta -->
           <div class="flex items-center flex-wrap text-[13px] text-text-secondary gap-0">
             <span class="inline-flex items-center gap-1">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle
+                cx="12"
+                cy="10"
+                r="3"
+              /></svg>
               {{ item.location || '未知' }}
             </span>
             <span class="text-border mx-2 text-xs">|</span>
@@ -115,7 +145,17 @@ function goDetail(jobId: string) {
             v-if="item.feedback"
             class="flex items-start gap-1.5 mt-2 p-2 px-3 bg-bg-page rounded-md text-[13px] text-text-secondary leading-relaxed"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5 text-text-muted"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="shrink-0 mt-0.5 text-text-muted"
+            ><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             <span>{{ item.feedback }}</span>
           </div>
 
@@ -128,15 +168,39 @@ function goDetail(jobId: string) {
           v-if="list.length === 0 && !loading"
           class="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-border-light"
         >
-          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#d0d5dd" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <svg
+            width="80"
+            height="80"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d0d5dd"
+            stroke-width="0.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line
+              x1="16"
+              y1="13"
+              x2="8"
+              y2="13"
+            /><line
+              x1="16"
+              y1="17"
+              x2="8"
+              y2="17"
+            />
           </svg>
-          <p class="mt-4 text-sm text-text-muted m-0">暂无投递记录</p>
+          <p class="mt-4 text-sm text-text-muted m-0">
+            暂无投递记录
+          </p>
         </div>
       </div>
 
       <!-- Pagination -->
-      <div v-if="total > 0" class="flex justify-center mt-6">
+      <div
+        v-if="total > 0"
+        class="flex justify-center mt-6"
+      >
         <a-pagination
           v-model:current="page"
           v-model:page-size="pageSize"

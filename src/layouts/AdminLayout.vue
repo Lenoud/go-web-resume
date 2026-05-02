@@ -70,16 +70,26 @@ function handlePreview() {
       class="admin-sider"
     >
       <div class="h-16 flex items-center justify-center border-b border-white/10">
-        <h1 v-if="!app.sidebarCollapsed" class="text-lg font-bold text-white m-0">智慧招聘</h1>
-        <h1 v-else class="text-base font-bold text-white m-0">招聘</h1>
+        <h1
+          v-if="!app.sidebarCollapsed"
+          class="text-lg font-bold text-white m-0"
+        >
+          智慧招聘
+        </h1>
+        <h1
+          v-else
+          class="text-base font-bold text-white m-0"
+        >
+          招聘
+        </h1>
       </div>
       <a-menu
         mode="inline"
         theme="dark"
         :selected-keys="selectedKeys"
-        @click="handleMenuClick"
         :items="menuItems"
         class="admin-sidebar-menu"
+        @click="handleMenuClick"
       />
     </a-layout-sider>
 
@@ -94,12 +104,20 @@ function handlePreview() {
           />
         </div>
         <div class="flex items-center gap-4 text-sm">
-          <a-button size="small" @click="handlePreview">
-            <template #icon><EyeOutlined /></template>
+          <a-button
+            size="small"
+            @click="handlePreview"
+          >
+            <template #icon>
+              <EyeOutlined />
+            </template>
             前台预览
           </a-button>
           <span class="text-text-secondary">管理员[{{ auth.adminUsername || 'admin' }}]</span>
-          <a class="text-text-secondary hover:text-primary cursor-pointer transition-colors" @click="handleLogout">退出</a>
+          <a
+            class="text-text-secondary hover:text-primary cursor-pointer transition-colors"
+            @click="handleLogout"
+          >退出</a>
         </div>
       </a-layout-header>
 

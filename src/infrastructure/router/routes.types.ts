@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 declare module 'vue-router' {
   interface RouteMeta {
     /** 是否需要 Admin 认证 */
