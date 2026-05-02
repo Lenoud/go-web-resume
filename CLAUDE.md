@@ -13,6 +13,7 @@ pnpm lint                 # ESLint 检查
 pnpm lint:fix             # ESLint 自动修复
 pnpm generate:swagger:named  # 调用 goctl-swagger 生成具名 swagger.named.json
 pnpm generate:client         # 先生成 swagger.named.json，再基于它生成 axios 客户端
+pnpm test:scripts            # 运行前端 helper scripts 的 Node.js 测试
 ```
 
 后端必须先启动（`cd ../api && scripts/dev.sh`），前端 dev server 通过 Vite proxy 将 `/api/*` 转发到 `127.0.0.1:9100`。
@@ -21,7 +22,7 @@ pnpm generate:client         # 先生成 swagger.named.json，再基于它生成
 
 ### 技术栈
 
-Vue 3.5 + TypeScript 5.7（strict、禁止显式 `any`）+ Ant Design Vue 4（按需自动导入）+ Tailwind CSS 4 + Pinia 3 + TanStack Vue Query 5 + @hey-api/openapi-ts（从 Swagger 自动生成类型化 SDK）。
+Vue 3.5 + TypeScript 5.7（strict）+ Ant Design Vue 4（按需自动导入）+ Tailwind CSS 4 + Pinia 3 + TanStack Vue Query 5 + @hey-api/openapi-ts（从 Swagger 自动生成类型化 SDK）。当前 ESLint 对显式 `any` 保留 warning，用于兼容历史页面和 AntDV 动态数据；新增代码应优先使用生成类型或明确的本地类型。
 
 ### 分层：client → composable → page
 
@@ -112,12 +113,12 @@ pnpm generate:client
 ### 响应处理架构
 
 后端统一信封 `{ code, msg, data, timestamp, trace }`：
-- **拦截器**：校验 `code`，非 0/200 直接 throw；注入 token；401/403 清除 token 并跳转
+- **拦截器**：校验 `code`，非 0 直接 throw；注入 token；401/403 清除 token 并跳转
 - **SDK**：全局 `throwOnError: true`，错误走 `onError`，成功直接返回 `AxiosResponse<T>`
 - **Composable**：`result.data?.data` 一行提取业务数据，类型由生成器保证
 - **useCrudTable**：通用 CRUD 表格逻辑，mutation 成功自动 invalidate + message 提示
 
-无需在 composable 中检查 `resp.code`，无需手写 interface，零 `any`。
+无需在 composable 中检查 `resp.code`，无需手写 interface；新增代码应避免引入显式 `any`。
 
 ### 样式约定
 

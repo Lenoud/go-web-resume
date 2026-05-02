@@ -6,7 +6,7 @@ Vue 3 + TypeScript + Ant Design Vue + Vite 构建的招聘管理系统前端。
 
 - **零手写接口**：所有 API 类型由 `@hey-api/openapi-ts` 从 Swagger 自动生成，composable 直接引用生成的 `XxxInfo` / `XxxListData` 类型
 - **零页面 code 校验**：拦截器统一处理业务错误码，composable / page 层不检查 `resp.code`
-- **零 `any`**：ESLint 严格禁止显式 `any`，全链路类型由生成器保证（`XxxListResp.data` → `XxxListData` → `XxxInfo`）
+- **类型化优先**：API 类型由生成器保证；当前 ESLint 对显式 `any` 仍保留 warning，用于兼容历史页面和 AntDV 动态数据。
 
 ## 技术栈
 
@@ -20,7 +20,7 @@ Vue 3 + TypeScript + Ant Design Vue + Vite 构建的招聘管理系统前端。
 | 状态 | Pinia 3 + TanStack Vue Query 5 | 本地状态 + 服务端状态 |
 | API 客户端 | @hey-api/openapi-ts | 从 Swagger 自动生成类型化 SDK |
 | 工具 | VueUse 12 + Day.js | Composition 工具函数 + 日期处理 |
-| 规范 | ESLint 9 | 严格规则，禁止显式 `any` |
+| 规范 | ESLint 9 | 严格规则；显式 `any` 当前为 warning |
 
 ## 目录结构
 
@@ -92,18 +92,21 @@ features/xxx/
 | 页面文件 | 路由 | 布局 | 说明 |
 |----------|------|------|------|
 | AdminLoginPage.vue | /admin/login | - | 管理员登录 |
-| UserLoginPage.vue | /login | FrontendLayout | 求职者/HR 登录 |
-| RegisterPage.vue | /register | FrontendLayout | 注册 |
-| JobListPage.vue | /jobs | FrontendLayout | 前台职位列表 |
-| JobDetailPage.vue | /jobs/:id | FrontendLayout | 职位详情 |
-| MyPostPage.vue | /my/posts | FrontendLayout | 我的投递 |
-| MyInterviewPage.vue | /my/interviews | FrontendLayout | 我的面试 |
-| MyOfferPage.vue | /my/offers | FrontendLayout | 我的 Offer |
-| ResumeEditPage.vue | /resume/edit | FrontendLayout | 简历编辑 |
-| UserInfoPage.vue | /user/info | FrontendLayout | 个人信息 |
-| SecurityPage.vue | /user/security | FrontendLayout | 安全设置 |
-| TalentPoolPage.vue | /talent-pool | FrontendLayout | 人才库 |
-| CompanyPostPage.vue | /company/posts | FrontendLayout | 企业投递管理 |
+| UserLoginPage.vue | /index/login | FrontendLayout | 求职者/HR 登录 |
+| UserLoginPage.vue | /index/register | FrontendLayout | 注册入口（当前路由实现） |
+| JobListPage.vue | /index/home, /index/experienced, /index/campus | FrontendLayout | 前台职位列表 |
+| JobDetailPage.vue | /index/detail | FrontendLayout | 职位详情 |
+| MyJobPage.vue | /index/usercenter/myJobView | UserCenterLayout | HR 岗位管理 |
+| CompanyPostPage.vue | /index/usercenter/companyPostView | UserCenterLayout | 企业投递管理 |
+| SnapshotAdminPage.vue | /index/usercenter/resumeManagementView | UserCenterLayout | HR 简历快照管理 |
+| OfferAdminPage.vue | /index/usercenter/offerView | UserCenterLayout | HR Offer 管理 |
+| TalentPoolPage.vue | /index/usercenter/talentPoolView | UserCenterLayout | 人才库 |
+| MyPostPage.vue | /index/usercenter/myPostView | UserCenterLayout | 我的投递 |
+| MyInterviewPage.vue | /index/usercenter/myInterviewView | UserCenterLayout | 我的面试 |
+| MyOfferPage.vue | /index/usercenter/myOfferView | UserCenterLayout | 我的 Offer |
+| ResumeEditPage.vue | /index/usercenter/resumeEditView | UserCenterLayout | 简历编辑 |
+| UserInfoPage.vue | /index/usercenter/userInfoEditView | UserCenterLayout | 个人信息 |
+| SecurityPage.vue | /index/usercenter/securityView | UserCenterLayout | 安全设置 |
 | *AdminPage.vue | /admin/xxx | AdminLayout | 管理后台各模块 |
 
 ## 快速开始
@@ -134,7 +137,7 @@ pnpm generate:swagger:named
 | `pnpm lint:fix` | ESLint 自动修复 |
 | `pnpm generate:swagger:named` | 调用 `goctl-swagger` 插件，从 `../api/desc/main.api` 生成具名 `swagger.named.json` |
 | `pnpm generate:client` | 先生成 `swagger.named.json`，再生成类型化 API 客户端 |
-| `pnpm test:scripts` | 运行 Swagger 生成辅助脚本的单元测试 |
+| `pnpm test:scripts` | 运行前端 helper scripts 的 Node.js 单元测试 |
 
 ## API 客户端生成
 
@@ -236,7 +239,7 @@ Page 调用 composable
 **禁止事项**：
 - 禁止在 composable 中检查 `resp.code` 或 `result.error`
 - 禁止手写 interface 替代生成类型
-- 禁止使用 `any`（ESLint 已强制）
+- 尽量避免使用 `any`；当前 ESLint 将显式 `any` 作为 warning，新增代码应优先使用生成类型或明确的本地类型。
 
 ### AntDV 表格类型断言约定
 
