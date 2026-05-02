@@ -2,7 +2,7 @@
 
 > 技术栈：Vue 3.5 + Vite 6 + TypeScript 5.7（strict）+ TanStack Vue Query v5 + AntDV 4 + Tailwind CSS v4 + pnpm
 
-> 当前状态：本文是前端重建阶段的设计参考，不再作为最新实现说明。最新工程结构、路由、脚本和 API 生成链路以 `web/README.md`、`web/package.json`、`web/src/infrastructure/router/` 和 `web/vite.config.ts` 为准。
+> 当前状态：本文是前端重建阶段的设计参考，不再作为最新实现说明。最新工程结构、路由、脚本、ESLint 规则和 API 生成链路以 `web/README.md`、`web/package.json`、`web/eslint.config.ts`、`web/src/infrastructure/router/` 和 `web/vite.config.ts` 为准。
 
 ## 1. 总览
 
@@ -34,7 +34,7 @@
 
 ### 1.3 质量规则
 
-- **类型化优先**：当前 ESLint 对显式 `any` 配置为 warning；新增代码应优先使用生成类型或明确的本地类型。
+- **业务代码禁用显式 `any`**：当前 ESLint 对业务源码中的显式 `any` 配置为 error；自动生成的 `src/client/**` 除外。
 - **禁止 CSS/Less 文件**：布局用 Tailwind class，复杂 UI 用 AntDV 组件
 - **禁止直接 `axios`**：所有请求走 `@hey-api` 生成的 SDK
 - **关键操作二次确认**：删除/提交/状态变更必须有 `Popconfirm` + `Message` 提示
@@ -207,8 +207,8 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,vue}'],
     rules: {
-      // 历史页面仍有较多弱类型和 AntDV 动态数据，先保留 warning，避免阻断构建/提交。
-      '@typescript-eslint/no-explicit-any': 'warn',
+      // 业务源码禁止显式 any；自动生成的 src/client/** 已在全局忽略中排除。
+      '@typescript-eslint/no-explicit-any': 'error',
       // 未使用变量（下划线前缀除外）
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       // Vue 规则

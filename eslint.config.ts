@@ -57,8 +57,8 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,vue}'],
     rules: {
-      // 历史页面仍有较多弱类型和 AntDV 动态数据，先保留 warning，避免阻断构建/提交。
-      '@typescript-eslint/no-explicit-any': 'warn',
+      // 业务源码禁止显式 any；自动生成的 src/client/** 已在全局忽略中排除。
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/no-dynamic-delete': 'warn',
       // 未使用变量（下划线前缀除外）

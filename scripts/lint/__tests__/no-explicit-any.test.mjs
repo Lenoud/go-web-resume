@@ -6,6 +6,7 @@ import test from 'node:test'
 const projectRoot = path.resolve(import.meta.dirname, '../../..')
 const srcRoot = path.join(projectRoot, 'src')
 const generatedClientRoot = path.join(srcRoot, 'client')
+const eslintConfigPath = path.join(projectRoot, 'eslint.config.ts')
 const sourceExtensions = new Set(['.ts', '.vue'])
 const explicitAnyPattern = /\b(as\s+any|any\[\]|:\s*any\b|<\s*any\b|Record<[^>]*\bany\b[^>]*>)/g
 
@@ -47,4 +48,14 @@ test('business frontend source does not use explicit any', async () => {
   }
 
   assert.deepEqual(violations, [])
+})
+
+test('eslint rejects explicit any in business frontend source', async () => {
+  const config = await readFile(eslintConfigPath, 'utf8')
+
+  assert.match(
+    config,
+    /'@typescript-eslint\/no-explicit-any':\s*'error'/,
+    'business source should fail lint when explicit any is introduced',
+  )
 })

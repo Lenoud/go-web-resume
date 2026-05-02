@@ -6,7 +6,7 @@ Vue 3 + TypeScript + Ant Design Vue + Vite 构建的招聘管理系统前端。
 
 - **零手写接口**：所有 API 类型由 `@hey-api/openapi-ts` 从 Swagger 自动生成，composable 直接引用生成的 `XxxInfo` / `XxxListData` 类型
 - **零页面 code 校验**：拦截器统一处理业务错误码，composable / page 层不检查 `resp.code`
-- **类型化优先**：API 类型由生成器保证；当前 ESLint 对显式 `any` 仍保留 warning，用于兼容历史页面和 AntDV 动态数据。
+- **业务代码禁用显式 `any`**：API 类型由生成器保证；ESLint 对业务源码中的显式 `any` 按 error 处理，自动生成的 `src/client/**` 除外。
 
 ## 技术栈
 
@@ -20,7 +20,7 @@ Vue 3 + TypeScript + Ant Design Vue + Vite 构建的招聘管理系统前端。
 | 状态 | Pinia 3 + TanStack Vue Query 5 | 本地状态 + 服务端状态 |
 | API 客户端 | @hey-api/openapi-ts | 从 Swagger 自动生成类型化 SDK |
 | 工具 | VueUse 12 + Day.js | Composition 工具函数 + 日期处理 |
-| 规范 | ESLint 9 | 严格规则；显式 `any` 当前为 warning |
+| 规范 | ESLint 9 | 严格规则；业务源码禁止显式 `any` |
 
 ## 目录结构
 
@@ -239,7 +239,7 @@ Page 调用 composable
 **禁止事项**：
 - 禁止在 composable 中检查 `resp.code` 或 `result.error`
 - 禁止手写 interface 替代生成类型
-- 尽量避免使用 `any`；当前 ESLint 将显式 `any` 作为 warning，新增代码应优先使用生成类型或明确的本地类型。
+- 禁止使用显式 `any`；新增代码应优先使用生成类型或明确的本地类型。自动生成的 `src/client/**` 不纳入该约束。
 
 ### AntDV 表格类型断言约定
 

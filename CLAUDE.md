@@ -22,7 +22,7 @@ pnpm test:scripts            # 运行前端 helper scripts 的 Node.js 测试
 
 ### 技术栈
 
-Vue 3.5 + TypeScript 5.7（strict）+ Ant Design Vue 4（按需自动导入）+ Tailwind CSS 4 + Pinia 3 + TanStack Vue Query 5 + @hey-api/openapi-ts（从 Swagger 自动生成类型化 SDK）。当前 ESLint 对显式 `any` 保留 warning，用于兼容历史页面和 AntDV 动态数据；新增代码应优先使用生成类型或明确的本地类型。
+Vue 3.5 + TypeScript 5.7（strict）+ Ant Design Vue 4（按需自动导入）+ Tailwind CSS 4 + Pinia 3 + TanStack Vue Query 5 + @hey-api/openapi-ts（从 Swagger 自动生成类型化 SDK）。业务源码禁止显式 `any`；自动生成的 `src/client/**` 已在 ESLint 中忽略。新增代码应优先使用生成类型或明确的本地类型。
 
 ### 分层：client → composable → page
 
