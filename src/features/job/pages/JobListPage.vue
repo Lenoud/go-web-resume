@@ -53,7 +53,7 @@ const listQuery = useQuery({
     const result = await jobList({
       query: params,
     })
-    return normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; createTime: string; status: number }>(result.data?.data)
+    return normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; createTime: string; status: string }>(result.data?.data)
   },
 })
 

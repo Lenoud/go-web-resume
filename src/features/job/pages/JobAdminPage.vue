@@ -44,23 +44,44 @@ onMounted(async () => {
 
 // ── 状态映射 ──
 const statusOptions = [
-  { label: '招聘中', value: 1 },
-  { label: '已关闭', value: 2 },
-  { label: '已招满', value: 4 },
+  { label: '招聘中', value: 'open' },
+  { label: '草稿', value: 'draft' },
+  { label: '待审批', value: 'pending_approve' },
+  { label: '暂停', value: 'paused' },
+  { label: '搁置', value: 'on_hold' },
+  { label: '已招满', value: 'filled' },
+  { label: '已关闭', value: 'closed' },
+  { label: '已过期', value: 'expired' },
+  { label: '已归档', value: 'archived' },
+  { label: '重复', value: 'duplicate' },
+  { label: '保密岗', value: 'shadow' },
 ]
 
-const statusColorMap: Record<number, string> = {
-  0: 'default',
-  1: 'green',
-  2: 'red',
-  4: 'blue',
+const statusColorMap: Record<string, string> = {
+  open: 'green',
+  draft: 'default',
+  pending_approve: 'orange',
+  paused: 'gold',
+  on_hold: 'default',
+  filled: 'blue',
+  closed: 'red',
+  expired: 'default',
+  archived: 'default',
+  duplicate: 'default',
+  shadow: 'purple',
 }
-const statusLabelMap: Record<number, string> = {
-  0: '草稿',
-  1: '招聘中',
-  2: '已关闭',
-  3: '已下线',
-  4: '已招满',
+const statusLabelMap: Record<string, string> = {
+  open: '招聘中',
+  draft: '草稿',
+  pending_approve: '待审批',
+  paused: '暂停',
+  on_hold: '搁置',
+  filled: '已招满',
+  closed: '已关闭',
+  expired: '已过期',
+  archived: '已归档',
+  duplicate: '重复',
+  shadow: '保密岗',
 }
 
 const recruitTypeLabelMap: Record<string, string> = {
@@ -126,7 +147,7 @@ function handleDelete(id: string) {
 }
 
 // 行内状态切换
-function handleStatusChange(record: JobInfo, newStatus: number) {
+function handleStatusChange(record: JobInfo, newStatus: string) {
   if (record.status === newStatus) return
   updateMutation?.mutate({ id: record.id, status: newStatus })
 }
@@ -227,24 +248,13 @@ const columns = [
               {{ statusLabelMap[record.status] ?? '状态' }} ▾
             </a-button>
             <template #overlay>
-              <a-menu @click="(e: MenuClickEvent) => handleStatusChange(record as JobInfo, Number(e.key))">
+              <a-menu @click="(e: MenuClickEvent) => handleStatusChange(record as JobInfo, String(e.key))">
                 <a-menu-item
-                  key="1"
-                  :disabled="record.status === 1"
+                  v-for="opt in statusOptions"
+                  :key="opt.value"
+                  :disabled="record.status === opt.value"
                 >
-                  招聘中
-                </a-menu-item>
-                <a-menu-item
-                  key="2"
-                  :disabled="record.status === 2"
-                >
-                  已关闭
-                </a-menu-item>
-                <a-menu-item
-                  key="4"
-                  :disabled="record.status === 4"
-                >
-                  已招满
+                  {{ opt.label }}
                 </a-menu-item>
               </a-menu>
             </template>

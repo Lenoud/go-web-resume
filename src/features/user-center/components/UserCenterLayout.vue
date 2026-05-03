@@ -32,6 +32,7 @@ const menuGroups = computed(() => {
         { key: 'myJobView', label: '岗位管理', icon: 'briefcase' },
         { key: 'companyPostView', label: '投递管理', icon: 'inbox' },
         { key: 'resumeManagementView', label: '简历快照管理', icon: 'file-text' },
+        { key: 'parseTasksView', label: '解析状态', icon: 'activity' },
         { key: 'offerView', label: 'Offer管理', icon: 'gift' },
         { key: 'talentPoolView', label: '人才库', icon: 'users' },
       ],
@@ -69,6 +70,7 @@ const iconPaths: Record<string, string> = {
   'message-square': 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
   user: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z',
   shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+  activity: 'M22 12h-4l-3 9L9 3l-3 9H2',
 }
 </script>
 

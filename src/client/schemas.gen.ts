@@ -315,7 +315,7 @@ export const CreateJobReqSchema = {
             type: 'string'
         },
         status: {
-            type: 'integer'
+            type: 'string'
         },
         location: {
             type: 'string'
@@ -1067,7 +1067,7 @@ export const JobInfoSchema = {
             type: 'string'
         },
         status: {
-            type: 'integer'
+            type: 'string'
         },
         createTime: {
             type: 'string'
@@ -1897,6 +1897,30 @@ export const ParseTaskMetaSchema = {
     ]
 } as const;
 
+export const ParseTaskSummarySchema = {
+    type: 'object',
+    properties: {
+        taskId: {
+            type: 'string'
+        },
+        fileName: {
+            type: 'string'
+        },
+        status: {
+            type: 'string'
+        },
+        msg: {
+            type: 'string'
+        }
+    },
+    title: 'ParseTaskSummary',
+    required: [
+        'taskId',
+        'fileName',
+        'status'
+    ]
+} as const;
+
 export const PostCompanyListReqSchema = {
     type: 'object',
     properties: {
@@ -2543,6 +2567,34 @@ export const ResumeParseResultRespSchema = {
         }
     },
     title: 'ResumeParseResultResp'
+} as const;
+
+export const ResumeParseTasksRespSchema = {
+    type: 'object',
+    properties: {
+        code: {
+            type: 'integer'
+        },
+        msg: {
+            type: 'string'
+        },
+        trace: {
+            type: 'string'
+        },
+        timestamp: {
+            type: 'integer'
+        },
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/definitions/ParseTaskSummary'
+            }
+        }
+    },
+    title: 'ResumeParseTasksResp',
+    required: [
+        'data'
+    ]
 } as const;
 
 export const ResumeSnapshotDeleteRespSchema = {
@@ -3279,7 +3331,7 @@ export const UpdateJobReqSchema = {
             type: 'string'
         },
         status: {
-            type: 'integer'
+            type: 'string'
         },
         location: {
             type: 'string'

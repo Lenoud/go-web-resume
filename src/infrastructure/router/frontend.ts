@@ -73,6 +73,12 @@ const frontendRoutes: RouteRecordRaw[] = [
             meta: { roles: ['2'], title: '简历快照管理' },
           },
           {
+            path: 'parseTasksView',
+            name: 'parseTasksView',
+            component: () => import('@/features/resume-snapshot/pages/ParseTaskPage.vue'),
+            meta: { roles: ['2'], title: '解析状态' },
+          },
+          {
             path: 'offerView',
             name: 'offerView',
             component: () => import('@/features/offer/pages/OfferAdminPage.vue'),

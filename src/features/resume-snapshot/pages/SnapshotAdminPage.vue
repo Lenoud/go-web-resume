@@ -201,20 +201,11 @@ interface BatchUploadItem {
   errorMsg?: string
 }
 
-// 会话级解析任务记录（刷新丢失，但关闭弹窗不丢失）
-interface SessionTask {
-  taskId: string
-  fileName: string
-  status: 'parsing' | 'success' | 'failed'
-  errorMsg?: string
-  submittedAt: string
-}
-const sessionTasks = ref<SessionTask[]>([])
+// 会话级解析任务记录
 const activeIntervals = new Map<string, ReturnType<typeof setInterval>>()
 
 const batchUploadModal = reactive({
   visible: false,
-  activeTab: 'upload' as 'upload' | 'history',
   source: '' as string,
   addToTalentPool: false,
   fileList: [] as BatchUploadItem[],
@@ -226,9 +217,6 @@ function openBatchUploadModal() {
   batchUploadModal.source = ''
   batchUploadModal.addToTalentPool = false
   batchUploadModal.uploading = false
-  batchUploadModal.activeTab = 'upload'
-  // 恢复 sessionTasks 中仍在 parsing 的任务的轮询
-  resumePolling()
   batchUploadModal.visible = true
 }
 
@@ -299,22 +287,11 @@ async function startBatchUpload() {
       item.taskId = taskId
       item.status = 'parsing'
 
-      // 记录到会话任务列表
-      sessionTasks.value.push({
-        taskId,
-        fileName: item.fileName,
-        status: 'parsing',
-        submittedAt: new Date().toLocaleTimeString(),
-      })
-
       // 开始后台轮询（不 await，立即返回）
       startPolling(item)
     } catch (err: unknown) {
       item.status = 'failed'
       item.errorMsg = errorMessage(err, '上传失败')
-      // 更新 sessionTask
-      const st = sessionTasks.value.find(t => t.fileName === item.fileName && t.status === 'parsing')
-      if (st) { st.status = 'failed'; st.errorMsg = item.errorMsg }
       checkAllDone()
     }
   })
@@ -337,9 +314,6 @@ function startPolling(item: BatchUploadItem) {
         clearInterval(interval)
         activeIntervals.delete(item.uid)
         item.status = 'success'
-        // 更新 sessionTask
-        const st = sessionTasks.value.find(t => t.taskId === item.taskId)
-        if (st) st.status = 'success'
         queryClient.invalidateQueries({ queryKey: queryKeys.resumeSnapshots.all })
         checkAllDone()
       } else if (status === 'failed') {
@@ -347,8 +321,6 @@ function startPolling(item: BatchUploadItem) {
         activeIntervals.delete(item.uid)
         item.status = 'failed'
         item.errorMsg = task?.msg || '解析失败'
-        const st = sessionTasks.value.find(t => t.taskId === item.taskId)
-        if (st) { st.status = 'failed'; st.errorMsg = item.errorMsg }
         checkAllDone()
       }
     } catch {
@@ -365,8 +337,6 @@ function startPolling(item: BatchUploadItem) {
       activeIntervals.delete(item.uid)
       item.status = 'failed'
       item.errorMsg = '解析超时'
-      const st = sessionTasks.value.find(t => t.taskId === item.taskId)
-      if (st) { st.status = 'failed'; st.errorMsg = '解析超时' }
       checkAllDone()
     }
   }, 5 * 60 * 1000)
@@ -389,23 +359,11 @@ function checkAllDone() {
   }
 }
 
-// 恢复 sessionTasks 中仍在 parsing 的任务的轮询
-function resumePolling() {
-  for (const st of sessionTasks.value) {
-    if (st.status !== 'parsing') continue
-    // 创建临时 item 用于轮询（更新 sessionTask 状态）
-    const fakeItem: BatchUploadItem = {
-      uid: `resume-${st.taskId}`,
-      file: {} as File,
-      fileName: st.fileName,
-      status: 'parsing',
-      taskId: st.taskId,
-    }
-    startPolling(fakeItem)
-  }
-}
-
 function closeBatchUploadModal() {
+  const hasParsing = batchUploadModal.fileList.some(f => f.status === 'parsing' || f.status === 'uploading')
+  if (hasParsing) {
+    message.info('解析任务仍在后台运行，可在「解析状态」页面查看进度', 4)
+  }
   batchUploadModal.visible = false
 }
 
@@ -883,186 +841,127 @@ const columns = [
       width="680px"
       :footer="null"
     >
-      <a-tabs v-model:active-key="batchUploadModal.activeTab">
-        <!-- Tab: 上传文件 -->
-        <a-tab-pane
-          key="upload"
-          tab="上传文件"
-        >
-          <!-- 配置区域 -->
-          <div v-if="!batchUploadModal.uploading">
-            <a-form :label-col="{ span: 4 }">
-              <a-form-item
-                label="简历来源"
-                required
-              >
-                <a-select
-                  v-model:value="batchUploadModal.source"
-                  :options="RESUME_SOURCE_OPTIONS"
-                  placeholder="请选择来源"
-                  allow-clear
-                />
-              </a-form-item>
-              <a-form-item label="加入人才库">
-                <a-switch v-model:checked="batchUploadModal.addToTalentPool" />
-              </a-form-item>
-              <a-form-item label="选择文件">
-                <a-upload
-                  :before-upload="handleBatchFileSelect"
-                  :show-upload-list="false"
-                  accept=".pdf"
-                  multiple
-                >
-                  <a-button>选择 PDF 文件</a-button>
-                </a-upload>
-                <span class="ml-2 text-gray-400 text-xs">仅支持 PDF 格式</span>
-              </a-form-item>
-            </a-form>
-
-            <!-- 文件列表 -->
-            <div
-              v-if="batchUploadModal.fileList.length > 0"
-              class="mb-4"
-            >
-              <div class="text-sm text-gray-500 mb-2">
-                已选择 {{ batchUploadModal.fileList.length }} 个文件：
-              </div>
-              <div
-                v-for="item in batchUploadModal.fileList"
-                :key="item.uid"
-                class="flex items-center justify-between py-1 px-2 bg-gray-50 rounded mb-1"
-              >
-                <span class="text-sm truncate flex-1">{{ item.fileName }}</span>
-                <span
-                  class="text-red-400 text-xs cursor-pointer ml-2 shrink-0"
-                  @click="removeBatchFile(item.uid)"
-                >
-                  移除
-                </span>
-              </div>
-            </div>
-
-            <div class="flex justify-end gap-2">
-              <a-button @click="closeBatchUploadModal">
-                取消
-              </a-button>
-              <a-button
-                type="primary"
-                :disabled="batchUploadModal.fileList.length === 0"
-                @click="startBatchUpload"
-              >
-                开始上传
-              </a-button>
-            </div>
-          </div>
-
-          <!-- 进度区域 -->
-          <div v-else>
-            <div class="mb-3 text-sm text-gray-500">
-              上传进度：{{ batchUploadModal.fileList.filter(f => f.status === 'success').length }} / {{ batchUploadModal.fileList.length }}
-              <span class="ml-2 text-gray-400">（可关闭弹窗，后台继续解析）</span>
-            </div>
-            <div
-              v-for="item in batchUploadModal.fileList"
-              :key="item.uid"
-              class="flex items-center gap-2 py-2 px-3 border-b last:border-b-0"
-            >
-              <span
-                class="text-sm truncate flex-1"
-                :title="item.fileName"
-              >{{ item.fileName }}</span>
-              <a-tag
-                v-if="item.status === 'waiting'"
-                color="default"
-              >
-                等待中
-              </a-tag>
-              <a-tag
-                v-else-if="item.status === 'uploading'"
-                color="processing"
-              >
-                上传中
-              </a-tag>
-              <a-tag
-                v-else-if="item.status === 'parsing'"
-                color="blue"
-              >
-                <span class="animate-pulse">解析中</span>
-              </a-tag>
-              <a-tag
-                v-else-if="item.status === 'success'"
-                color="success"
-              >
-                成功
-              </a-tag>
-              <a-tag
-                v-else-if="item.status === 'failed'"
-                color="error"
-              >
-                失败
-              </a-tag>
-              <span
-                v-if="item.errorMsg"
-                class="text-xs text-red-400 truncate max-w-[200px]"
-                :title="item.errorMsg"
-              >
-                {{ item.errorMsg }}
-              </span>
-            </div>
-          </div>
-        </a-tab-pane>
-
-        <!-- Tab: 解析记录 -->
-        <a-tab-pane
-          key="history"
-          :tab="`解析记录${sessionTasks.length ? ` (${sessionTasks.length})` : ''}`"
-        >
-          <div
-            v-if="sessionTasks.length === 0"
-            class="text-center text-gray-400 py-8"
+      <!-- 配置区域 -->
+      <div v-if="!batchUploadModal.uploading">
+        <a-form :label-col="{ span: 4 }">
+          <a-form-item
+            label="简历来源"
+            required
           >
-            暂无解析记录
-          </div>
-          <div v-else>
-            <div
-              v-for="task in [...sessionTasks].reverse()"
-              :key="task.taskId"
-              class="flex items-center gap-2 py-2 px-3 border-b last:border-b-0"
+            <a-select
+              v-model:value="batchUploadModal.source"
+              :options="RESUME_SOURCE_OPTIONS"
+              placeholder="请选择来源"
+              allow-clear
+            />
+          </a-form-item>
+          <a-form-item label="加入人才库">
+            <a-switch v-model:checked="batchUploadModal.addToTalentPool" />
+          </a-form-item>
+          <a-form-item label="选择文件">
+            <a-upload
+              :before-upload="handleBatchFileSelect"
+              :show-upload-list="false"
+              accept=".pdf"
+              multiple
             >
-              <span
-                class="text-sm truncate flex-1"
-                :title="task.fileName"
-              >{{ task.fileName }}</span>
-              <a-tag
-                v-if="task.status === 'parsing'"
-                color="blue"
-              >
-                <span class="animate-pulse">解析中</span>
-              </a-tag>
-              <a-tag
-                v-else-if="task.status === 'success'"
-                color="success"
-              >
-                成功
-              </a-tag>
-              <a-tag
-                v-else-if="task.status === 'failed'"
-                color="error"
-              >
-                失败
-              </a-tag>
-              <span
-                v-if="task.errorMsg"
-                class="text-xs text-red-400 truncate max-w-[200px]"
-                :title="task.errorMsg"
-              >
-                {{ task.errorMsg }}
-              </span>
-              <span class="text-xs text-gray-400 shrink-0">{{ task.submittedAt }}</span>
-            </div>
+              <a-button>选择 PDF 文件</a-button>
+            </a-upload>
+            <span class="ml-2 text-gray-400 text-xs">仅支持 PDF 格式</span>
+          </a-form-item>
+        </a-form>
+
+        <!-- 文件列表 -->
+        <div
+          v-if="batchUploadModal.fileList.length > 0"
+          class="mb-4"
+        >
+          <div class="text-sm text-gray-500 mb-2">
+            已选择 {{ batchUploadModal.fileList.length }} 个文件：
           </div>
-        </a-tab-pane>
-      </a-tabs>
+          <div
+            v-for="item in batchUploadModal.fileList"
+            :key="item.uid"
+            class="flex items-center justify-between py-1 px-2 bg-gray-50 rounded mb-1"
+          >
+            <span class="text-sm truncate flex-1">{{ item.fileName }}</span>
+            <span
+              class="text-red-400 text-xs cursor-pointer ml-2 shrink-0"
+              @click="removeBatchFile(item.uid)"
+            >
+              移除
+            </span>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <a-button @click="closeBatchUploadModal">
+            取消
+          </a-button>
+          <a-button
+            type="primary"
+            :disabled="batchUploadModal.fileList.length === 0"
+            @click="startBatchUpload"
+          >
+            开始上传
+          </a-button>
+        </div>
+      </div>
+
+      <!-- 进度区域 -->
+      <div v-else>
+        <div class="mb-3 text-sm text-gray-500">
+          上传进度：{{ batchUploadModal.fileList.filter(f => f.status === 'success').length }} / {{ batchUploadModal.fileList.length }}
+          <span class="ml-2 text-gray-400">（可关闭弹窗，后台继续解析）</span>
+        </div>
+        <div
+          v-for="item in batchUploadModal.fileList"
+          :key="item.uid"
+          class="flex items-center gap-2 py-2 px-3 border-b last:border-b-0"
+        >
+          <span
+            class="text-sm truncate flex-1"
+            :title="item.fileName"
+          >{{ item.fileName }}</span>
+          <a-tag
+            v-if="item.status === 'waiting'"
+            color="default"
+          >
+            等待中
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'uploading'"
+            color="processing"
+          >
+            上传中
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'parsing'"
+            color="blue"
+          >
+            <span class="animate-pulse">解析中</span>
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'success'"
+            color="success"
+          >
+            成功
+          </a-tag>
+          <a-tag
+            v-else-if="item.status === 'failed'"
+            color="error"
+          >
+            失败
+          </a-tag>
+          <span
+            v-if="item.errorMsg"
+            class="text-xs text-red-400 truncate max-w-[200px]"
+            :title="item.errorMsg"
+          >
+            {{ item.errorMsg }}
+          </span>
+        </div>
+      </div>
     </a-modal>
   </div>
 </template>

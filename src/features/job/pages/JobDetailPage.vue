@@ -29,7 +29,7 @@ const recommendQuery = useQuery({
   queryKey: ['jobRecommend'],
   queryFn: async () => {
     const result = await jobList({ query: { page: 1, pageSize: 10 } as Record<string, unknown> })
-    const paginated = normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; status: number }>(result.data?.data)
+    const paginated = normalizePaginated<{ id: string; title: string; companyTitle: string; location: string; education: string; workExpe: string; minSalary: number; maxSalary: number; salaryShow: string; category: string; status: string }>(result.data?.data)
     return paginated.list.filter(j => String(j.id) !== jobId.value).slice(0, 6)
   },
 })
@@ -38,9 +38,21 @@ const detail = computed(() => detailQuery.data?.value)
 const loading = computed(() => detailQuery.isLoading.value)
 const recommendList = computed(() => recommendQuery.data?.value ?? [])
 
-const statusLabel = (status: number | undefined) => {
-  const map: Record<number, string> = { 0: '草稿', 1: '招聘中', 2: '已关闭', 3: '已删除', 4: '已招满' }
-  return map[status ?? -1] ?? '--'
+const statusLabel = (status: string | undefined) => {
+  const map: Record<string, string> = {
+    open: '招聘中',
+    draft: '草稿',
+    pending_approve: '待审批',
+    paused: '暂停',
+    on_hold: '搁置',
+    filled: '已招满',
+    closed: '已关闭',
+    expired: '已过期',
+    archived: '已归档',
+    duplicate: '重复',
+    shadow: '保密岗',
+  }
+  return map[status ?? ''] ?? '--'
 }
 
 // ── 投递简历 ──
@@ -105,7 +117,7 @@ function renderMarkdown(text: string): string {
                 </h1>
                 <span
                   class="text-xs px-2 py-0.5 rounded-sm shrink-0 border"
-                  :class="detail.status === 1 ? 'text-green-500 bg-green-50/80 border-green-200' : detail.status === 2 ? 'text-red-500 bg-red-50 border-red-200' : 'text-blue-500 bg-blue-50 border-blue-200'"
+                  :class="detail.status === 'open' ? 'text-green-500 bg-green-50/80 border-green-200' : detail.status === 'closed' ? 'text-red-500 bg-red-50 border-red-200' : 'text-blue-500 bg-blue-50 border-blue-200'"
                 >{{ statusLabel(detail.status) }}</span>
               </div>
               <div class="text-accent text-xl font-medium my-2">
@@ -127,10 +139,10 @@ function renderMarkdown(text: string): string {
               <div class="mt-5 flex items-center gap-3">
                 <button
                   class="h-11 px-8 border-none rounded-md bg-primary text-white text-base font-medium cursor-pointer hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(70,132,226,0.3)] active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                  :disabled="applying || detail.status !== 1"
+                  :disabled="applying || detail.status !== 'open'"
                   @click="handleApply"
                 >
-                  {{ applying ? '投递中...' : detail.status === 1 ? '投递简历' : '该岗位已关闭' }}
+                  {{ applying ? '投递中...' : detail.status === 'open' ? '投递简历' : '该岗位已关闭' }}
                 </button>
                 <span
                   v-if="detail.pv"

@@ -10,7 +10,6 @@ import {
   DollarOutlined,
   AppstoreOutlined,
   FolderOutlined,
-  EyeOutlined,
 } from '@ant-design/icons-vue'
 import { useAuthStore } from '@/infrastructure/store/auth'
 import { useAppStore } from '@/infrastructure/store/app'

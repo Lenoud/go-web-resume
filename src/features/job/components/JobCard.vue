@@ -16,7 +16,7 @@ defineProps<{
     salaryShow?: string
     category?: string
     createTime?: string
-    status?: number
+    status?: string
   }
 }>()
 </script>

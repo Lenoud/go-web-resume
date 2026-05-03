@@ -146,7 +146,7 @@ export type CreateJobReq = {
     description?: string;
     requirement?: string;
     education?: string;
-    status?: number;
+    status?: string;
     location?: string;
     address?: string;
     minSalary?: number;
@@ -464,7 +464,7 @@ export type JobInfo = {
     description: string;
     requirement: string;
     education: string;
-    status: number;
+    status: string;
     createTime: string;
     updateTime: string;
     location: string;
@@ -800,6 +800,16 @@ export type ParseTaskMeta = {
 };
 
 /**
+ * ParseTaskSummary
+ */
+export type ParseTaskSummary = {
+    taskId: string;
+    fileName: string;
+    status: string;
+    msg?: string;
+};
+
+/**
  * PostCompanyListReq
  */
 export type PostCompanyListReq = {
@@ -1085,6 +1095,17 @@ export type ResumeParseResultResp = {
     trace?: string;
     timestamp?: number;
     data?: ParseTaskInfo;
+};
+
+/**
+ * ResumeParseTasksResp
+ */
+export type ResumeParseTasksResp = {
+    code?: number;
+    msg?: string;
+    trace?: string;
+    timestamp?: number;
+    data: Array<ParseTaskSummary>;
 };
 
 /**
@@ -1390,7 +1411,7 @@ export type UpdateJobReq = {
     description?: string;
     requirement?: string;
     education?: string;
-    status?: number;
+    status?: string;
     location?: string;
     address?: string;
     minSalary?: number;
@@ -2461,6 +2482,22 @@ export type ResumeParseResultResponses = {
 };
 
 export type ResumeParseResultResponse = ResumeParseResultResponses[keyof ResumeParseResultResponses];
+
+export type ResumeParseTasksData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/resume/parseTasks';
+};
+
+export type ResumeParseTasksResponses = {
+    /**
+     * A successful response.
+     */
+    200: ResumeParseTasksResp;
+};
+
+export type ResumeParseTasksResponse = ResumeParseTasksResponses[keyof ResumeParseTasksResponses];
 
 export type ResumeUpdateData = {
     body: UpdateResumeReq;
