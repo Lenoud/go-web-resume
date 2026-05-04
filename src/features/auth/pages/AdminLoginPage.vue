@@ -22,10 +22,15 @@ function handleSubmit() {
     style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%)"
   >
     <!-- 顶栏 -->
-    <div class="h-20 px-6 flex items-center">
+    <div class="h-20 px-6 flex items-center justify-between">
       <h1 class="text-3xl font-bold text-text-primary m-0">
         智慧招聘系统
       </h1>
+      <router-link to="/index">
+        <a-button size="large">
+          返回首页
+        </a-button>
+      </router-link>
     </div>
 
     <!-- 主区域 -->
