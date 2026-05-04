@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue'
 import { useUserLogin } from '../composables/useUserLogin.js'
 import { useRegister } from '../composables/useRegister.js'
 
@@ -12,8 +13,16 @@ const { mutate: register, isPending: registerPending } = useRegister()
 
 const isRegister = ref(route.query.mode === 'register' || route.name === 'register')
 
+watch(() => route.name, () => {
+  isRegister.value = route.query.mode === 'register' || route.name === 'register'
+})
+
+const showLoginPwd = ref(false)
+const showRegPwd = ref(false)
+const showRegRePwd = ref(false)
+
 const loginForm = reactive({ username: '', password: '' })
-const registerForm = reactive({ username: '', password: '', rePassword: '' })
+const registerForm = reactive({ username: '', password: '', rePassword: '', nickname: '', mobile: '' })
 
 function handleLogin() {
   if (!loginForm.username || !loginForm.password) return
@@ -23,7 +32,7 @@ function handleLogin() {
 function handleRegister() {
   if (!registerForm.username || !registerForm.password || !registerForm.rePassword) return
   if (registerForm.password !== registerForm.rePassword) return
-  register(registerForm, {
+  register({ ...registerForm, email: registerForm.username }, {
     onSuccess: () => {
       isRegister.value = false
       loginForm.username = registerForm.username
@@ -118,9 +127,9 @@ function handleRegister() {
                 <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
                   <input
                     v-model="loginForm.username"
-                    type="text"
+                    type="email"
                     placeholder="请输入注册邮箱"
-                    class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted"
+                    class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted min-w-0"
                     @keyup.enter="handleLogin"
                   >
                 </div>
@@ -130,11 +139,16 @@ function handleRegister() {
                 <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
                   <input
                     v-model="loginForm.password"
-                    type="password"
+                    :type="showLoginPwd ? 'text' : 'password'"
                     placeholder="请输入密码"
                     class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted"
                     @keyup.enter="handleLogin"
                   >
+                  <component
+                    :is="showLoginPwd ? EyeInvisibleOutlined : EyeOutlined"
+                    class="text-gray-400 cursor-pointer text-base"
+                    @click="showLoginPwd = !showLoginPwd"
+                  />
                 </div>
               </div>
               <button
@@ -158,7 +172,7 @@ function handleRegister() {
             v-else
             key="register"
           >
-            <div class="mb-10">
+            <div class="mb-8">
               <h1 class="text-3xl font-bold text-text-primary m-0 mb-2">
                 注册
               </h1>
@@ -166,39 +180,78 @@ function handleRegister() {
                 创建一个新的账号
               </p>
             </div>
-            <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-4">
+              <!-- 邮箱（作为登录账号） -->
               <div>
-                <label class="block text-[13px] font-medium text-text-secondary mb-2">邮箱</label>
-                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                <label class="block text-[13px] font-medium text-text-secondary mb-1.5">邮箱 <span class="text-primary font-normal">*</span></label>
+                <div class="flex items-center gap-3 px-4 h-11 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
                   <input
                     v-model="registerForm.username"
-                    type="text"
-                    placeholder="请输入邮箱"
-                    class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted"
+                    type="email"
+                    placeholder="将作为登录账号"
+                    class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted min-w-0"
                   >
                 </div>
               </div>
-              <div>
-                <label class="block text-[13px] font-medium text-text-secondary mb-2">密码</label>
-                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                  <input
-                    v-model="registerForm.password"
-                    type="password"
-                    placeholder="请输入密码"
-                    class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted"
-                  >
+              <!-- 密码 + 确认密码 -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[13px] font-medium text-text-secondary mb-1.5">密码 <span class="text-primary font-normal">*</span></label>
+                  <div class="flex items-center gap-3 px-4 h-11 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                    <input
+                      v-model="registerForm.password"
+                      :type="showRegPwd ? 'text' : 'password'"
+                      placeholder="请输入密码"
+                      class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted min-w-0"
+                    >
+                    <component
+                      :is="showRegPwd ? EyeInvisibleOutlined : EyeOutlined"
+                      class="text-gray-400 cursor-pointer text-base"
+                      @click="showRegPwd = !showRegPwd"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[13px] font-medium text-text-secondary mb-1.5">确认密码 <span class="text-primary font-normal">*</span></label>
+                  <div class="flex items-center gap-3 px-4 h-11 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                    <input
+                      v-model="registerForm.rePassword"
+                      :type="showRegRePwd ? 'text' : 'password'"
+                      placeholder="请再次输入"
+                      class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted min-w-0"
+                      @keyup.enter="handleRegister"
+                    >
+                    <component
+                      :is="showRegRePwd ? EyeInvisibleOutlined : EyeOutlined"
+                      class="text-gray-400 cursor-pointer text-base"
+                      @click="showRegRePwd = !showRegRePwd"
+                    />
+                  </div>
                 </div>
               </div>
-              <div>
-                <label class="block text-[13px] font-medium text-text-secondary mb-2">确认密码</label>
-                <div class="flex items-center gap-3 px-4 h-12 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
-                  <input
-                    v-model="registerForm.rePassword"
-                    type="password"
-                    placeholder="请再次输入密码"
-                    class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted"
-                    @keyup.enter="handleRegister"
-                  >
+              <!-- 昵称 + 手机号 -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[13px] font-medium text-text-secondary mb-1.5">昵称</label>
+                  <div class="flex items-center gap-3 px-4 h-11 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                    <input
+                      v-model="registerForm.nickname"
+                      type="text"
+                      placeholder="选填"
+                      class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted min-w-0"
+                    >
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[13px] font-medium text-text-secondary mb-1.5">手机号</label>
+                  <div class="flex items-center gap-3 px-4 h-11 border border-border rounded-md bg-white transition-all focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(70,132,226,0.1)]">
+                    <input
+                      v-model="registerForm.mobile"
+                      type="tel"
+                      placeholder="选填"
+                      class="flex-1 border-none outline-none text-sm text-text-primary bg-transparent h-full placeholder:text-text-muted min-w-0"
+                    >
+                  </div>
                 </div>
               </div>
               <button

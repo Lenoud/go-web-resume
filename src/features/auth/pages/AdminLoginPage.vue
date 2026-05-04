@@ -63,16 +63,15 @@ function handleSubmit() {
                 <template #prefix>
                   <UserOutlined />
                 </template>
-              </a-input>
+              </a-input-password>
             </a-form-item>
             <a-form-item
               name="password"
               label="密码"
               :colon="false"
             >
-              <a-input
+              <a-input-password
                 v-model:value="formState.password"
-                type="password"
                 size="large"
                 placeholder="请输入登录密码"
                 @press-enter="handleSubmit"
@@ -80,7 +79,7 @@ function handleSubmit() {
                 <template #prefix>
                   <LockOutlined />
                 </template>
-              </a-input>
+              </a-input-password>
             </a-form-item>
             <a-form-item class="pt-6">
               <a-button
