@@ -820,9 +820,12 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             职级
           </div>
-          <a-select class="w-full"
+          <a-select
             v-model:value="offerForm.level"
-            :options="OFFER_LEVEL_OPTIONS" allow-clear placeholder="请选择职级"
+            class="w-full"
+            :options="OFFER_LEVEL_OPTIONS"
+            allow-clear
+            placeholder="请选择职级"
           />
         </div>
         <div class="mb-3">
@@ -839,18 +842,24 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             合同期限
           </div>
-          <a-select class="w-full"
+          <a-select
             v-model:value="offerForm.contractPeriod"
-            :options="OFFER_CONTRACT_OPTIONS" allow-clear placeholder="请选择合同期限"
+            class="w-full"
+            :options="OFFER_CONTRACT_OPTIONS"
+            allow-clear
+            placeholder="请选择合同期限"
           />
         </div>
         <div class="mb-3">
           <div class="text-sm font-semibold text-text-primary mb-2">
             试用期
           </div>
-          <a-select class="w-full"
+          <a-select
             v-model:value="offerForm.probationPeriod"
-            :options="OFFER_PROBATION_OPTIONS" allow-clear placeholder="请选择试用期"
+            class="w-full"
+            :options="OFFER_PROBATION_OPTIONS"
+            allow-clear
+            placeholder="请选择试用期"
           />
         </div>
         <div>
@@ -897,9 +906,12 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             职级
           </div>
-          <a-select class="w-full"
+          <a-select
             v-model:value="offerModal.form.level"
-            :options="OFFER_LEVEL_OPTIONS" allow-clear placeholder="请选择职级"
+            class="w-full"
+            :options="OFFER_LEVEL_OPTIONS"
+            allow-clear
+            placeholder="请选择职级"
           />
         </div>
         <div class="mb-3">
@@ -916,18 +928,24 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             合同期限
           </div>
-          <a-select class="w-full"
+          <a-select
             v-model:value="offerModal.form.contractPeriod"
-            :options="OFFER_CONTRACT_OPTIONS" allow-clear placeholder="请选择合同期限"
+            class="w-full"
+            :options="OFFER_CONTRACT_OPTIONS"
+            allow-clear
+            placeholder="请选择合同期限"
           />
         </div>
         <div class="mb-3">
           <div class="text-sm font-semibold text-text-primary mb-2">
             试用期
           </div>
-          <a-select class="w-full"
+          <a-select
             v-model:value="offerModal.form.probationPeriod"
-            :options="OFFER_PROBATION_OPTIONS" allow-clear placeholder="请选择试用期"
+            class="w-full"
+            :options="OFFER_PROBATION_OPTIONS"
+            allow-clear
+            placeholder="请选择试用期"
           />
         </div>
         <div class="mb-3">

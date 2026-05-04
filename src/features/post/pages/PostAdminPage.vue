@@ -628,8 +628,9 @@ const columns = [
             />
           </a-form-item>
           <a-form-item label="职级">
-            <a-select class="w-full"
+            <a-select
               v-model:value="offerForm.level"
+              class="w-full"
               :options="OFFER_LEVEL_OPTIONS"
               allow-clear
               placeholder="请选择职级"
@@ -643,16 +644,18 @@ const columns = [
             />
           </a-form-item>
           <a-form-item label="合同期限">
-            <a-select class="w-full"
+            <a-select
               v-model:value="offerForm.contractPeriod"
+              class="w-full"
               :options="OFFER_CONTRACT_OPTIONS"
               allow-clear
               placeholder="请选择合同期限"
             />
           </a-form-item>
           <a-form-item label="试用期">
-            <a-select class="w-full"
+            <a-select
               v-model:value="offerForm.probationPeriod"
+              class="w-full"
               :options="OFFER_PROBATION_OPTIONS"
               allow-clear
               placeholder="请选择试用期"
@@ -667,7 +670,6 @@ const columns = [
           </a-form-item>
         </a-form>
       </template>
-
     </a-modal>
 
     <!-- Offer 详情弹窗 -->
@@ -698,8 +700,9 @@ const columns = [
             />
           </a-form-item>
           <a-form-item label="职级">
-            <a-select class="w-full"
+            <a-select
               v-model:value="offerModal.form.level"
+              class="w-full"
               :options="OFFER_LEVEL_OPTIONS"
               allow-clear
               placeholder="请选择职级"
@@ -713,16 +716,18 @@ const columns = [
             />
           </a-form-item>
           <a-form-item label="合同期限">
-            <a-select class="w-full"
+            <a-select
               v-model:value="offerModal.form.contractPeriod"
+              class="w-full"
               :options="OFFER_CONTRACT_OPTIONS"
               allow-clear
               placeholder="请选择合同期限"
             />
           </a-form-item>
           <a-form-item label="试用期">
-            <a-select class="w-full"
+            <a-select
               v-model:value="offerModal.form.probationPeriod"
+              class="w-full"
               :options="OFFER_PROBATION_OPTIONS"
               allow-clear
               placeholder="请选择试用期"
