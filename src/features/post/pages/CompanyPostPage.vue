@@ -20,7 +20,7 @@ import {
   type UpdatePostReq,
 } from '@/client'
 import { normalizePaginated } from '@/infrastructure/api/normalize'
-import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
+import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, OFFER_LEVEL_OPTIONS, OFFER_PROBATION_OPTIONS, OFFER_CONTRACT_OPTIONS, type RecruitmentStatus } from '@/shared/types'
 import RecruitmentPipeline from '../components/RecruitmentPipeline.vue'
 import type { Dayjs } from 'dayjs'
 
@@ -820,9 +820,9 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             职级
           </div>
-          <a-input
+          <a-select class="w-full"
             v-model:value="offerForm.level"
-            placeholder="如 P6"
+            :options="OFFER_LEVEL_OPTIONS" allow-clear placeholder="请选择职级"
           />
         </div>
         <div class="mb-3">
@@ -839,18 +839,18 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             合同期限
           </div>
-          <a-input
+          <a-select class="w-full"
             v-model:value="offerForm.contractPeriod"
-            placeholder="如 3年"
+            :options="OFFER_CONTRACT_OPTIONS" allow-clear placeholder="请选择合同期限"
           />
         </div>
         <div class="mb-3">
           <div class="text-sm font-semibold text-text-primary mb-2">
             试用期
           </div>
-          <a-input
+          <a-select class="w-full"
             v-model:value="offerForm.probationPeriod"
-            placeholder="如 6个月"
+            :options="OFFER_PROBATION_OPTIONS" allow-clear placeholder="请选择试用期"
           />
         </div>
         <div>
@@ -897,9 +897,9 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             职级
           </div>
-          <a-input
+          <a-select class="w-full"
             v-model:value="offerModal.form.level"
-            placeholder="如 P6"
+            :options="OFFER_LEVEL_OPTIONS" allow-clear placeholder="请选择职级"
           />
         </div>
         <div class="mb-3">
@@ -916,18 +916,18 @@ function errorMessage(err: unknown, fallback: string) {
           <div class="text-sm font-semibold text-text-primary mb-2">
             合同期限
           </div>
-          <a-input
+          <a-select class="w-full"
             v-model:value="offerModal.form.contractPeriod"
-            placeholder="如 3年"
+            :options="OFFER_CONTRACT_OPTIONS" allow-clear placeholder="请选择合同期限"
           />
         </div>
         <div class="mb-3">
           <div class="text-sm font-semibold text-text-primary mb-2">
             试用期
           </div>
-          <a-input
+          <a-select class="w-full"
             v-model:value="offerModal.form.probationPeriod"
-            placeholder="如 6个月"
+            :options="OFFER_PROBATION_OPTIONS" allow-clear placeholder="请选择试用期"
           />
         </div>
         <div class="mb-3">

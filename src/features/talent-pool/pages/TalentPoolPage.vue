@@ -346,7 +346,7 @@ function errorMessage(err: unknown, fallback: string) {
               <span
                 class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
                 @click="openDetail(item)"
-              >详情</span>
+              >简历信息</span>
               <span
                 class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
                 @click="openEditModal(item)"
@@ -359,7 +359,7 @@ function errorMessage(err: unknown, fallback: string) {
                 v-if="item.raw"
                 class="text-[13px] text-primary cursor-pointer hover:text-primary-hover"
                 @click="handleViewResume(item.raw)"
-              >查看简历</span>
+              >简历文件</span>
               <a-popconfirm
                 title="确定移出人才库？"
                 @confirm="handleRemove(item)"

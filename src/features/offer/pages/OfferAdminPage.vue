@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useOfferTable, type OfferInfo } from '../composables/useOffer.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
+import { OFFER_LEVEL_OPTIONS, OFFER_PROBATION_OPTIONS, OFFER_CONTRACT_OPTIONS } from '@/shared/types'
 
 const {
   list, total, loading, page, pageSize, keyword, handlePageChange,
@@ -17,13 +18,14 @@ const editingItem = ref<OfferInfo | null>(null)
 // 表单默认值
 const formState = ref<Partial<OfferInfo>>({ postId: '' })
 
-// 状态选项
+// 下拉选项
 const statusOptions = [
   { label: '待确认', value: 'pending' },
   { label: '已接受', value: 'accepted' },
   { label: '已拒绝', value: 'rejected' },
   { label: '已撤回', value: 'withdrawn' },
 ]
+
 
 // 状态颜色映射
 const statusColorMap: Record<string, string> = {
@@ -178,12 +180,15 @@ const columns = [
           <a-input
             v-model:value="formState.salary"
             placeholder="如：15K-25K/月"
+            :maxlength="100"
           />
         </a-form-item>
         <a-form-item label="职级">
-          <a-input
+          <a-select class="w-full"
             v-model:value="formState.level"
-            placeholder="如：P6、高级工程师"
+            :options="OFFER_LEVEL_OPTIONS"
+            allow-clear
+            placeholder="请选择职级"
           />
         </a-form-item>
         <a-form-item label="入职日期">
@@ -195,21 +200,26 @@ const columns = [
           />
         </a-form-item>
         <a-form-item label="试用期">
-          <a-input
+          <a-select class="w-full"
             v-model:value="formState.probationPeriod"
-            placeholder="如：3个月"
+            :options="OFFER_PROBATION_OPTIONS"
+            allow-clear
+            placeholder="请选择试用期"
           />
         </a-form-item>
         <a-form-item label="合同期限">
-          <a-input
+          <a-select class="w-full"
             v-model:value="formState.contractPeriod"
-            placeholder="如：3年"
+            :options="OFFER_CONTRACT_OPTIONS"
+            allow-clear
+            placeholder="请选择合同期限"
           />
         </a-form-item>
         <a-form-item label="工作地点">
           <a-input
             v-model:value="formState.workLocation"
             placeholder="请输入工作地点"
+            :maxlength="200"
           />
         </a-form-item>
         <a-form-item

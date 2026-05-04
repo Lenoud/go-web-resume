@@ -59,3 +59,38 @@ export const STATUS_COLOR: Record<RecruitmentStatus, string> = {
   rejected: 'error',
   on_hold: 'warning',
 }
+
+/** Offer 职级选项 */
+export const OFFER_LEVEL_OPTIONS = [
+  { label: 'P1', value: 'P1' },
+  { label: 'P2', value: 'P2' },
+  { label: 'P3', value: 'P3' },
+  { label: 'P4', value: 'P4' },
+  { label: 'P5', value: 'P5' },
+  { label: 'P6', value: 'P6' },
+  { label: 'P7', value: 'P7' },
+  { label: 'P8', value: 'P8' },
+  { label: '初级', value: '初级' },
+  { label: '中级', value: '中级' },
+  { label: '高级', value: '高级' },
+  { label: '资深', value: '资深' },
+  { label: '专家', value: '专家' },
+]
+
+/** Offer 试用期选项 */
+export const OFFER_PROBATION_OPTIONS = [
+  { label: '无试用期', value: '无' },
+  { label: '1个月', value: '1个月' },
+  { label: '2个月', value: '2个月' },
+  { label: '3个月', value: '3个月' },
+  { label: '6个月', value: '6个月' },
+]
+
+/** Offer 合同期限选项 */
+export const OFFER_CONTRACT_OPTIONS = [
+  { label: '1年', value: '1年' },
+  { label: '2年', value: '2年' },
+  { label: '3年', value: '3年' },
+  { label: '5年', value: '5年' },
+  { label: '无固定期限', value: '无固定期限' },
+]

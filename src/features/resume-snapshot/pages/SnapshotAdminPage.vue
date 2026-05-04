@@ -443,7 +443,7 @@ const columns = [
             size="small"
             @click="openDetail(record as ResumeSnapshotInfo)"
           >
-            详情
+            简历信息
           </a-button>
           <a-button
             v-if="record.raw"
@@ -451,7 +451,7 @@ const columns = [
             size="small"
             @click="openResumePreview(record.raw)"
           >
-            查看简历
+            简历文件
           </a-button>
           <a-button
             type="link"

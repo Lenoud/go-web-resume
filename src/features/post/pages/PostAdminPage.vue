@@ -3,7 +3,7 @@ import { ref, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { usePostTable, type PostInfo } from '../composables/usePost.js'
 import { PermissionCode } from '@/infrastructure/permission/types'
-import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, type RecruitmentStatus } from '@/shared/types'
+import { STATUS_LABEL, STATUS_COLOR, ALL_STATUSES, OFFER_LEVEL_OPTIONS, OFFER_PROBATION_OPTIONS, OFFER_CONTRACT_OPTIONS, type RecruitmentStatus } from '@/shared/types'
 import RecruitmentPipeline from '../components/RecruitmentPipeline.vue'
 import {
   postStatusLogList,
@@ -405,7 +405,7 @@ const columns = [
             size="small"
             @click="openSnapshotDetail(record.resumeSnapshotId)"
           >
-            详情
+            简历信息
           </a-button>
           <a-button
             v-if="record.raw"
@@ -624,12 +624,15 @@ const columns = [
             <a-input
               v-model:value="offerForm.salary"
               placeholder="如 30K-50K"
+              :maxlength="100"
             />
           </a-form-item>
           <a-form-item label="职级">
-            <a-input
+            <a-select class="w-full"
               v-model:value="offerForm.level"
-              placeholder="如 P6"
+              :options="OFFER_LEVEL_OPTIONS"
+              allow-clear
+              placeholder="请选择职级"
             />
           </a-form-item>
           <a-form-item label="入职日期">
@@ -640,25 +643,31 @@ const columns = [
             />
           </a-form-item>
           <a-form-item label="合同期限">
-            <a-input
+            <a-select class="w-full"
               v-model:value="offerForm.contractPeriod"
-              placeholder="如 3年"
+              :options="OFFER_CONTRACT_OPTIONS"
+              allow-clear
+              placeholder="请选择合同期限"
             />
           </a-form-item>
           <a-form-item label="试用期">
-            <a-input
+            <a-select class="w-full"
               v-model:value="offerForm.probationPeriod"
-              placeholder="如 6个月"
+              :options="OFFER_PROBATION_OPTIONS"
+              allow-clear
+              placeholder="请选择试用期"
             />
           </a-form-item>
           <a-form-item label="工作地点">
             <a-input
               v-model:value="offerForm.workLocation"
               placeholder="如 北京"
+              :maxlength="200"
             />
           </a-form-item>
         </a-form>
       </template>
+
     </a-modal>
 
     <!-- Offer 详情弹窗 -->
@@ -685,12 +694,15 @@ const columns = [
             <a-input
               v-model:value="offerModal.form.salary"
               placeholder="如 30K-50K"
+              :maxlength="100"
             />
           </a-form-item>
           <a-form-item label="职级">
-            <a-input
+            <a-select class="w-full"
               v-model:value="offerModal.form.level"
-              placeholder="如 P6"
+              :options="OFFER_LEVEL_OPTIONS"
+              allow-clear
+              placeholder="请选择职级"
             />
           </a-form-item>
           <a-form-item label="入职日期">
@@ -701,21 +713,26 @@ const columns = [
             />
           </a-form-item>
           <a-form-item label="合同期限">
-            <a-input
+            <a-select class="w-full"
               v-model:value="offerModal.form.contractPeriod"
-              placeholder="如 3年"
+              :options="OFFER_CONTRACT_OPTIONS"
+              allow-clear
+              placeholder="请选择合同期限"
             />
           </a-form-item>
           <a-form-item label="试用期">
-            <a-input
+            <a-select class="w-full"
               v-model:value="offerModal.form.probationPeriod"
-              placeholder="如 6个月"
+              :options="OFFER_PROBATION_OPTIONS"
+              allow-clear
+              placeholder="请选择试用期"
             />
           </a-form-item>
           <a-form-item label="工作地点">
             <a-input
               v-model:value="offerModal.form.workLocation"
               placeholder="如 北京"
+              :maxlength="200"
             />
           </a-form-item>
           <a-form-item label="状态">
