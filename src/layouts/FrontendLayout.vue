@@ -147,7 +147,7 @@ function handleLogout() {
         :href="router.resolve('/admin/login').href"
         target="_blank"
       >后台管理</a>
-      <span class="mx-4">智慧招聘系统 ©2024</span>
+      <span class="mx-4">智慧招聘系统 ©2026</span>
     </footer>
   </div>
 </template>
