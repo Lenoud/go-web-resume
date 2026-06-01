@@ -63,7 +63,7 @@ function handleSubmit() {
                 <template #prefix>
                   <UserOutlined />
                 </template>
-              </a-input-password>
+              </a-input>
             </a-form-item>
             <a-form-item
               name="password"
